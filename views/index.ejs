@@ -1,0 +1,60 @@
+<%- include('partials/header.ejs') %>
+  <body class="hold-transition sidebar-mini layout-fixed">
+    <%- include('partials/navbar.ejs') %>
+      <div class="container">
+        <section class="content">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-12">
+                <br>
+                <div class="card">
+                  <div class="card-header">
+                    <h2 class="card-title font-weight-bold">Expedição</h2>
+                  </div>
+                  <div class="card-body">
+                    <button type="button" class="btn btn-warning btn-lg btn-block text-white font-weight-bold" onclick="goVendas()">PEDIDOS EM ABERTO</button>
+                    <button type="button" class="btn btn-warning btn-lg btn-block text-white font-weight-bold" onclick="goVendasFinalizadas()">2º LEITURA FINALIZADA</button>
+                  </div>
+                </div>
+                <br>
+                <div class="card">
+                  <div class="card-header">
+                    <h2 class="card-title font-weight-bold">Recebimento</h2>
+                  </div>
+                  <div class="card-body">
+                    <button type="button" class="btn btn-warning btn-lg btn-block text-white font-weight-bold" onclick="goRecebimento()">PEDIDOS RECEBIMENTO</button>
+                  </div>
+                </div>
+                <br>
+                <div class="card">
+                  <div class="card-header">
+                    <h2 class="card-title font-weight-bold">Indicadores</h2>
+                  </div>
+                  <div class="card-body">
+                    <button type="button" class="btn btn-warning btn-lg btn-block text-white font-weight-bold" onclick="goIndicadores()">DASHBOARD INDICADORES</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+  </body>
+  <%- include('partials/footer.ejs') %>
+  <script>
+    function goVendas() {
+      window.location = "http://localhost:8080/vendas";
+    }
+
+    function goVendasFinalizadas() {
+      window.location = "http://localhost:8080/vendas-finalizadas";
+    }
+
+    function goRecebimento() {
+      window.location = "http://localhost:8080/recebimento";
+    }
+
+    function goIndicadores() {
+      window.location = "http://localhost:8080/indicadores";
+    }
+  </script>

@@ -1,0 +1,116 @@
+html {
+    height: 100%;
+}
+
+body {
+    background-color: #eceff1;
+    overflow: auto;
+    height: 100%;
+}
+
+.navbar {
+    background-color: #333;
+    height: 100px;
+}
+
+.navbar-brand {
+    width: 200px;
+}
+
+.navbar img {
+    width: 100%;
+    -webkit-filter: drop-shadow(2px 1px 0 white)
+    drop-shadow(-1px -1px 0 white);
+    filter: drop-shadow(2px 1px 0 white) 
+    drop-shadow(-1px -1px 0 white);
+}
+
+.containerPage {
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: 100px 80%;
+    height: 100%;
+}
+
+.tableDiv {
+    position: absolute;
+    top: 100px;
+    height: 80%;
+    width: 100%;
+}
+
+.wrapper {
+    position: absolute;
+    top: 100px;
+    min-height: 80% !important;
+    width: 90%;
+}
+
+.graph {
+    background: #4472c4;
+}
+
+.tab-content {
+    height: 700px;
+}
+
+.tab-pane {
+    position: relative;
+    height: 100%;
+}
+
+.chart {
+    min-height: 100%;
+    height: 500px;
+    max-height: 100%;
+    max-width: 100%;
+}
+
+.nav-link.active {
+    background-color: #ffc107 !important;
+}
+
+.navDiv {
+    position: fixed;
+    width: 100%;
+    z-index: 2;
+}
+
+.tableDiv thead th {
+    position: sticky; 
+    top: 99px;
+    background-color: #ECEFF1;
+}
+
+.tableDiv tbody {
+    position: relative;
+    top: 0px;
+    z-index: -1;
+}
+
+.card-header {
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 0;
+    background-color: rgba(0,0,0,.03);
+    border-bottom: 1px solid rgba(0,0,0,.125);
+}
+
+.card-header h2 {
+    font-size: 2rem;
+}
+
+.knob {
+    color: #fff !important;
+}
+
+.form-group {
+    margin-bottom: 0px;
+    margin-right: 15px;
+}
+
+@media (max-width: 1050px) {
+    .navTitle {
+        display: none;
+    }
+
+}

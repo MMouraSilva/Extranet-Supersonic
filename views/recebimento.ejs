@@ -1,0 +1,40 @@
+<%- include('partials/header.ejs') %>
+<body>
+    <div class="containerPage">
+        <div class="navDiv">
+            <%- include('partials/navbar.ejs') %>
+        </div>
+        <div class="tableDiv">
+            <table class="table table-hover text-center" id="table">
+                <thead>
+                    <tr>
+                        <th scope="col">N.F.</th>
+                        <th scope="col">PEDIDO</th>
+                        <th scope="col">O.S.</th>
+                        <th scope="col">DOCUMENTAL</th>
+                        <th scope="col">ENT. FÍSICA</th>
+                        <th scope="col">STATUS</th>
+                        <th scope="col">TOTAL</th>
+                        <th scope="col">QTD. CONFERIDA</th>
+                        <th scope="col">DT. PEDIDO</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+<%- include('partials/footer.ejs') %>
+    <script>tipo="R"</script>
+    <script src="/js/recebimento.js"></script>
+    <script>
+        window.onload = function () {
+            var title = document.getElementById("title");
+            title.innerHTML = "RECEBIMENTO";
+
+            socketTimer.emit("requireDashboardData", { operation: "recebimento" });
+        };
+    </script>
+</html>
