@@ -66,6 +66,24 @@ app.get("/indicadores", async (req, res) => {
     }
 });
 
+app.get("/indicadores/expedicao-cliente-dia", async (req, res) => {
+    try {
+        res.render("indicador");
+    } catch (error) {
+        console.error("Erro na rota:", error);
+        res.status(500).send("Erro ao executar a rota");
+    }
+});
+
+app.get("/indicadores/igest", async (req, res) => {
+    try {
+        res.render("igest");
+    } catch (error) {
+        console.error("Erro na rota:", error);
+        res.status(500).send("Erro ao executar a rota");
+    }
+});
+
 http.listen(8080, () => {
     console.log("App rodando!");
 });
