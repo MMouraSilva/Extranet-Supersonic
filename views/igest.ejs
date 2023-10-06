@@ -17,8 +17,8 @@
 
             <div class="card-tools d-flex align-items-center justify-content-end">
               <ul class="nav nav-pills ml-auto d-flex align-items-center justify-content-end">
-                <!-- <li class="nav-item">
-                  Date and time range
+                <li class="nav-item">
+                  <!-- Date and time range -->
                   <div class="form-group">
                     <div class="input-group">
                       <button type="button" class="btn btn-default float-right font-weight-bold bg-warning text-white" id="daterange-btn">
@@ -27,11 +27,11 @@
                       </button>
                     </div>
                   </div>
-                  /.form group
-                </li> -->
+                  <!-- /.form group -->
+                </li>
 
                 <li class="nav-item">
-                  <a class="nav-link font-weight-bold bg-warning text-white" href="/indicadores">
+                  <a class="nav-link font-weight-bold bg-danger text-white" href="/indicadores">
                     Voltar
                   </a>
                 </li>
@@ -40,13 +40,61 @@
           </div>
           <!-- /.card-header -->
           <div class="card-body graph">
-            <div class="tab-content p-0">
-              <div class="row">
+            <div class="tab-content p-0 text-white">
+              <div class="row p-4">
                 <div class="col-4 text-center">
-                  <input type="text" class="knob-separacao knob" id="knobBandaSeparacao" data-readonly="true"
-                    data-width="100" data-height="100" data-fgColor="#0341b6" data-angleOffset=-125 data-angleArc=250>
-
-                  <div class="text-white">Banda</div>
+                  <h4>Order Cycle Time (h) - Recebimento</h4><br>
+                  <h1 id="OCTM41">OCTM41</h1>
+                </div>
+                <div class="col-4 text-center text-white">
+                  <div class="text-white"><h4>Percentual Atendido</h4></div><br>
+                  <input type="text" class="knob-atendido knob" id="knobAtendido" data-readonly="true" data-width="110" data-height="110" data-fgColor="#ffc107" data-angleOffset=-125 data-angleArc=250>
+                </div>
+                <div class="col-4 text-center text-white">
+                  <h4>Order Cycle Time (h) - Separação</h4><br>
+                  <h1 id="OCTM51">OCTM51</h1>
+                </div>
+                <!-- ./col -->
+              </div>
+              <!-- /.row -->
+              <hr class="border border-white">
+              <div class="row p-4">
+                <div class="col-6 text-center">
+                  <h4>Maior Tempo (h) / Qtd. - Recebimento</h4>
+                  <h1 id="maiorTempoRec">Maior Tempo / Qtd.</h1>
+                </div>
+                <div class="col-6 text-center text-white">
+                  <h4>Maior Tempo (h) / Qtd. - Separação</h4>
+                  <h1 id="maiorTempoSep">Maior Tempo / Qtd.</h1>
+                </div>
+                <!-- ./col -->
+              </div>
+              <!-- /.row -->
+              <div class="row p-4">
+                <div class="col-6 text-center">
+                  <h4>Menor Tempo (h) / Qtd. - Recebimento</h4>
+                  <h1 id="menorTempoRec">Menor Tempo / Qtd.</h1>
+                </div>
+                <div class="col-6 text-center text-white">
+                  <h4>Menor Tempo (h) / Qtd. - Separação</h4>
+                  <h1 id="menorTempoSep">Menor Tempo / Qtd.</h1>
+                </div>
+                <!-- ./col -->
+              </div>
+              <!-- /.row -->
+              <hr class="border border-white">
+              <div class="row p-4">
+                <div class="col-4 text-center">
+                  <h4>Total Recebimento</h4>
+                  <h1 id="totalRec">Total Recebimento</h1>
+                </div>
+                <div class="col-4 text-center text-white">
+                  <h4>Total Separação</h4>
+                  <h1 id="totalSep">Total Separação</h1>
+                </div>
+                <div class="col-4 text-center text-white">
+                  <h4>Total Expedição</h4>
+                  <h1 id="totalExp">Total Expedição</h1>
                 </div>
                 <!-- ./col -->
               </div>
@@ -62,7 +110,10 @@
     </div>
   </body>
   <%- include('partials/footer.ejs') %>
-    <script>tipo = "R"</script>
+    <script>
+      frontendUrl = "<%= frontendUrl %>";
+      backendUrl = "<%= backendUrl %>";
+    </script>
     <!-- ChartJS -->
     <script src="/plugins/chart.js/Chart.min.js"></script>
     <!-- jQuery Knob Chart -->
@@ -71,13 +122,13 @@
     <script src="/plugins/moment/moment.min.js"></script>
     <!-- date-range-picker -->
     <script src="/plugins/daterangepicker/daterangepicker.js"></script>
-    <script src="/js/indicadores.js"></script>
+    <script src="/js/igest.js"></script>
     <script>
       window.onload = function () {
         var title = document.getElementById("title");
         title.innerHTML = "INDICADORES DE GESTÃO";
 
-        socketTimer.emit("requireDashboardData", { operation: "indicador" });
+        socketTimer.emit("requireDashboardData", { operation: "igest" });
       };
     </script>
 

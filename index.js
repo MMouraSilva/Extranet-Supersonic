@@ -1,4 +1,7 @@
 const express = require("express");
+require('dotenv').config();
+const backendUrl = process.env.APP_TIMER_HOST; // passar os dados do .env para as constantes
+const frontendUrl = process.env.APP_HOST;
 const app = express();
 const bodyParser = require("body-parser");
 const http = require("http").createServer(app);
@@ -23,7 +26,7 @@ app.use(bodyParser.json());
 
 app.get("/", async (req, res) => {
     try {
-        res.render("index");
+        res.render("index", { frontendUrl });
     } catch (error) {
         console.error("Erro na rota:", error);
         res.status(500).send("Erro ao executar a rota");
@@ -32,7 +35,7 @@ app.get("/", async (req, res) => {
 
 app.get("/vendas", async (req, res) => {
     try {
-        res.render("vendas");
+        res.render("vendas", { frontendUrl, backendUrl });
     } catch (error) {
         console.error("Erro na rota:", error);
         res.status(500).send("Erro ao executar a rota");
@@ -41,7 +44,7 @@ app.get("/vendas", async (req, res) => {
 
 app.get("/vendas-finalizadas", async (req, res) => {
     try {
-        res.render("vendas_finalizadas");
+        res.render("vendas_finalizadas", { frontendUrl, backendUrl });
     } catch (error) {
         console.error("Erro na rota:", error);
         res.status(500).send("Erro ao executar a rota");
@@ -50,7 +53,7 @@ app.get("/vendas-finalizadas", async (req, res) => {
 
 app.get("/recebimento", async (req, res) => {
     try {
-        res.render("recebimento");
+        res.render("recebimento", { frontendUrl, backendUrl });
     } catch (error) {
         console.error("Erro na rota:", error);
         res.status(500).send("Erro ao executar a rota");
@@ -59,7 +62,7 @@ app.get("/recebimento", async (req, res) => {
 
 app.get("/indicadores", async (req, res) => {
     try {
-        res.render("indicador");
+        res.render("indicador", { frontendUrl, backendUrl });
     } catch (error) {
         console.error("Erro na rota:", error);
         res.status(500).send("Erro ao executar a rota");
@@ -77,7 +80,7 @@ app.get("/indicadores/expedicao-cliente-dia", async (req, res) => {
 
 app.get("/indicadores/igest", async (req, res) => {
     try {
-        res.render("igest");
+        res.render("igest", { frontendUrl, backendUrl });
     } catch (error) {
         console.error("Erro na rota:", error);
         res.status(500).send("Erro ao executar a rota");

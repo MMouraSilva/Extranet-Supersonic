@@ -1,5 +1,5 @@
-var socket = io("http://localhost:8080");
-var socketTimer = io("http://localhost:8081");
+var socket = io(frontendUrl);
+var socketTimer = io(backendUrl);
 
 socket.on("disconnect", () => {
     console.log("Desconectado");

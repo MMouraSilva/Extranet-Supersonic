@@ -43,18 +43,18 @@
   <%- include('partials/footer.ejs') %>
   <script>
     function goVendas() {
-      window.location = "http://localhost:8080/vendas";
+      window.location = "<%= frontendUrl %>/vendas";
     }
 
     function goVendasFinalizadas() {
-      window.location = "http://localhost:8080/vendas-finalizadas";
+      window.location = "<%= frontendUrl %>/vendas-finalizadas";
     }
 
     function goRecebimento() {
-      window.location = "http://localhost:8080/recebimento";
+      window.location = "<%= frontendUrl %>/recebimento";
     }
 
     function goIndicadores() {
-      window.location = "http://localhost:8080/indicadores";
+      window.location = "<%= frontendUrl %>/indicadores";
     }
   </script>

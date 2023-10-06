@@ -28,7 +28,11 @@
     </div>
 </body>
 <%- include('partials/footer.ejs') %>
-    <script>tipo="V"</script>
+    <script>
+        tipo="V"
+        frontendUrl = "<%= frontendUrl %>";
+        backendUrl = "<%= backendUrl %>";
+    </script>
     <script src="/js/vendas.js"></script>
     <script>
         window.onload = function () {

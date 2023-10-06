@@ -156,7 +156,10 @@
     </div>
   </body>
   <%- include('partials/footer.ejs') %>
-    <script>tipo = "R"</script>
+    <script>
+      frontendUrl = "<%= frontendUrl %>";
+      backendUrl = "<%= backendUrl %>";
+    </script>
     <!-- ChartJS -->
     <script src="/plugins/chart.js/Chart.min.js"></script>
     <!-- jQuery Knob Chart -->
