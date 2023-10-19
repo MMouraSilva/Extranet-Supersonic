@@ -1,0 +1,86 @@
+<%- include('partials/header.ejs') %>
+
+  <body class="hold-transition sidebar-mini layout-fixed">
+    <div class="containerPage d-flex justify-content-center">
+      <div class="navDiv">
+        <%- include('partials/navbar.ejs') %>
+      </div>
+      <div class="wrapper">
+        <!-- Main content -->
+        <section class="content">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-12">
+                <div class="card">
+                  <div class="card-header expedicao-dia-header">
+                    <div class="input-group date col-md-2" id="reservationdate" data-target-input="nearest">
+                      <input type="text" class="form-control datetimepicker-input" data-target="#reservationdate" data-toggle="datetimepicker"/>
+                      <div class="input-group-append" data-target="#reservationdate" data-toggle="datetimepicker">
+                          <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                      </div>
+                  </div>
+                  </div>
+                  <!-- /.card-header -->
+                  <div class="card-body">
+                    <table class="table table-bordered" id="table">
+                      <thead class="text-center">
+                        <tr>
+                          <th style="width: 10px">NF</th>
+                          <th>CLIENTE</th>
+                          <th>BANDAS</th>
+                          <th>COXIM</th>
+                          <th>COLA</th>
+                          <th>TOTAL</th>
+                        </tr>
+                      </thead>
+                      <tbody id="tableBody">
+
+                      </tbody>
+                      <tfoot class="text-center font-weight-bold">
+                        <tr>
+                          <td colspan="2"></td>
+                          <td id="totalBanda"></td>
+                          <td id="totalCoxim"></td>
+                          <td id="totalCola"></td>
+                          <td id="total"></td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                  <!-- /.card-body -->
+                </div>
+                <!-- /.card -->
+              </div>
+            </div>
+            <!-- /.row -->
+          </div>
+          <!-- /.container-fluid -->
+        </section>
+      </div>
+      <!-- ./wrapper -->
+    </div>
+  </body>
+  <%- include('partials/footer.ejs') %>
+    <script>
+      frontendUrl = "<%= frontendUrl %>";
+      backendUrl = "<%= backendUrl %>";
+    </script>
+    <!-- ChartJS -->
+    <script src="/plugins/chart.js/Chart.min.js"></script>
+    <!-- jQuery Knob Chart -->
+    <script src="/plugins/jquery-knob/jquery.knob.min.js"></script>
+    <!-- InputMask -->
+    <script src="/plugins/moment/moment.min.js"></script>
+    <script src="/plugins/moment/locales.min.js"></script>
+    <!-- Tempusdominus Bootstrap 4 -->
+    <script src="/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+    <script src="/js/indicador_expedicao_dia.js"></script>
+    <script>
+      window.onload = function () {
+        var title = document.getElementById("title");
+        title.innerHTML = "EXPEDIÇÃO DIA";
+
+        socketTimer.emit("requireDashboardData", { operation: "expedicao-dia", dateFilter });
+      };
+    </script>
+</html>
