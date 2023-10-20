@@ -13,12 +13,22 @@
               <div class="col-md-12">
                 <div class="card">
                   <div class="card-header expedicao-dia-header">
-                    <div class="input-group date col-md-2" id="reservationdate" data-target-input="nearest">
-                      <input type="text" class="form-control datetimepicker-input" data-target="#reservationdate" data-toggle="datetimepicker"/>
-                      <div class="input-group-append" data-target="#reservationdate" data-toggle="datetimepicker">
-                          <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                      </div>
-                  </div>
+                    <ul class="nav nav-pills ml-auto d-flex align-items-center justify-content-between">
+                      <li class="nav-item">
+                        <div class="input-group date col-md-8" id="reservationdate" data-target-input="nearest">
+                          <input type="text" class="form-control datetimepicker-input" data-target="#reservationdate" data-toggle="datetimepicker"/>
+                          <div class="input-group-append" data-target="#reservationdate" data-toggle="datetimepicker">
+                              <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                          </div>
+                        </div>
+                      </li>
+
+                      <li class="nav-item">
+                        <a class="nav-link font-weight-bold bg-danger text-white" href="/indicadores">
+                          Voltar
+                        </a>
+                      </li>
+                    </ul>
                   </div>
                   <!-- /.card-header -->
                   <div class="card-body">
