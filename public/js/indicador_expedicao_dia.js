@@ -1,15 +1,10 @@
 var socket = io(frontendUrl);
-var socketTimer = io(backendUrl);
 
 socket.on("disconnect", () => {
     console.log("Desconectado");
 });
 
-socketTimer.on("disconnect", () => {
-    console.log("Desconectado");
-});
-
-socketTimer.on("getExpedicaoDia", (data) => {
+socket.on("getExpedicaoDia", (data) => {
     dados = data.tabelaExpedicao;
     var clientes = [];
     let clientesFiltered = [];
@@ -171,5 +166,5 @@ $("#reservationdate").on("change.datetimepicker", (e) => {
 
     dateFilter = dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0];
     // console.log(dateFilter);
-    socketTimer.emit("requireDashboardData", { operation: "expedicao-dia", dateFilter });
+    socket.emit("requireDashboardData", { operation: "expedicao-dia", dateFilter });
 })

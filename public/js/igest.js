@@ -1,30 +1,25 @@
 var socket = io(frontendUrl);
-var socketTimer = io(backendUrl);
 
 socket.on("disconnect", () => {
     console.log("Desconectado");
 });
 
-socketTimer.on("disconnect", () => {
-    console.log("Desconectado");
-});
-
-socketTimer.on("getIndicador", (data) => {
+socket.on("getIgest", (data) => {
     buildIgest(data);
 });
 
-socketTimer.on("displayTimer", (data) => {
+socket.on("displayTimer", (data) => {
     var display = document.querySelector('#time');
     display.textContent = data.display;
     if (--data.timer < 0) {
     }
 });
 
-socketTimer.on("reloadData", () => {
-    socketTimer.emit("reloadedData", { operation: "igest" });
+socket.on("reloadData", () => {
+    socket.emit("reloadedData", { operation: "igest" });
 });
 
-socketTimer.on("getReloadedIndicador", (data) => {
+socket.on("getReloadedIgest", (data) => {
     buildIgest(data);
 });
 
@@ -163,7 +158,7 @@ var end = moment();
 
 function cb(start, end) {
     $('#daterange-btn').html(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
-    socketTimer.emit("reloadedData", { operation: "igest" });
+    socket.emit("reloadedData", { operation: "igest" });
 }
 
 //Date range as a button

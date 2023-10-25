@@ -1,15 +1,14 @@
 var socket = io(frontendUrl);
-var socketTimer = io(backendUrl);
 
 socket.on("disconnect", () => {
     console.log("Desconectado");
 });
 
-socketTimer.on("disconnect", () => {
+socket.on("disconnect", () => {
     console.log("Desconectado");
 });
 
-socketTimer.on("getRecebimento", (data) => {
+socket.on("getRecebimento", (data) => {
     var recebimentos = data.recebimentos;
 
     recebimentos.forEach(recebimento => {
@@ -17,18 +16,18 @@ socketTimer.on("getRecebimento", (data) => {
     });
 });
 
-socketTimer.on("displayTimer", (data) => {
+socket.on("displayTimer", (data) => {
     var display = document.querySelector('#time');
     display.textContent = data.display;
     if (--data.timer < 0) {
     }
 })
 
-socketTimer.on("reloadData", () => {
-    socketTimer.emit("reloadedData", { operation: "recebimento" });
+socket.on("reloadData", () => {
+    socket.emit("reloadedData", { operation: "recebimento" });
 });
 
-socketTimer.on("getReloadedRecebimento", (data) => {
+socket.on("getReloadedRecebimento", (data) => {
     var recebimentos = data.recebimentos;
 
     const table = document.getElementById("table");

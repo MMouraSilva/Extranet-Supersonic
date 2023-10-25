@@ -38,7 +38,7 @@
             var title = document.getElementById("title");
             title.innerHTML = "SEPARAÇÃO FINALIZADA";
 
-            socketTimer.emit("requireDashboardData", { operation: "venda-finalizada" });
+            socket.emit("requireDashboardData", { operation: "venda-finalizada" });
         };
     </script>
 </html>

@@ -38,7 +38,7 @@
         window.onload = function () {
             var title = document.getElementById("title");
             title.innerHTML = "SEPARAÇÃO";
-            socketTimer.emit("requireDashboardData", { operation: "venda" });
+            socket.emit("requireDashboardData", { operation: "venda" });
         };
     </script>
 </html>

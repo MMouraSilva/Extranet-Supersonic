@@ -1,15 +1,10 @@
 var socket = io(frontendUrl);
-var socketTimer = io(backendUrl);
 
 socket.on("disconnect", () => {
     console.log("Desconectado");
 });
 
-socketTimer.on("disconnect", () => {
-    console.log("Desconectado");
-});
-
-socketTimer.on("getVenda", (data) => {
+socket.on("getVenda", (data) => {
     var vendas = data.vendas;
 
     vendas.forEach(venda => {
@@ -17,7 +12,7 @@ socketTimer.on("getVenda", (data) => {
     });
 });
 
-socketTimer.on("getVendaFinalizada", (data) => {
+socket.on("getVendaFinalizada", (data) => {
     var vendas = data.vendasFinalizadas;
 
     vendas.forEach(venda => {
@@ -25,27 +20,27 @@ socketTimer.on("getVendaFinalizada", (data) => {
     });
 });
 
-socketTimer.on("displayTimer", (data) => {
+socket.on("displayTimer", (data) => {
     var display = document.querySelector('#time');
     display.textContent = data.display;
     if (--data.timer < 0) {
     }
 })
 
-socketTimer.on("reloadData", () => {
+socket.on("reloadData", () => {
     if(tipo == "V") {
-        socketTimer.emit("reloadedData", { operation: "venda" });
+        socket.emit("reloadedData", { operation: "venda" });
     } else if(tipo == "F") {
-        socketTimer.emit("reloadedData", { operation: "venda-finalizada" });
+        socket.emit("reloadedData", { operation: "venda-finalizada" });
     }
 });
 
-socketTimer.on("getReloadedVendas", (data) => {
+socket.on("getReloadedVendas", (data) => {
     var vendas = data.vendas;
     reloadVendas(vendas);
 });
 
-socketTimer.on("getReloadedVendasFinalizada", (data) => {
+socket.on("getReloadedVendasFinalizada", (data) => {
     var vendas = data.vendasFinalizadas;
     reloadVendas(vendas);
 });

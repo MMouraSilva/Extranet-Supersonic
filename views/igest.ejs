@@ -128,7 +128,7 @@
         var title = document.getElementById("title");
         title.innerHTML = "INDICADORES DE GESTÃO";
 
-        socketTimer.emit("requireDashboardData", { operation: "igest" });
+        socket.emit("requireDashboardData", { operation: "igest" });
       };
     </script>
 

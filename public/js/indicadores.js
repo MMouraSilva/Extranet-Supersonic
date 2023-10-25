@@ -1,32 +1,27 @@
 var socket = io(frontendUrl);
-var socketTimer = io(backendUrl);
 
 socket.on("disconnect", () => {
     console.log("Desconectado");
 });
 
-socketTimer.on("disconnect", () => {
-    console.log("Desconectado");
-});
-
-socketTimer.on("getIndicador", (data) => {
+socket.on("getIndicador", (data) => {
     buildChartLine(data.indicadorRecebimento, 'recebimento', false, data.indicadorRecebimentoTipoProd);
     buildChartLine(data.indicadorSeparacao, 'separacao', false, data.indicadorSeparacaoTipoProd);
     buildChartLine(data.indicadorExpedicao, 'expedicao', false, data.indicadorExpedicaoTipoProd);
 });
 
-socketTimer.on("displayTimer", (data) => {
+socket.on("displayTimer", (data) => {
     var display = document.querySelector('#time');
     display.textContent = data.display;
     if (--data.timer < 0) {
     }
 });
 
-socketTimer.on("reloadData", () => {
-    socketTimer.emit("reloadedData", { operation: "indicador" });
+socket.on("reloadData", () => {
+    socket.emit("reloadedData", { operation: "indicador" });
 });
 
-socketTimer.on("getReloadedIndicador", (data) => {
+socket.on("getReloadedIndicador", (data) => {
     buildChartLine(data.indicadorRecebimento, 'recebimento', true, data.indicadorRecebimentoTipoProd);
     buildChartLine(data.indicadorSeparacao, 'separacao', true, data.indicadorSeparacaoTipoProd);
     buildChartLine(data.indicadorExpedicao, 'expedicao', true, data.indicadorExpedicaoTipoProd);
@@ -262,7 +257,7 @@ var end = moment();
 
 function cb(start, end) {
     $('#daterange-btn').html(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
-    socketTimer.emit("reloadedData", { operation: "indicador" });
+    socket.emit("reloadedData", { operation: "indicador" });
 }
 
 //Date range as a button

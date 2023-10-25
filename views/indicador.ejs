@@ -179,7 +179,7 @@
         var title = document.getElementById("title");
         title.innerHTML = "DASHBOARD";
 
-        socketTimer.emit("requireDashboardData", { operation: "indicador" });
+        socket.emit("requireDashboardData", { operation: "indicador" });
       };
     </script>
 </html>

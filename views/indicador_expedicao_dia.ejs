@@ -90,7 +90,7 @@
         var title = document.getElementById("title");
         title.innerHTML = "EXPEDIÇÃO DIA";
 
-        socketTimer.emit("requireDashboardData", { operation: "expedicao-dia", dateFilter });
+        socket.emit("requireDashboardData", { operation: "expedicao-dia", dateFilter });
       };
     </script>
 </html>

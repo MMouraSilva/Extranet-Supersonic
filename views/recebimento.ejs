@@ -37,7 +37,7 @@
             var title = document.getElementById("title");
             title.innerHTML = "RECEBIMENTO";
 
-            socketTimer.emit("requireDashboardData", { operation: "recebimento" });
+            socket.emit("requireDashboardData", { operation: "recebimento" });
         };
     </script>
 </html>
