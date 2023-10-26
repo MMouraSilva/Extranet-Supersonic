@@ -8,12 +8,28 @@ const http = require("http").createServer(app);
 const io = require("socket.io")(http, {
     cors: {
       origin: "*",
-      methods: ["GET", "POST"]
+      methods: ["GET", "POST"],
+      credentials: true
     },
     maxHttpBufferSize: 1e8
 });
 
+var recebimentos;
+var vendas;
+var vendasFinalizadas;
+var indicadorRecebimento;
+var indicadorSeparacao;
+var indicadorExpedicao;
+var indicadorRecebimentoTipoProd;
+var indicadorSeparacaoTipoProd;
+var indicadorExpedicaoTipoProd;
+var kpiRecebimento;
+var kpiVendas;
+var kpiExpedicao;
+
 io.on("connection", (socket) => {
+    var socketId = socket.id;
+
     socket.on("disconnect", () => {
         console.log("Desconectado: " + socket.id);
     });
@@ -21,11 +37,20 @@ io.on("connection", (socket) => {
     socket.on("requireDashboardData", (data) => {
         var operation = data.operation;
 
-        if(data.dateFilter) {
+        if(data.operation == "recebimento") {
+            socket.emit("getRecebimento", { recebimentos });
+        } else if(data.operation == "venda") {
+            socket.emit("getVenda", { vendas });
+        } else if(data.operation == "venda-finalizada") {
+            socket.emit("getVendaFinalizada", { vendasFinalizadas });
+        } else if(data.operation == "indicador") {
+            socket.emit("getIndicador", { indicadorRecebimento, indicadorSeparacao, indicadorExpedicao,
+                indicadorRecebimentoTipoProd, indicadorSeparacaoTipoProd, indicadorExpedicaoTipoProd });
+        } else if(data.operation == "igest") {
+            socket.emit("getIgest", { kpiRecebimento, kpiVendas, kpiExpedicao });
+        } else if(data.operation == "expedicao-dia") {
             var dateFilter = data.dateFilter;
-            io.emit("requireDashboardData", { operation, dateFilter });
-        } else {
-            io.emit("requireDashboardData", { operation });
+            io.emit("requireDashboardData", { operation, dateFilter, socketId });
         }
     });
 
@@ -40,91 +65,58 @@ io.on("connection", (socket) => {
     });
 
     socket.on("reloadedData", (data) => {
-        var operation = data.operation;
-        io.emit("reloadedData", { operation });
+        if(data.operation == "recebimento") {
+            socket.emit("getReloadedRecebimento", { recebimentos });
+        } else if(data.operation == "venda") {
+            socket.emit("getReloadedVendas", { vendas });
+        } else if(data.operation == "venda-finalizada") {
+            socket.emit("getReloadedVendasFinalizada", { vendasFinalizadas });
+        } else if(data.operation == "indicador") {
+            socket.emit("getReloadedIndicador", { indicadorRecebimento, indicadorSeparacao, indicadorExpedicao,
+                indicadorRecebimentoTipoProd, indicadorSeparacaoTipoProd, indicadorExpedicaoTipoProd });
+        } else if(data.operation == "igest") {
+            socket.emit("getReloadedIgest", { kpiRecebimento, kpiVendas, kpiExpedicao });
+        }
     });
     
 
     // Sockets Recebimento
     socket.on("getRecebimento", (data) => {
-        var recebimentos = data.recebimentos;
-        io.emit("getRecebimento", { recebimentos });
+        recebimentos = data.recebimentos;
     });
-    
-    socket.on("getReloadedRecebimento", (data) => {
-        var recebimentos = data.recebimentos;
-        io.emit("getReloadedRecebimento", { recebimentos });
-    })
-
 
     // Sockets Venda
     socket.on("getVenda", (data) => {
-        var vendas = data.vendas;
-        io.emit("getVenda", { vendas });
+        vendas = data.vendas;
     });
-    
-    socket.on("getReloadedVendas", (data) => {
-        var vendas = data.vendas;
-        io.emit("getReloadedVendas", { vendas });
-    });
-
 
     // Sockets Venda Finalizada
     socket.on("getVendaFinalizada", (data) => {
-        var vendasFinalizadas = data.vendasFinalizadas;
-        io.emit("getVendaFinalizada", { vendasFinalizadas });
+        vendasFinalizadas = data.vendasFinalizadas;
     });
-    
-    socket.on("getReloadedVendasFinalizada", (data) => {
-        var vendasFinalizadas = data.vendasFinalizadas;
-        io.emit("getReloadedVendasFinalizada", { vendasFinalizadas });
-    });
-
 
     // Sockets Indicador
     socket.on("getIndicador", (data) => {
-        var indicadorRecebimento = data.indicadorRecebimento;
-        var indicadorSeparacao = data.indicadorSeparacao;
-        var indicadorExpedicao = data.indicadorExpedicao;
-        var indicadorRecebimentoTipoProd = data.indicadorRecebimentoTipoProd;
-        var indicadorSeparacaoTipoProd = data.indicadorSeparacaoTipoProd;
-        var indicadorExpedicaoTipoProd = data.indicadorExpedicaoTipoProd;
-        io.emit("getIndicador", { indicadorRecebimento, indicadorSeparacao, indicadorExpedicao,
-            indicadorRecebimentoTipoProd, indicadorSeparacaoTipoProd, indicadorExpedicaoTipoProd });
+        indicadorRecebimento = data.indicadorRecebimento;
+        indicadorSeparacao = data.indicadorSeparacao;
+        indicadorExpedicao = data.indicadorExpedicao;
+        indicadorRecebimentoTipoProd = data.indicadorRecebimentoTipoProd;
+        indicadorSeparacaoTipoProd = data.indicadorSeparacaoTipoProd;
+        indicadorExpedicaoTipoProd = data.indicadorExpedicaoTipoProd;
     });
     
-    socket.on("getReloadedIndicador", (data) => {
-        var indicadorRecebimento = data.indicadorRecebimento;
-        var indicadorSeparacao = data.indicadorSeparacao;
-        var indicadorExpedicao = data.indicadorExpedicao;
-        var indicadorRecebimentoTipoProd = data.indicadorRecebimentoTipoProd;
-        var indicadorSeparacaoTipoProd = data.indicadorSeparacaoTipoProd;
-        var indicadorExpedicaoTipoProd = data.indicadorExpedicaoTipoProd;
-        io.emit("getReloadedIndicador", { indicadorRecebimento, indicadorSeparacao, indicadorExpedicao,
-            indicadorRecebimentoTipoProd, indicadorSeparacaoTipoProd, indicadorExpedicaoTipoProd });
-    });
-
-
     // Sockets Igest
     socket.on("getIgest", (data) => {
-        var kpiRecebimento = data.kpiRecebimento;
-        var kpiVendas = data.kpiVendas;
-        var kpiExpedicao = data.kpiExpedicao;
-        io.emit("getIgest", { kpiRecebimento, kpiVendas, kpiExpedicao });
+        kpiRecebimento = data.kpiRecebimento;
+        kpiVendas = data.kpiVendas;
+        kpiExpedicao = data.kpiExpedicao;
     });
-    
-    socket.on("getReloadedIgest", (data) => {
-        var kpiRecebimento = data.kpiRecebimento;
-        var kpiVendas = data.kpiVendas;
-        var kpiExpedicao = data.kpiExpedicao;
-        io.emit("getReloadedIgest", { kpiRecebimento, kpiVendas, kpiExpedicao });
-    });
-
 
     // Sockets Expedição Dia
     socket.on("getExpedicaoDia", (data) => {
         var tabelaExpedicao = data.tabelaExpedicao;
-        io.emit("getExpedicaoDia", { tabelaExpedicao })
+        var socketId = data.socketId;
+        socket.to(socketId).emit("getExpedicaoDia", { tabelaExpedicao })
     })
 });
 
