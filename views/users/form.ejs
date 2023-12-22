@@ -1,0 +1,331 @@
+<%- include('../partials/header.ejs') %>
+
+    <body class="hold-transition sidebar-mini layout-fixed sidebar-collapse justify-content-center">
+        <%- include('../partials/navbar2.ejs') %>
+        <div class="wrapper user">
+                <%- include('../partials/sidebar.ejs') %>
+                    <div class="container justify-content-center">
+                        <div class="content-wrapper">
+                            <!-- Content Header (Page header) -->
+                            <section class="content-header">
+                                <div class="container-fluid">
+                                    <div class="row mb-2">
+                                        <div class="col-sm-6">
+                                            <% if(operation == "edit") { %>
+                                                <h1>Editar Usuário</h1>
+                                            <% } else if(operation == "create") { %>
+                                                <h1>Cadastrar Usuário</h1>
+                                            <% } %>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <ol class="breadcrumb float-sm-right">
+                                                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                                                <li class="breadcrumb-item"><a href="/users">Usuários</a></li>
+                                                <% if(operation == "edit") {
+                                                    selectedUser.forEach(user => { %>
+                                                        <li class="breadcrumb-item"><a href="/users/edit/<%= user.id %>"><%= user.data().name %></a></li>
+                                                    <% });
+                                                } else if(operation == "create") { %>
+                                                    <li class="breadcrumb-item"><a href="/users/create">Cadastro</a></li>
+                                                <% } %>
+                                            </ol>
+                                        </div>
+                                    </div>
+                                </div><!-- /.container-fluid -->
+                            </section>
+                            <section class="content">
+                                <div class="container-fluid">
+                                    <% if(operation == "edit") {
+                                        selectedUser.forEach(user => { %>
+                                        <form id="userUpdateForm" method="POST" action="/users/edit">
+                                            <input type="hidden" id="id" name="id" value="<%= user.id %>">
+                                            <div class="card">
+                                                <div class="card-body ">
+                                                    <% if(updateStatus) { %>
+                                                        <% if(updateStatus.emailError) { %>
+                                                            <div class="d-flex mb-3 text-danger justify-content-center align-items-center">
+                                                                <i class="fa-solid fa-triangle-exclamation fa-lg"></i>
+                                                                <span class="font-weight-bold ml-2">E-mail já existe</span>
+                                                            </div>
+                                                        <% } %>
+                                                        <% if(updateStatus.loginError) { %>
+                                                            <div class="d-flex mb-3 text-danger justify-content-center align-items-center">
+                                                                <i class="fa-solid fa-triangle-exclamation fa-lg"></i>
+                                                                <span class="font-weight-bold ml-2">Login já existe</span>
+                                                            </div>
+                                                        <% } %>
+                                                    <% } %>
+                                                    <div class="d-flex mb-3">
+                                                        <!-- text input -->
+                                                        <div class="form-group col-6">
+                                                            <label id="name-label" for="name">Nome</label>
+                                                            <input type="text" class="form-control" value="<%= user.data().name %>"
+                                                            id="name" placeholder="e.g.: Matheus Moura Silva" name="name" required>
+                                                        </div>
+                                                        <!-- text input -->
+                                                        <div class="form-group col-6">
+                                                            <label id="login-label" for="login">Login</label>
+                                                            <input type="text" class="form-control" value="<%= user.data().login %>"
+                                                            id="login" name="login" placeholder="e.g.: matheus.moura" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="d-flex mb-3">
+                                                        <!-- text input -->
+                                                        <div class="form-group col-6">
+                                                            <label id="email-label" for="email">E-mail</label>
+                                                            <input type="text" class="form-control" value="<%= user.data().email %>"
+                                                            id="email" placeholder="e.g.: emailexemplo@email.com" name="email" required>
+                                                        </div>
+                                                        <!-- text input -->
+                                                        <div class="form-group col-6">
+                                                            <label id="phone-label" for="phone">Telefone</label>
+                                                            <input type="text" class="form-control" value="<%= user.data().phone %>"
+                                                            id="phone" name="phone" placeholder="e.g.: (11) 98765-4321" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="d-flex mb-3">
+                                                        <!-- text input -->
+                                                        <div class="form-group col-6">
+                                                            <label id="password-label" for="password">Senha</label>
+                                                            <input type="password" class="form-control"
+                                                            id="password" placeholder="********" name="password">
+                                                        </div>
+                                                        <!-- text input -->
+                                                        <div class="form-group col-6">
+                                                            <label id="confirm-password-label" for="confirm-password">Confirmar Senha</label>
+                                                            <input type="password" class="form-control"
+                                                            id="confirm-password" name="confirmPassword" placeholder="********">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex justify-content-end col-12">
+                                                <div class="col-4 col-sm-6 col-md-6 col-lg-4">
+                                                    <button type="button" id="cancelButton" class="btn btn-block bg-gradient btn-danger btn-lg col-12 text-white font-weight-bold">Cancelar</button>
+                                                </div>
+                                                <div class="col-4 col-sm-6 col-md-6 col-lg-4">
+                                                    <button type="submit" class="btn btn-block bg-gradient btn-login btn-lg col-12 text-white font-weight-bold">Salvar</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    <% });
+                                    } else if(operation == "create") { %>
+                                        <form id="userCreateForm" method="POST" action="/users/create">
+                                            <div class="card">
+                                                <div class="card-body ">
+                                                    <% if(createStatus) { %>
+                                                        <% if(createStatus.emailError) { %>
+                                                            <div class="d-flex mb-3 text-danger justify-content-center align-items-center">
+                                                                <i class="fa-solid fa-triangle-exclamation fa-lg"></i>
+                                                                <span class="font-weight-bold ml-2">E-mail já existe</span>
+                                                            </div>
+                                                        <% } %>
+                                                        <% if(createStatus.loginError) { %>
+                                                            <div class="d-flex mb-3 text-danger justify-content-center align-items-center">
+                                                                <i class="fa-solid fa-triangle-exclamation fa-lg"></i>
+                                                                <span class="font-weight-bold ml-2">Login já existe</span>
+                                                            </div>
+                                                        <% } %>
+                                                    <% } %>
+                                                    <div class="d-flex mb-3">
+                                                        <!-- text input -->
+                                                        <div class="form-group col-6">
+                                                            <label id="name-label" for="name">Nome</label>
+                                                            <input type="text" class="form-control"
+                                                            id="name" placeholder="e.g.: Matheus Moura Silva" name="name" required>
+                                                        </div>
+                                                        <!-- text input -->
+                                                        <div class="form-group col-6">
+                                                            <label id="login-label" for="login">Login</label>
+                                                            <input type="text" class="form-control"
+                                                            id="login" name="login" placeholder="e.g.: matheus.moura" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="d-flex mb-3">
+                                                        <!-- text input -->
+                                                        <div class="form-group col-6">
+                                                            <label id="email-label" for="email">E-mail</label>
+                                                            <input type="text" class="form-control"
+                                                            id="email" placeholder="e.g.: emailexemplo@email.com" name="email" required>
+                                                        </div>
+                                                        <!-- text input -->
+                                                        <div class="form-group col-6">
+                                                            <label id="phone-label" for="phone">Telefone</label>
+                                                            <input type="text" class="form-control"
+                                                            id="phone" name="phone" placeholder="e.g.: (11) 98765-4321" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="d-flex mb-3">
+                                                        <!-- text input -->
+                                                        <div class="form-group col-6">
+                                                            <label id="password-label" for="password">Senha</label>
+                                                            <input type="password" class="form-control"
+                                                            id="password" placeholder="********" name="password">
+                                                        </div>
+                                                        <!-- text input -->
+                                                        <div class="form-group col-6">
+                                                            <label id="confirm-password-label" for="confirm-password">Confirmar Senha</label>
+                                                            <input type="password" class="form-control"
+                                                            id="confirm-password" name="confirmPassword" placeholder="********">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex justify-content-end col-12">
+                                                <div class="col-4 col-sm-6 col-md-6 col-lg-4">
+                                                    <button type="button" id="cancelButton" class="btn btn-block bg-gradient btn-danger btn-lg col-12 text-white font-weight-bold">Cancelar</button>
+                                                </div>
+                                                <div class="col-4 col-sm-6 col-md-6 col-lg-4">
+                                                    <button type="submit" class="btn btn-block bg-gradient btn-login btn-lg col-12 text-white font-weight-bold">Cadastrar</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    <% } %>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+        </div>
+    </body>
+    <%- include('../partials/footer.ejs') %>
+    <script>
+        window.onbeforeunload = function() {
+            localStorage.setItem("name", $('#name').val());
+            localStorage.setItem("email", $('#email').val());
+            localStorage.setItem("phone", $('#phone').val());
+        }
+
+        window.onload = function() {
+            var name = localStorage.getItem("name");
+            var email = localStorage.getItem("email");
+            var phone = localStorage.getItem("phone");
+
+            if (name !== null) { 
+                $('#name').val(name);
+            }
+            if (email !== null) { 
+                $('#email').val(email);    
+            }
+            if (phone !== null) { 
+                $('#phone').val(phone);
+            }        
+        }
+
+        document.getElementById("cancelButton").onclick = function () {
+            location.href = "/users";
+        };
+
+        $(function () {
+            $('#userUpdateForm').validate({
+                rules: {
+                    name: {
+                        required: true,
+                    },
+                    login: {
+                        required: true,
+                    },
+                    email: {
+                        required: true,
+                    },
+                    phone: {
+                        required: true,
+                    },
+                    password: {
+                        minlength: 6,
+                    },
+                    confirmPassword: {
+                        equalTo: "#password"
+                    }
+                },
+                messages: {
+                    name: {
+                        required: "Digite um nome válido",
+                    },
+                    login: {
+                        required: "Digite um login válido",
+                    },
+                    email: {
+                        required: "Digite um e-mail válido",
+                    },
+                    phone: {
+                        required: "Digite um número de telefone válido",
+                    },
+                    password: {
+                        minlength: "Senha deve conter no mínimo 6 dígitos"
+                    },
+                    confirmPassword: {
+                        equalTo: "Senhas devem ser iguais"
+                    }
+                },
+                errorElement: 'span',
+                errorPlacement: function (error, element) {
+                    error.addClass('invalid-feedback');
+                    element.closest('.form-group').append(error);
+                },
+                highlight: function (element, errorClass, validClass) {
+                    $(element).addClass('is-invalid');
+                },
+                unhighlight: function (element, errorClass, validClass) {
+                    $(element).removeClass('is-invalid');
+                }
+            });
+
+            $('#userCreateForm').validate({
+                rules: {
+                    name: {
+                        required: true
+                    },
+                    login: {
+                        required: true
+                    },
+                    email: {
+                        required: true
+                    },
+                    phone: {
+                        required: true
+                    },
+                    password: {
+                        required: true,
+                        minlength: 6
+                    },
+                    confirmPassword: {
+                        required: true,
+                        equalTo: "#password"
+                    }
+                },
+                messages: {
+                    name: {
+                        required: "Digite um nome válido"
+                    },
+                    login: {
+                        required: "Digite um login válido"
+                    },
+                    email: {
+                        required: "Digite um e-mail válido"
+                    },
+                    phone: {
+                        required: "Digite um número de telefone válido"
+                    },
+                    password: {
+                        required: "Digite uma senha válida",
+                        minlength: "Senha deve conter no mínimo 6 dígitos"
+                    },
+                    confirmPassword: {
+                        required: "",
+                        equalTo: "Senhas devem ser iguais"
+                    }
+                },
+                errorElement: 'span',
+                errorPlacement: function (error, element) {
+                    error.addClass('invalid-feedback');
+                    element.closest('.form-group').append(error);
+                },
+                highlight: function (element, errorClass, validClass) {
+                    $(element).addClass('is-invalid');
+                },
+                unhighlight: function (element, errorClass, validClass) {
+                    $(element).removeClass('is-invalid');
+                }
+            });
+        });
+    </script>

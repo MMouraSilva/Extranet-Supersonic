@@ -1,60 +1,85 @@
 <%- include('partials/header.ejs') %>
-  <body class="hold-transition sidebar-mini layout-fixed">
-    <%- include('partials/navbar.ejs') %>
-      <div class="container">
-        <section class="content">
-          <div class="container-fluid">
-            <div class="row">
-              <div class="col-12">
-                <br>
-                <div class="card">
-                  <div class="card-header">
-                    <h2 class="card-title font-weight-bold">Separação</h2>
-                  </div>
-                  <div class="card-body">
-                    <button type="button" class="btn btn-lg btn-block text-white font-weight-bold" onclick="goVendasFinalizadas()">2º LEITURA FINALIZADA</button>
-                    <button type="button" class="btn btn-lg btn-block text-white font-weight-bold" onclick="goVendas()">PEDIDOS EM ABERTO</button>
-                  </div>
-                </div>
-                <br>
-                <div class="card">
-                  <div class="card-header">
-                    <h2 class="card-title font-weight-bold">Recebimento</h2>
-                  </div>
-                  <div class="card-body">
-                    <button type="button" class="btn btn-lg btn-block text-white font-weight-bold" onclick="goRecebimento()">PEDIDOS RECEBIMENTO</button>
-                  </div>
-                </div>
-                <br>
-                <div class="card">
-                  <div class="card-header">
-                    <h2 class="card-title font-weight-bold">Indicadores</h2>
-                  </div>
-                  <div class="card-body">
-                    <button type="button" class="btn btn-lg btn-block text-white font-weight-bold" onclick="goIndicadores()">DASHBOARD INDICADORES</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
-  </body>
-  <%- include('partials/footer.ejs') %>
-  <script>
-    function goVendas() {
-      window.location = "<%= frontendUrl %>/vendas";
-    }
+<body class="hold-transition sidebar-mini layout-fixed sidebar-collapse">
+<%- include('partials/navbar2.ejs') %>
+<%- include('partials/sidebar.ejs') %>
+    <div class="container">
+        <div class="content-wrapper">
+            <!-- Content Header (Page header) -->
+            <section class="content-header">
+                <div class="container-fluid">
+                    <div class="row mb-2">
+                        <div class="col-sm-6">
+                            <h1>Dashboards</h1>
+                        </div>
+                        <div class="col-sm-6">
+                            <ol class="breadcrumb float-sm-right">
+                                <li class="breadcrumb-item"><a href="./">Home</a></li>
+                            </ol>
+                        </div>
+                    </div>
+                </div><!-- /.container-fluid -->
+            </section>
+            <section class="content">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-lg-3 col-6">
+                            <!-- small box -->
+                            <div class="small-box bg-info">
+                                <div class="inner">
+                                    <h4>Pedidos em Aberto</h4>
+                                </div>
+                                <div class="icon">
+                                    <i class="fa-solid fa-barcode"></i>
+                                </div>
+                                <a href="/vendas" class="small-box-footer">Acessar <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                        <!-- ./col -->
 
-    function goVendasFinalizadas() {
-      window.location = "<%= frontendUrl %>/vendas-finalizadas";
-    }
+                        <div class="col-lg-3 col-6">
+                            <!-- small box -->
+                            <div class="small-box bg-success">
+                                <div class="inner">
+                                    <h4>2º Leitura Finalizada</h4>
+                                </div>
+                                <div class="icon">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                </div>
+                                <a href="/vendas-finalizadas" class="small-box-footer">Acessar <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                        <!-- ./col -->
 
-    function goRecebimento() {
-      window.location = "<%= frontendUrl %>/recebimento";
-    }
+                        <div class="col-lg-3 col-6">
+                            <!-- small box -->
+                            <div class="small-box bg-warning">
+                                <div class="inner">
+                                    <h4 class="text-white">Pedidos Recebimento</h4>
+                                </div>
+                                <div class="icon">
+                                    <i class="fa-solid fa-clipboard-list"></i>
+                                </div>
+                                <a href="/recebimento" class="small-box-footer">Acessar <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                        <!-- ./col -->
 
-    function goIndicadores() {
-      window.location = "<%= frontendUrl %>/indicadores";
-    }
-  </script>
+                        <div class="col-lg-3 col-6">
+                            <!-- small box -->
+                            <div class="small-box bg-danger">
+                                <div class="inner">
+                                    <h4>Dashboard Indicadores</h4>
+                                </div>
+                                <div class="icon">
+                                    <i class="fa-solid fa-chart-pie"></i>
+                                </div>
+                                <a href="/indicadores" class="small-box-footer">Acessar <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</body>
+<%- include('partials/footer.ejs') %>

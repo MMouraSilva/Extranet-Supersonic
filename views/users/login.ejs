@@ -1,0 +1,75 @@
+<%- include('../partials/header.ejs') %>
+
+    <body class="hold-transition login-page">
+        <div class="login-box">
+            <!-- /.login-logo -->
+            <div class="card card-outline">
+                <div class="card-header text-center">
+                    <a href="https://www.supersonic.com.br/" class="h1"><b class="yellow">Super</b><b class="black">Sonic</b></a>
+                </div>
+                <div class="card-body">
+                    <h5 class="text-center">Inicie sua sessão</h5>
+                    <hr>
+
+                    <form id="authenticationForm" action="/authenticate" method="post">
+                        <div class="label-float form-group">
+                            <input type="text" class="form-control login-input" name="login" placeholder=" " required>
+                            <label>Login</label>
+                        </div>
+                        <div class="mb-3 label-float form-group">
+                            <input type="password" class="form-control login-input" name="password" placeholder=" " required>
+                            <label>Senha</label>
+                        </div>
+                        <% if(loginStatus) { %>
+                            <div class="mb-3 text-center">
+                                <span class="text-danger text-center"><b class="login-error"></b> Login e/ou senha incorretos</span>
+                            </div>
+                        <% } %>
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-block text-white font-weight-bold btn-login">Entrar</button>
+                            </div>
+                            <!-- /.col -->
+                        </div>
+                    </form>
+                </div>
+                <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+        </div>
+        <!-- /.login-box -->
+    </body>
+    <%- include('../partials/footer.ejs') %>
+        <script>
+            $(function () {
+                $('#authenticationForm').validate({
+                    rules: {
+                        login: {
+                            required: true,
+                        },
+                        password: {
+                            required: true,
+                        }
+                    },
+                    messages: {
+                        login: {
+                            required: "Digite um e-mail ou login válido",
+                        },
+                        password: {
+                            required: "Digite uma senha válida",
+                        }
+                    },
+                    errorElement: 'span',
+                    errorPlacement: function (error, element) {
+                        error.addClass('invalid-feedback');
+                        element.closest('.form-group').append(error);
+                    },
+                    highlight: function (element, errorClass, validClass) {
+                        $(element).addClass('is-invalid');
+                    },
+                    unhighlight: function (element, errorClass, validClass) {
+                        $(element).removeClass('is-invalid');
+                    }
+                });
+            });
+        </script>

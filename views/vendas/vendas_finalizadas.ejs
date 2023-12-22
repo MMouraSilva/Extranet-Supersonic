@@ -1,0 +1,44 @@
+<%- include('../partials/header.ejs') %>
+<body>
+    <div class="containerPage">
+        <div class="navDiv">
+            <%- include('../partials/navbar.ejs') %>
+        </div>
+        <div class="tableDiv">
+            <table class="table table-hover text-center" id="table">
+                <thead>
+                    <tr>
+                        <th scope="col">CLIENTE</th>
+                        <th scope="col">REMESSA</th>
+                        <th scope="col">PEDIDO</th>
+                        <th scope="col">O.S.</th>
+                        <th scope="col">STATUS</th>
+                        <th scope="col">MATERIAL</th>
+                        <th scope="col">TOTAL</th>
+                        <th scope="col">QTD. ATENDIDA</th>
+                        <th scope="col">DT. PEDIDO</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+<%- include('../partials/footer.ejs') %>
+    <script>
+        tipo="F";
+        frontendUrl = "<%= frontendUrl %>";
+        backendUrl = "<%= backendUrl %>";
+    </script>
+    <script src="/js/vendas.js"></script>
+    <script>
+        window.onload = function () {
+            var title = document.getElementById("title");
+            title.innerHTML = "SEPARAÇÃO FINALIZADA";
+
+            socket.emit("requireDashboardData", { operation: "venda-finalizada" });
+        };
+    </script>
+</html>

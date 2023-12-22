@@ -5,14 +5,21 @@ const frontendUrl = process.env.APP_HOST;
 const app = express();
 const bodyParser = require("body-parser");
 const http = require("http").createServer(app);
+const session = require("express-session");
+const moment = require("moment");
 const io = require("socket.io")(http, {
     cors: {
-      origin: "*",
-      methods: ["GET", "POST"],
-      credentials: true
+        origin: "*",
+        methods: ["GET", "POST"],
+        credentials: true
     },
     maxHttpBufferSize: 1e8
 });
+const userAuth = require("./middlewares/userAuth");
+
+const vendasController = require("./controllers/vendas");
+const indicadoresController = require("./controllers/indicadores");
+const usersController = require("./controllers/users");
 
 var recebimentos;
 var vendas;
@@ -37,18 +44,20 @@ io.on("connection", (socket) => {
     socket.on("requireDashboardData", (data) => {
         var operation = data.operation;
 
-        if(data.operation == "recebimento") {
+        if (data.operation == "recebimento") {
             socket.emit("getRecebimento", { recebimentos });
-        } else if(data.operation == "venda") {
+        } else if (data.operation == "venda") {
             socket.emit("getVenda", { vendas });
-        } else if(data.operation == "venda-finalizada") {
+        } else if (data.operation == "venda-finalizada") {
             socket.emit("getVendaFinalizada", { vendasFinalizadas });
-        } else if(data.operation == "indicador") {
-            socket.emit("getIndicador", { indicadorRecebimento, indicadorSeparacao, indicadorExpedicao,
-                indicadorRecebimentoTipoProd, indicadorSeparacaoTipoProd, indicadorExpedicaoTipoProd });
-        } else if(data.operation == "igest") {
+        } else if (data.operation == "indicador") {
+            socket.emit("getIndicador", {
+                indicadorRecebimento, indicadorSeparacao, indicadorExpedicao,
+                indicadorRecebimentoTipoProd, indicadorSeparacaoTipoProd, indicadorExpedicaoTipoProd
+            });
+        } else if (data.operation == "igest") {
             socket.emit("getIgest", { kpiRecebimento, kpiVendas, kpiExpedicao });
-        } else if(data.operation == "expedicao-dia") {
+        } else if (data.operation == "expedicao-dia") {
             var dateFilter = data.dateFilter;
             io.emit("requireDashboardData", { operation, dateFilter, socketId });
         }
@@ -65,20 +74,22 @@ io.on("connection", (socket) => {
     });
 
     socket.on("reloadedData", (data) => {
-        if(data.operation == "recebimento") {
+        if (data.operation == "recebimento") {
             socket.emit("getReloadedRecebimento", { recebimentos });
-        } else if(data.operation == "venda") {
+        } else if (data.operation == "venda") {
             socket.emit("getReloadedVendas", { vendas });
-        } else if(data.operation == "venda-finalizada") {
+        } else if (data.operation == "venda-finalizada") {
             socket.emit("getReloadedVendasFinalizada", { vendasFinalizadas });
-        } else if(data.operation == "indicador") {
-            socket.emit("getReloadedIndicador", { indicadorRecebimento, indicadorSeparacao, indicadorExpedicao,
-                indicadorRecebimentoTipoProd, indicadorSeparacaoTipoProd, indicadorExpedicaoTipoProd });
-        } else if(data.operation == "igest") {
+        } else if (data.operation == "indicador") {
+            socket.emit("getReloadedIndicador", {
+                indicadorRecebimento, indicadorSeparacao, indicadorExpedicao,
+                indicadorRecebimentoTipoProd, indicadorSeparacaoTipoProd, indicadorExpedicaoTipoProd
+            });
+        } else if (data.operation == "igest") {
             socket.emit("getReloadedIgest", { kpiRecebimento, kpiVendas, kpiExpedicao });
         }
     });
-    
+
 
     // Sockets Recebimento
     socket.on("getRecebimento", (data) => {
@@ -104,7 +115,7 @@ io.on("connection", (socket) => {
         indicadorSeparacaoTipoProd = data.indicadorSeparacaoTipoProd;
         indicadorExpedicaoTipoProd = data.indicadorExpedicaoTipoProd;
     });
-    
+
     // Sockets Igest
     socket.on("getIgest", (data) => {
         kpiRecebimento = data.kpiRecebimento;
@@ -124,75 +135,42 @@ io.on("connection", (socket) => {
 
 // Indicando para o Express utilizar o EJS como View Engine
 app.set('view engine', 'ejs');
+
+// Sessions
+app.use(session({
+    secret: "2i3fmcjkds oiniofds$¨#³²45",
+    cookie: {
+        maxAge: 30 * 60 * 1000
+    },
+    resave: true,
+    saveUninitialized: true
+}));
+
+// Static
 app.use(express.static('public'));
 
+app.use((req, res, next) => {
+    res.locals.moment= moment;
+    next();
+});
+
 // Importando Body Parser, lib para ler as informações enviadas pelo POST
-app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // Rotas
+app.use("/", indicadoresController);
 
-app.get("/", async (req, res) => {
-    try {
-        res.render("index", { frontendUrl });
-    } catch (error) {
-        console.error("Erro na rota:", error);
-        res.status(500).send("Erro ao executar a rota");
-    }
+app.use("/", usersController);
+
+app.use("/", vendasController);
+
+app.get("/", userAuth, (req, res) => {
+    res.render("index", { frontendUrl, user: req.session.user });
 });
 
-app.get("/vendas", async (req, res) => {
-    try {
-        res.render("vendas", { frontendUrl, backendUrl });
-    } catch (error) {
-        console.error("Erro na rota:", error);
-        res.status(500).send("Erro ao executar a rota");
-    }
-});
-
-app.get("/vendas-finalizadas", async (req, res) => {
-    try {
-        res.render("vendas_finalizadas", { frontendUrl, backendUrl });
-    } catch (error) {
-        console.error("Erro na rota:", error);
-        res.status(500).send("Erro ao executar a rota");
-    }
-});
-
-app.get("/recebimento", async (req, res) => {
-    try {
-        res.render("recebimento", { frontendUrl, backendUrl });
-    } catch (error) {
-        console.error("Erro na rota:", error);
-        res.status(500).send("Erro ao executar a rota");
-    }
-});
-
-app.get("/indicadores", async (req, res) => {
-    try {
-        res.render("indicador", { frontendUrl, backendUrl });
-    } catch (error) {
-        console.error("Erro na rota:", error);
-        res.status(500).send("Erro ao executar a rota");
-    }
-});
-
-app.get("/indicadores/expedicao-cliente-dia", async (req, res) => {
-    try {
-        res.render("indicador_expedicao_dia", { frontendUrl, backendUrl });
-    } catch (error) {
-        console.error("Erro na rota:", error);
-        res.status(500).send("Erro ao executar a rota");
-    }
-});
-
-app.get("/indicadores/igest", async (req, res) => {
-    try {
-        res.render("igest", { frontendUrl, backendUrl });
-    } catch (error) {
-        console.error("Erro na rota:", error);
-        res.status(500).send("Erro ao executar a rota");
-    }
+app.get("/recebimento", (req, res) => {
+    res.render("recebimento", { frontendUrl, backendUrl });
 });
 
 http.listen(8080, () => {

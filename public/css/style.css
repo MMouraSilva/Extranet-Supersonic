@@ -20,10 +20,8 @@ body {
 
 .navbar img {
     width: 100%;
-    -webkit-filter: drop-shadow(2px 1px 0 white)
-    drop-shadow(-1px -1px 0 white);
-    filter: drop-shadow(2px 1px 0 white) 
-    drop-shadow(-1px -1px 0 white);
+    -webkit-filter: drop-shadow(2px 1px 0 white) drop-shadow(-1px -1px 0 white);
+    filter: drop-shadow(2px 1px 0 white) drop-shadow(-1px -1px 0 white);
 }
 
 .containerPage {
@@ -42,9 +40,13 @@ body {
 
 .wrapper {
     position: absolute;
-    top: 100px;
+    top: 6rem;
     min-height: 80% !important;
     width: 90%;
+}
+
+.content-wrapper {
+    background-color: #eceff1;
 }
 
 .graph {
@@ -78,7 +80,7 @@ body {
 }
 
 .tableDiv thead th {
-    position: sticky; 
+    position: sticky;
     top: 99px;
     background-color: #ECEFF1;
 }
@@ -92,8 +94,8 @@ body {
 .card-header {
     padding: 0.75rem 1.25rem;
     margin-bottom: 0;
-    background-color: rgba(0,0,0,.03);
-    border-bottom: 1px solid rgba(0,0,0,.125);
+    background-color: rgba(0, 0, 0, .03);
+    border-bottom: 1px solid rgba(0, 0, 0, .125);
 }
 
 .card-header h2 {
@@ -107,6 +109,10 @@ body {
 .form-group {
     margin-bottom: 0px;
     margin-right: 15px;
+}
+
+.label-float.form-group {
+    margin-right: 0px;
 }
 
 @media (max-width: 1070px) {
@@ -123,10 +129,98 @@ body {
     margin-right: 15px;
 }
 
-.btn {
+.btn-login {
     background-color: #fcd526;
 }
 
-.btn:hover {
+.btn-login:hover {
     background-color: #212529;
+}
+
+.black {
+    color: #212529;
+}
+
+.yellow {
+    color: #fcd526;
+}
+
+.login-page {
+    background-image: url("../img/login-page3.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+
+.label-float {
+    position: relative;
+    padding-top: 1rem;
+}
+
+.label-float input {
+    border: 1px solid lightgrey;
+    border-radius: 5px;
+    outline: none;
+    min-width: 250px;
+    padding: 15px 20px;
+    font-size: 16px;
+    transition: all .1s linear;
+    -webkit-transition: all .1s linear;
+    -moz-transition: all .1s linear;
+}
+
+.label-float input:focus {
+    border: 2px solid #3951b2;
+}
+
+.label-float input::placeholder {
+    color: transparent;
+}
+
+.label-float label {
+    pointer-events: none;
+    position: absolute;
+    top: calc(50% - 8px);
+    left: 15px;
+    transition: all .1s linear;
+    -webkit-transition: all .1s linear;
+    -moz-transition: all .1s linear;
+    background-color: white;
+    padding: 4px;
+    box-sizing: border-box;
+    color: #afafaf;
+}
+
+.label-float .form-control.is-invalid+label {
+    top: calc(50% - 1.2rem);
+}
+
+.label-float input:focus+label,
+.label-float input:not(:placeholder-shown)+label {
+    font-size: 1rem;
+    top: 0 !important;
+    color: #3951b2;
+}
+
+.login-input {
+    height: 3rem;
+}
+
+.login-error {
+    border-color: #dc3545;
+    padding-right: 2.25rem!important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23dc3545' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+.container.user {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+}
+
+.wrapper.user {
+    width: 100%;
 }
