@@ -21,11 +21,9 @@
                                             <ol class="breadcrumb float-sm-right">
                                                 <li class="breadcrumb-item"><a href="/">Home</a></li>
                                                 <li class="breadcrumb-item"><a href="/users">Usuários</a></li>
-                                                <% if(operation == "edit") {
-                                                    selectedUser.forEach(user => { %>
-                                                        <li class="breadcrumb-item"><a href="/users/edit/<%= user.id %>"><%= user.data().name %></a></li>
-                                                    <% });
-                                                } else if(operation == "create") { %>
+                                                <% if(operation == "edit") { %>
+                                                    <li class="breadcrumb-item"><a href="/users/edit/<%= userToEdit.id %>"><%= userToEdit.data().name %></a></li>
+                                                <% } else if(operation == "create") { %>
                                                     <li class="breadcrumb-item"><a href="/users/create">Cadastro</a></li>
                                                 <% } %>
                                             </ol>
@@ -35,10 +33,9 @@
                             </section>
                             <section class="content">
                                 <div class="container-fluid">
-                                    <% if(operation == "edit") {
-                                        selectedUser.forEach(user => { %>
+                                    <% if(operation == "edit") { %>
                                         <form id="userUpdateForm" method="POST" action="/users/edit">
-                                            <input type="hidden" id="id" name="id" value="<%= user.id %>">
+                                            <input type="hidden" id="id" name="id" value="<%= userToEdit.id %>">
                                             <div class="card">
                                                 <div class="card-body ">
                                                     <% if(updateStatus) { %>
@@ -59,13 +56,13 @@
                                                         <!-- text input -->
                                                         <div class="form-group col-6">
                                                             <label id="name-label" for="name">Nome</label>
-                                                            <input type="text" class="form-control" value="<%= user.data().name %>"
+                                                            <input type="text" class="form-control" value="<%= userToEdit.data().name %>"
                                                             id="name" placeholder="e.g.: Matheus Moura Silva" name="name" required>
                                                         </div>
                                                         <!-- text input -->
                                                         <div class="form-group col-6">
                                                             <label id="login-label" for="login">Login</label>
-                                                            <input type="text" class="form-control" value="<%= user.data().login %>"
+                                                            <input type="text" class="form-control" value="<%= userToEdit.data().login %>"
                                                             id="login" name="login" placeholder="e.g.: matheus.moura" required>
                                                         </div>
                                                     </div>
@@ -73,13 +70,13 @@
                                                         <!-- text input -->
                                                         <div class="form-group col-6">
                                                             <label id="email-label" for="email">E-mail</label>
-                                                            <input type="text" class="form-control" value="<%= user.data().email %>"
+                                                            <input type="text" class="form-control" value="<%= userToEdit.data().email %>"
                                                             id="email" placeholder="e.g.: emailexemplo@email.com" name="email" required>
                                                         </div>
                                                         <!-- text input -->
                                                         <div class="form-group col-6">
                                                             <label id="phone-label" for="phone">Telefone</label>
-                                                            <input type="text" class="form-control" value="<%= user.data().phone %>"
+                                                            <input type="text" class="form-control" value="<%= userToEdit.data().phone %>"
                                                             id="phone" name="phone" placeholder="e.g.: (11) 98765-4321" required>
                                                         </div>
                                                     </div>
@@ -108,8 +105,7 @@
                                                 </div>
                                             </div>
                                         </form>
-                                    <% });
-                                    } else if(operation == "create") { %>
+                                    <% } else if(operation == "create") { %>
                                         <form id="userCreateForm" method="POST" action="/users/create">
                                             <div class="card">
                                                 <div class="card-body ">
@@ -191,24 +187,59 @@
     <script>
         window.onbeforeunload = function() {
             localStorage.setItem("name", $('#name').val());
+            localStorage.setItem("login", $('#login').val());
             localStorage.setItem("email", $('#email').val());
             localStorage.setItem("phone", $('#phone').val());
         }
 
         window.onload = function() {
-            var name = localStorage.getItem("name");
-            var email = localStorage.getItem("email");
-            var phone = localStorage.getItem("phone");
+        //<% if(operation == "edit") { %>
+            //<% if(updateStatus) { %>
+                //<% if(updateStatus.emailError || updateStatus.loginError) { %>
 
-            if (name !== null) { 
-                $('#name').val(name);
-            }
-            if (email !== null) { 
-                $('#email').val(email);    
-            }
-            if (phone !== null) { 
-                $('#phone').val(phone);
-            }        
+                    var name = localStorage.getItem("name");
+                    var email = localStorage.getItem("email");
+                    var phone = localStorage.getItem("phone");
+                    var login = localStorage.getItem("login");
+
+                    if (name !== null) { 
+                        $('#name').val(name);
+                    }
+                    if (email !== null) { 
+                        $('#email').val(email);    
+                    }
+                    if (phone !== null) { 
+                        $('#phone').val(phone);
+                    }     
+                    if (login !== null) { 
+                        $('#login').val(login);
+                    }     
+            
+                //<% } %>
+            //<% } %>
+        //<% } else if(operation == "create") { %>
+            //<% if(createStatus) { %>
+                //<% if(createStatus.emailError || createStatus.loginError) { %>
+                    var name = localStorage.getItem("name");
+                    var email = localStorage.getItem("email");
+                    var phone = localStorage.getItem("phone");
+                    var login = localStorage.getItem("login");
+
+                    if (name !== null) { 
+                        $('#name').val(name);
+                    }
+                    if (email !== null) { 
+                        $('#email').val(email);    
+                    }
+                    if (phone !== null) { 
+                        $('#phone').val(phone);
+                    }
+                    if (login !== null) { 
+                        $('#login').val(login);
+                    }  
+                //<% } %>
+            //<% } %>
+        //<% } %>
         }
 
         document.getElementById("cancelButton").onclick = function () {

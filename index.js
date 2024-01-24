@@ -20,6 +20,8 @@ const userAuth = require("./middlewares/userAuth");
 const vendasController = require("./controllers/vendas");
 const indicadoresController = require("./controllers/indicadores");
 const usersController = require("./controllers/users");
+const pagesController = require("./controllers/pages");
+const profilesController = require("./controllers/profiles");
 
 var recebimentos;
 var vendas;
@@ -164,6 +166,10 @@ app.use("/", indicadoresController);
 app.use("/", usersController);
 
 app.use("/", vendasController);
+
+app.use("/", pagesController);
+
+app.use("/", profilesController);
 
 app.get("/", userAuth, (req, res) => {
     res.render("index", { frontendUrl, user: req.session.user });

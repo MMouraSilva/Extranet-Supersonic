@@ -11,7 +11,7 @@
                         <div class="container-fluid">
                             <div class="row mb-2">
                                 <div class="col-sm-6">
-                                    <h1>Usuários</h1>
+                                    <h1>Perfis</h1>
                                     <% if(updateStatus) { %>
                                         <% if(updateStatus.completed) { %>
                                             <br>
@@ -50,7 +50,7 @@
                                 <div class="col-sm-6">
                                     <ol class="breadcrumb float-sm-right">
                                         <li class="breadcrumb-item"><a href="/">Home</a></li>
-                                        <li class="breadcrumb-item"><a href="/users">Usuários</a></li>
+                                        <li class="breadcrumb-item"><a href="/pages">Páginas</a></li>
                                     </ol>
                                 </div>
                             </div>
@@ -58,33 +58,27 @@
                     </section>
                     <section class="content">
                         <div class="container-fluid">
-                            <button type="button" id="createButton" class="btn btn-primary mb-3 text-white font-weight-bold">Criar Usuário</button>
+                            <button type="button" id="createButton" class="btn btn-primary mb-3 text-white font-weight-bold">Cadastrar Página</button>
                             <table id="example1" class="table table-bordered table-striped" width="100%">
                                 <thead>
                                     <tr>
-                                        <th>Login</th>
-                                        <th>Nome</th>
-                                        <th>E-mail</th>
-                                        <th>Telefone</th>
+                                        <th>Perfil</th>
                                         <th>Criado em</th>
                                         <th>Atualizado em</th>
                                         <th>Ações</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <% users.forEach(user => { %>
+                                    <% profiles.forEach(profile => { %>
                                         <tr>
-                                            <td><%= user.data().login %></td>
-                                            <td><%= user.data().name %></td>
-                                            <td><%= user.data().email %></td>
-                                            <td><%= user.data().phone %></td>
-                                            <td><%= user.data().createdAt ? moment(user.data().createdAt.toDate()).format("DD/MM/YYYY HH:mm") : user.data().createdAt %></td>
-                                            <td><%= user.data().updatedAt ? moment(user.data().updatedAt.toDate()).format("DD/MM/YYYY HH:mm") : user.data().updatedAt %></td>
+                                            <td><%= profile.data().profileName %></td>
+                                            <td><%= profile.data().createdAt ? moment(profile.data().createdAt.toDate()).format("DD/MM/YYYY HH:mm") : profile.data().createdAt %></td>
+                                            <td><%= profile.data().updatedAt ? moment(profile.data().updatedAt.toDate()).format("DD/MM/YYYY HH:mm") : profile.data().updatedAt %></td>
                                             <td>
-                                                <a href="/users/edit/<%= user.id %>" class="btn btn-warning"><i class="fa-solid fa-pen-to-square"></i></a>
+                                                <a href="/pages/edit/<%= profile.id %>" class="btn btn-warning"><i class="fa-solid fa-pen-to-square"></i></a>
 
-                                                <form method="POST" action="/users/delete" style="display: inline;" onsubmit="confirmDelete(event, this)">
-                                                    <input type="hidden" name="id" value="<%= user.id %>">
+                                                <form method="POST" action="/pages/delete" style="display: inline;" onsubmit="confirmDelete(event, this)">
+                                                    <input type="hidden" name="id" value="<%= profile.id %>">
                                                     <button class="btn btn-danger"><i class="fa-solid fa-trash"></i></button>
                                                 </form>
                                             </td>
@@ -101,7 +95,7 @@
     <%- include('../partials/footer.ejs') %>
         <script>
             document.getElementById("createButton").onclick = function () {
-                location.href = "/users/create";
+                location.href = "/pages/create";
             };
 
             $(function () {
@@ -113,7 +107,7 @@
 
             function confirmDelete(event, form) {
                 event.preventDefault();
-                var decision = confirm("Você quer deletar este usuário?");
+                var decision = confirm("Você quer deletar esta página?");
 
                 if(decision) {
                     form.submit();

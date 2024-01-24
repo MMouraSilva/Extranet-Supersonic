@@ -38,7 +38,7 @@ router.get("/users/edit/:id", userAuth, async (req, res) => {
         const user = new User(req.params);
         const userToEdit = await user.GetUserById(id);
 
-        res.render("users/form", { selectedUser: userToEdit, operation: "edit", user: req.session.user, updateStatus });
+        res.render("users/form", { userToEdit, operation: "edit", user: req.session.user, updateStatus });
     } else {
         res.redirect("/users");
     }

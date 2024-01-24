@@ -22,19 +22,21 @@ class User {
             var emailError, loginError, hasError;
 
             if(emailExists) {
-                hasError = true;
                 emailError = true;
             } else {
-                hasError = false;
                 emailError = false;
             }
 
             if(loginExists) {
-                hasError = true;
                 loginError = true;
             } else {
-                hasError = false;
                 loginError = false;
+            }
+
+            if(loginError || emailError) {
+                hasError = true;
+            } else {
+                hasError = false;
             }
 
             if(hasError) {
@@ -47,7 +49,7 @@ class User {
                     password: this.password,
                     phone: this.phone,
                     createdAt: FieldValue.serverTimestamp(),
-                    updatedAt: FieldValue.serverTimestamp()
+                    updatedAt: null
                 }
         
                 await db.collection("users").add(data);
@@ -87,9 +89,9 @@ class User {
     }
 
     async GetUserByEmail(email) {
-        const userDocs = await db.collection("users").where('email', '==', email).limit(1).get();
+        const user = await db.collection("users").where('email', '==', email).limit(1).get();
 
-        if(userDocs.empty) {
+        if(user.empty) {
             return false; // User don't exist
         } else {
             return true; // User exists
@@ -101,7 +103,7 @@ class User {
     }
 
     async GetUserById(id) {
-        return await db.collection("users").get(id);
+        return await db.collection("users").doc(id).get();
     }
 
     async UpdateUser() {
@@ -111,40 +113,39 @@ class User {
             const emailExists = await this.GetUserByEmail(this.email); // Falso atualiza, Verdadeiro da erro
             var changeEmail, changeLogin, hasError, emailError, loginError;
 
-            user.forEach(user => {
-                if(user.data().email == this.email) {
-                    changeEmail = false;
-                } else {
-                    changeEmail = true;
-                }
+            if(user.data().email == this.email) {
+                changeEmail = false;
+            } else {
+                changeEmail = true;
+            }
 
-                if(user.data().login == this.login) {
-                    changeLogin = false;
-                } else {
-                    changeLogin = true;
-                }
-            });
+            if(user.data().login == this.login) {
+                changeLogin = false;
+            } else {
+                changeLogin = true;
+            }
 
             if(changeEmail) {
                 if(emailExists) {
-                    hasError = true;
                     emailError = true;
                 } else {
-                    hasError = false;
                     emailError = false;
                 }
             }
 
             if(changeLogin) {
                 if(loginExists) {
-                    hasError = true;
                     loginError = true;
                 } else {
-                    hasError = false;
                     loginError = false;
                 }
             }
 
+            if(loginError || emailError) {
+                hasError = true;
+            } else {
+                hasError = false;
+            }
 
             if(hasError) {
                 return { hasError, loginError, emailError, error: "Login ou e-mail já existe" };

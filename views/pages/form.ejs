@@ -1,0 +1,343 @@
+<%- include('../partials/header.ejs') %>
+
+    <body class="hold-transition sidebar-mini layout-fixed sidebar-collapse justify-content-center">
+        <%- include('../partials/navbar2.ejs') %>
+        <div class="wrapper user">
+                <%- include('../partials/sidebar.ejs') %>
+                    <div class="container justify-content-center">
+                        <div class="content-wrapper">
+                            <!-- Content Header (Page header) -->
+                            <section class="content-header">
+                                <div class="container-fluid">
+                                    <div class="row mb-2">
+                                        <div class="col-sm-6">
+                                            <% if(operation == "edit") { %>
+                                                <h1>Editar Página</h1>
+                                            <% } else if(operation == "create") { %>
+                                                <h1>Cadastrar Página</h1>
+                                            <% } %>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <ol class="breadcrumb float-sm-right">
+                                                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                                                <li class="breadcrumb-item"><a href="/users">Páginas</a></li>
+                                                <% if(operation == "edit") { %>
+                                                    <li class="breadcrumb-item"><a href="/users/edit/<%= pageToEdit.id %>"><%= pageToEdit.data().pageName %></a></li>
+                                                <% } else if(operation == "create") { %>
+                                                    <li class="breadcrumb-item"><a href="/pages/create">Cadastro</a></li>
+                                                <% } %>
+                                            </ol>
+                                        </div>
+                                    </div>
+                                </div><!-- /.container-fluid -->
+                            </section>
+                            <section class="content">
+                                <div class="container-fluid">
+                                    <% if(operation == "edit") { %>
+                                        <form id="pageUpdateForm" method="POST" action="/pages/edit" onsubmit="sendData(event, this)">
+                                            <input type="hidden" id="id" name="id" value="<%= pageToEdit.id %>">
+                                            <div class="card">
+                                                <div class="card-body ">
+                                                    <% if(updateStatus) { %>
+                                                        <% if(updateStatus.pageError) { %>
+                                                            <div class="d-flex mb-3 text-danger justify-content-center align-items-center">
+                                                                <i class="fa-solid fa-triangle-exclamation fa-lg"></i>
+                                                                <span class="font-weight-bold ml-2">Página já existe</span>
+                                                            </div>
+                                                        <% } %>
+                                                    <% } %>
+                                                    <div class="d-flex mb-3">
+                                                        <!-- text input -->
+                                                        <div class="form-group col-6">
+                                                            <label id="page-name-label" for="pageName">Nome da Página</label>
+                                                            <input type="text" class="form-control" value="<%= pageToEdit.data().pageName %>"
+                                                            id="pageName" placeholder="e.g.: Usuários" name="pageName" required>
+                                                        </div>
+                                                        <!-- text input -->
+                                                        <div class="form-group col-6">
+                                                            <label id="url-label" for="urlPath">URL</label>
+                                                            <input type="text" class="form-control" value="<%= pageToEdit.data().urlPath %>"
+                                                            id="urlPath" name="urlPath" placeholder="e.g.: /users" required
+                                                            <%= pageToEdit.data().isMenuGroup ? "disabled" : null %>>
+                                                        </div>
+                                                    </div>
+                                                    <div class="d-flex mb-3">
+                                                        <div class="form-group col-6 mt-2">
+                                                            <div class="custom-control custom-checkbox mb-2">
+                                                                <input class="custom-control-input" type="checkbox"
+                                                                id="isMenuGroup" name="isMenuGroup" value="true" <%= pageToEdit.data().isMenuGroup ? "checked" : null %>>
+                                                                <label for="isMenuGroup" class="custom-control-label">É um Grupo de Menu em Cascata?</label>
+                                                            </div>
+                                                            <div class="custom-control custom-checkbox">
+                                                                <input class="custom-control-input" type="checkbox"
+                                                                id="isSubMenu" name="isSubMenu" value="true" <%= pageToEdit.data().isSubMenu ? "checked" : null %>>
+                                                                <label for="isSubMenu" class="custom-control-label">É um Item de Submenu?</label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group col-6">
+                                                            <label>Grupo de Menu</label>
+                                                            <select class="custom-select form-control" id="menuGroupId" name="menuGroupId" required
+                                                            <%= pageToEdit.data().isSubMenu ? null : "disabled" %>>
+                                                              <option value="" disabled selected>Escolha um Grupo</option>
+                                                              
+                                                                <% menuGroup.forEach(option => { %>
+                                                                    <option value="<%= option.id %>"
+                                                                    <%= pageToEdit.data().menuGroupId == option.id ? "selected" : null %>
+                                                                    ><%= option.data().pageName %></option>
+                                                                <% }); %>
+
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex justify-content-end col-12">
+                                                <div class="col-4 col-sm-6 col-md-6 col-lg-4">
+                                                    <button type="button" id="cancelButton" class="btn btn-block bg-gradient btn-danger btn-lg col-12 text-white font-weight-bold">Cancelar</button>
+                                                </div>
+                                                <div class="col-4 col-sm-6 col-md-6 col-lg-4">
+                                                    <button type="submit" class="btn btn-block bg-gradient btn-login btn-lg col-12 text-white font-weight-bold">Salvar</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    <% } else if(operation == "create") { %>
+                                        <form id="pageCreateForm" method="POST" action="/pages/create" onsubmit="sendData(event, this)">
+                                            <div class="card">
+                                                <div class="card-body ">
+                                                    <% if(createStatus) { %>
+                                                        <% if(createStatus.pageError) { %>
+                                                            <div class="d-flex mb-3 text-danger justify-content-center align-items-center">
+                                                                <i class="fa-solid fa-triangle-exclamation fa-lg"></i>
+                                                                <span class="font-weight-bold ml-2">Página já existe</span>
+                                                            </div>
+                                                        <% } %>
+                                                    <% } %>
+                                                    <div class="d-flex mb-3">
+                                                        <!-- text input -->
+                                                        <div class="form-group col-6">
+                                                            <label id="page-name-label" for="pageName">Nome da Página</label>
+                                                            <input type="text" class="form-control"
+                                                            id="pageName" placeholder="e.g.: Usuários" name="pageName" required>
+                                                        </div>
+                                                        <!-- text input -->
+                                                        <div class="form-group col-6">
+                                                            <label id="url-label" for="urlPath">URL</label>
+                                                            <input type="text" class="form-control"
+                                                            id="urlPath" name="urlPath" placeholder="e.g.: /users" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="d-flex mb-3">
+                                                        <div class="form-group col-6 mt-2">
+                                                            <div class="custom-control custom-checkbox mb-2">
+                                                                <input class="custom-control-input" type="checkbox" id="isMenuGroup" name="isMenuGroup" value="true">
+                                                                <label for="isMenuGroup" class="custom-control-label">É um Grupo de Menu em Cascata?</label>
+                                                            </div>
+                                                            <div class="custom-control custom-checkbox">
+                                                                <input class="custom-control-input" type="checkbox" id="isSubMenu" name="isSubMenu" value="true">
+                                                                <label for="isSubMenu" class="custom-control-label">É um Item de Submenu?</label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group col-6">
+                                                            <label>Grupo de Menu</label>
+                                                            <select class="custom-select form-control" id="menuGroupId" name="menuGroupId" disabled required>
+                                                              <option value="" disabled selected>Escolha um Grupo</option>
+                                                              
+                                                                <% menuGroup.forEach(option => { %>
+                                                                    <option value="<%= option.id %>"><%= option.data().pageName %></option>
+                                                                <% }); %>
+
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex justify-content-end col-12">
+                                                <div class="col-4 col-sm-6 col-md-6 col-lg-4">
+                                                    <button type="button" id="cancelButton" class="btn btn-block bg-gradient btn-danger btn-lg col-12 text-white font-weight-bold">Cancelar</button>
+                                                </div>
+                                                <div class="col-4 col-sm-6 col-md-6 col-lg-4">
+                                                    <button type="submit" class="btn btn-block bg-gradient btn-login btn-lg col-12 text-white font-weight-bold">Cadastrar</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    <% } %>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+        </div>
+    </body>
+    <%- include('../partials/footer.ejs') %>
+    <script>
+        window.onbeforeunload = function() {
+            localStorage.setItem("pageName", $('#pageName').val());
+            localStorage.setItem("urlPath", $('#urlPath').val());
+            localStorage.setItem("menuGroupId", $('#menuGroupId').val());
+
+            if($("#isMenuGroup").is(":checked")) {
+                localStorage.setItem("isMenuGroup", true);
+            } else {
+                localStorage.setItem("isMenuGroup", false);
+            }
+
+            if($("#isSubMenu").is(":checked")) {
+                localStorage.setItem("isSubMenu", true);
+            } else {
+                localStorage.setItem("isSubMenu", false);
+            }
+        }
+
+        window.onload = function() {
+        //<% if(operation == "edit") { %>
+            //<% if(updateStatus) { %>
+                //<% if(updateStatus.pageError) { %>
+
+                    var pageName = localStorage.getItem("pageName");
+                    var urlPath = localStorage.getItem("urlPath");
+                    var isMenuGroup = localStorage.getItem("isMenuGroup");
+                    var isSubMenu = localStorage.getItem("isSubMenu");
+                    var menuGroupId = localStorage.getItem("menuGroupId");
+
+                    if (pageName !== null) { 
+                        $('#pageName').val(pageName);
+                    }
+                    if (urlPath !== null) { 
+                        $('#urlPath').val(urlPath);    
+                    }
+                    if (isMenuGroup == "true") { 
+                        $('#isMenuGroup').prop("checked", true);
+                        $('#urlPath').prop("disabled", true);
+                    }
+                    if (isSubMenu == "true") { 
+                        $('#isSubMenu').prop("checked", true);
+                        $('#menuGroupId').prop("disabled", false);
+                    }  
+                    if (menuGroupId !== "null") { 
+                        $('#menuGroupId').val(menuGroupId);
+                    }   
+            
+                //<% } %>
+            //<% } %>
+        //<% } else if(operation == "create") { %>
+            //<% if(createStatus) { %>
+                //<% if(createStatus.pageError) { %>
+
+                    var pageName = localStorage.getItem("pageName");
+                    var urlPath = localStorage.getItem("urlPath");
+                    var isMenuGroup = localStorage.getItem("isMenuGroup");
+                    var isSubMenu = localStorage.getItem("isSubMenu");
+                    var menuGroupId = localStorage.getItem("menuGroupId");
+
+                    if (pageName !== null) { 
+                        $('#pageName').val(pageName);
+                    }
+                    if (urlPath !== null) { 
+                        $('#urlPath').val(urlPath);    
+                    }
+                    if (isMenuGroup == "true") { 
+                        $('#isMenuGroup').prop("checked", true);
+                        $('#urlPath').prop("disabled", true);
+                    }
+                    if (isSubMenu == "true") { 
+                        $('#isSubMenu').prop("checked", true);
+                        $('#menuGroupId').prop("disabled", false);
+                    }  
+                    if (menuGroupId !== "null") { 
+                        $('#menuGroupId').val(menuGroupId);
+                    }
+
+                //<% } %>
+            //<% } %>
+        //<% } %>
+        }
+
+        $("#isSubMenu").change(function() {
+            if(this.checked) {
+                $("#menuGroupId").prop("disabled", false);
+            } else {
+                $("#menuGroupId").prop("disabled", true);
+                $("#menuGroupId").val("").change();
+            }
+        });
+
+        $("#isMenuGroup").change(function() {
+            if(this.checked) {
+                $("#urlPath").prop("disabled", true);
+                $("#urlPath").val("").change();
+            } else {
+                $("#urlPath").prop("disabled", false);
+            }
+        });
+
+        document.getElementById("cancelButton").onclick = function () {
+            location.href = "/pages";
+        };
+
+        $(function () {
+            $('#pageUpdateForm').validate({
+                rules: {
+                    pageName: {
+                        required: true
+                    },
+                    menuGroupId: {
+                        required: true
+                    }
+                },
+                messages: {
+                    pageName: {
+                        required: "Digite um nome para a página"
+                    },
+                    menuGroupId: {
+                        required: "Escolha um Grupo de Menu para a página fazer parte"
+                    }
+                },
+                errorElement: 'span',
+                errorPlacement: function (error, element) {
+                    error.addClass('invalid-feedback');
+                    element.closest('.form-group').append(error);
+                },
+                highlight: function (element, errorClass, validClass) {
+                    $(element).addClass('is-invalid');
+                },
+                unhighlight: function (element, errorClass, validClass) {
+                    $(element).removeClass('is-invalid');
+                }
+            });
+
+            $('#pageCreateForm').validate({
+                rules: {
+                    pageName: {
+                        required: true
+                    },
+                    menuGroupId: {
+                        required: true
+                    },
+                    urlPath: {
+                        required: true
+                    }
+                },
+                messages: {
+                    pageName: {
+                        required: "Digite um nome para a Página"
+                    },
+                    menuGroupId: {
+                        required: "Escolha um Grupo de Menu para a página fazer parte"
+                    },
+                    urlPath: {
+                        required: "Digite o URL da página"
+                    }
+                },
+                errorElement: 'span',
+                errorPlacement: function (error, element) {
+                    error.addClass('invalid-feedback');
+                    element.closest('.form-group').append(error);
+                },
+                highlight: function (element, errorClass, validClass) {
+                    $(element).addClass('is-invalid');
+                },
+                unhighlight: function (element, errorClass, validClass) {
+                    $(element).removeClass('is-invalid');
+                }
+            });
+        });
+    </script>

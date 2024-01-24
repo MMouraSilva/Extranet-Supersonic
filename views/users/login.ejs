@@ -13,11 +13,11 @@
 
                     <form id="authenticationForm" action="/authenticate" method="post">
                         <div class="label-float form-group">
-                            <input type="text" class="form-control login-input" name="login" placeholder=" " required>
+                            <input type="text" class="form-control login-input" name="login" id="login" placeholder=" " required>
                             <label>Login</label>
                         </div>
                         <div class="mb-3 label-float form-group">
-                            <input type="password" class="form-control login-input" name="password" placeholder=" " required>
+                            <input type="password" class="form-control login-input" name="password" id="password" placeholder=" " required>
                             <label>Senha</label>
                         </div>
                         <% if(loginStatus) { %>
@@ -41,6 +41,25 @@
     </body>
     <%- include('../partials/footer.ejs') %>
         <script>
+            window.onbeforeunload = function() {
+                localStorage.setItem("login", $('#login').val());
+                localStorage.setItem("password", $('#password').val());
+            }
+
+            window.onload = function() {
+                //<% if(loginStatus) { %>
+                    var login = localStorage.getItem("login");
+                    var password = localStorage.getItem("password");
+
+                    if (name !== null) { 
+                        $('#login').val(login);
+                    }
+                    if (password !== null) { 
+                        $('#password').val(password);    
+                    }     
+                //<% } %>
+            }
+
             $(function () {
                 $('#authenticationForm').validate({
                     rules: {
