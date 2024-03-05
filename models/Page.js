@@ -95,7 +95,7 @@ class Page {
     async UpdatePage() {
         try {
             const page = await this.GetPageById();
-            const pageExists = await this.GetPageByName(this.login);
+            const pageExists = await this.GetPageByName();
             var changeName, hasError, nameError;
 
             if(page.data().pageName == this.pageName) {
@@ -121,7 +121,6 @@ class Page {
             if(hasError) {
                 return { hasError, pageError: nameError, error: "Página já existe" };
             } else {
-                // Update user without changing the password
                 const data = {
                     pageName: this.pageName,
                     urlPath: this.urlPath,
@@ -137,6 +136,13 @@ class Page {
         } catch(error) {
             return { hasError: true, error };
         }
+    }
+
+    async GetPagesObject() {
+        const pageQuery = await this.GetPageById();
+        var page = pageQuery.data();
+        page.id = pageQuery.id;
+        return page;
     }
 
     async DeletePage() {

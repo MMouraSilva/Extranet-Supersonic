@@ -57,6 +57,10 @@ body {
     height: 700px;
 }
 
+.tab-content.form-user {
+    height: 100%;
+}
+
 .tab-pane {
     position: relative;
     height: 100%;
@@ -71,6 +75,17 @@ body {
 
 .nav-link.active {
     background-color: #ffc107 !important;
+}
+
+.nav-link.active.form-user {
+    background-color: #212529 !important;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.nav-link.form-user {
+    color: #212529;
+    font-weight: bold;
 }
 
 .navDiv {

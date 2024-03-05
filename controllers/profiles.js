@@ -22,119 +22,82 @@ router.get("/profiles", userAuth, async (req, res) => {
     }
 });
 
-// router.get("/pages/edit/:id", userAuth, async (req, res) => {
-//     const id = req.params.id;
+router.get("/profiles/edit/:id", userAuth, async (req, res) => {
+    const id = req.params.id;
 
-//     const updateStatus = req.session.updatePageStatus;
-//     req.session.updatePageStatus = undefined;
+    const updateStatus = req.session.updateProfileStatus;
+    req.session.updateProfileStatus = undefined;
 
-//     if(id) {
-//         const page = new Page(req.params);
-//         const pageToEdit = await page.GetPageById();
-//         const menuGroup = await Page.GetMenuGroup();
+    if(id) {
+        const profile = new Profile(req.params);
+        const profileToEdit = await profile.GetProfileById();
 
-//         res.render("pages/form", { pageToEdit, operation: "edit", user: req.session.user, updateStatus, menuGroup });
-//     } else {
-//         res.redirect("/pages");
-//     }
-// });
+        const permissions = await profile.GetPermissions();
+        
+        const pages = await Profile.GetPages();
 
-// router.post("/pages/edit", async (req, res) => {
-//     var form = req.body;
+        res.render("profiles/form", { profileToEdit, operation: "edit", user: req.session.user, updateStatus, pages, permissions });
+    } else {
+        res.redirect("/profiles");
+    }
+});
 
-//     if (!form.isMenuGroup) {
-//         form.isMenuGroup = false;
-//     } else {
-//         form.isMenuGroup = true;
-//     }
+router.post("/profiles/edit", async (req, res) => {
+    const form = req.body;
 
-//     if (!form.isSubMenu) {
-//         form.isSubMenu = false;
-//     } else {
-//         form.isSubMenu = true;
-//     }
+    const profile = new Profile(form);
+    const updateRes = await profile.UpdateProfile();
 
-//     if (!form.urlPath) {
-//         form.urlPath = null;
-//     }
+    if(updateRes.hasError) {
+        console.log(updateRes.error);
+        if(updateRes.profileError) {
+            req.session.updateProfileStatus = { completed: false, error: updateRes.error, profileError: updateRes.profileError };
+            res.redirect("/profiles/edit/" + form.id);
+        } else {
+            req.session.updateProfileStatus = { completed: false, error: updateRes.error, profileError: updateRes.profileError };
+            res.redirect("/profiles");
+        }
+    } else {
+        req.session.updateProfileStatus = { completed: true };
+        res.redirect("/profiles");
+    }
+});
 
-//     if (!form.menuGroupId) {
-//         form.menuGroupId = null;
-//     }
+router.get("/profiles/create", userAuth, async (req, res) => {
+    const createStatus = req.session.createProfileStatus;
+    req.session.createProfileStatus = undefined;
 
-//     const page = new Page(form);
-//     const updateRes = await page.UpdatePage();
+    const pages = await Profile.GetPages();
 
-//     if(updateRes.hasError) {
-//         console.log(updateRes.error);
-//         if(updateRes.pageError) {
-//             req.session.updatePageStatus = { completed: false, error: updateRes.error, pageError: updateRes.pageError };
-//             res.redirect("/pages/edit/" + form.id);
-//         } else {
-//             req.session.updatePageStatus = { completed: false, error: updateRes.error, pageError: updateRes.pageError };
-//             res.redirect("/pages");
-//         }
-//     } else {
-//         req.session.updatePageStatus = { completed: true };
-//         res.redirect("/pages");
-//     }
-// });
+    res.render("profiles/form", { operation: "create", user: req.session.user, createStatus, pages });
+});
 
-// router.get("/pages/create", userAuth, async (req, res) => {
-//     const createStatus = req.session.createPageStatus;
-//     req.session.createPageStatus = undefined;
+router.post("/profiles/create", async (req, res) => {
+    const form = req.body;
 
-//     const menuGroup = await Page.GetMenuGroup();
+    const profile = new Profile(form);
+    const createRes = await profile.CreateProfile();
 
-//     res.render("pages/form", { operation: "create", user: req.session.user, createStatus, menuGroup });
-// });
+    if(createRes.hasError) {
+        console.log(createRes.error);
+        if(createRes.profileError) {
+            req.session.createProfileStatus = { completed: false, error: createRes.error, profileError: createRes.profileError };
+            res.redirect("/profiles/create");
+        } else {
+            req.session.createProfileStatus = { completed: false, error: createRes.error, profileError: createRes.profileError };
+            res.redirect("/profiles");
+        }
+    } else {
+        req.session.createProfileStatus = { completed: true };
+        res.redirect("/profiles");
+    }
+});
 
-// router.post("/pages/create", async (req, res) => {
-//     var form = req.body;
+router.post("/profiles/delete", async (req, res) => {
+    const profile = new Profile(req.body);
+    await profile.DeleteProfile();
 
-//     if (!form.isMenuGroup) {
-//         form.isMenuGroup = false;
-//     } else {
-//         form.isMenuGroup = true;
-//     }
-
-//     if (!form.isSubMenu) {
-//         form.isSubMenu = false;
-//     } else {
-//         form.isSubMenu = true;
-//     }
-
-//     if (!form.urlPath) {
-//         form.urlPath = null;
-//     }
-
-//     if (!form.menuGroupId) {
-//         form.menuGroupId = null;
-//     }
-
-//     const page = new Page(form);
-//     const createRes = await page.CreatePage();
-
-//     if(createRes.hasError) {
-//         console.log(createRes.error);
-//         if(createRes.pageError) {
-//             req.session.createPageStatus = { completed: false, error: createRes.error, pageError: createRes.pageError };
-//             res.redirect("/pages/create");
-//         } else {
-//             req.session.createPageStatus = { completed: false, error: createRes.error, pageError: createRes.pageError };
-//             res.redirect("/pages");
-//         }
-//     } else {
-//         req.session.createPageStatus = { completed: true };
-//         res.redirect("/pages");
-//     }
-// });
-
-// router.post("/pages/delete", async (req, res) => {
-//     const page = new Page(req.body);
-//     await page.DeletePage();
-
-//     res.redirect("/pages");
-// });
+    res.redirect("/profiles");
+});
 
 module.exports = router;

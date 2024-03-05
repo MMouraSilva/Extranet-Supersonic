@@ -33,65 +33,109 @@
                             </section>
                             <section class="content">
                                 <div class="container-fluid">
+                                    <ul class="nav nav-tabs" id="tabs" role="tablist">
+                                        <li class="nav-item">
+                                            <a class="nav-link active form-user" id="user-form-tab" data-toggle="pill" href="#user-form" role="tab" aria-controls="user-form" aria-selected="true">Usuário</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link form-user" id="profiles-form-tab" data-toggle="pill" href="#profiles-form" role="tab" aria-controls="profiles-form" aria-selected="false">Perfis</a>
+                                        </li>
+                                    </ul>
                                     <% if(operation == "edit") { %>
                                         <form id="userUpdateForm" method="POST" action="/users/edit">
                                             <input type="hidden" id="id" name="id" value="<%= userToEdit.id %>">
-                                            <div class="card">
-                                                <div class="card-body ">
-                                                    <% if(updateStatus) { %>
-                                                        <% if(updateStatus.emailError) { %>
-                                                            <div class="d-flex mb-3 text-danger justify-content-center align-items-center">
-                                                                <i class="fa-solid fa-triangle-exclamation fa-lg"></i>
-                                                                <span class="font-weight-bold ml-2">E-mail já existe</span>
+                                            <div class="tab-content form-user" id="form-tab-content">
+
+                                                <div class="tab-pane fade show active" id="user-form" role="tabpanel" aria-labelledby="user-form-tab">
+                                                    <div class="card">
+                                                        <div class="card-body ">
+                                                            <% if(updateStatus) { %>
+                                                                <% if(updateStatus.emailExists) { %>
+                                                                    <div class="d-flex mb-3 text-danger justify-content-center align-items-center">
+                                                                        <i class="fa-solid fa-triangle-exclamation fa-lg"></i>
+                                                                        <span class="font-weight-bold ml-2">E-mail já existe</span>
+                                                                    </div>
+                                                                <% } %>
+                                                                <% if(updateStatus.loginExists) { %>
+                                                                    <div class="d-flex mb-3 text-danger justify-content-center align-items-center">
+                                                                        <i class="fa-solid fa-triangle-exclamation fa-lg"></i>
+                                                                        <span class="font-weight-bold ml-2">Login já existe</span>
+                                                                    </div>
+                                                                <% } %>
+                                                            <% } %>
+                                                            <div class="d-flex mb-3">
+                                                                <!-- text input -->
+                                                                <div class="form-group col-6">
+                                                                    <label id="name-label" for="name">Nome</label>
+                                                                    <input type="text" class="form-control" value="<%= userToEdit.data().name %>"
+                                                                    id="name" placeholder="e.g.: Matheus Moura Silva" name="name" required>
+                                                                </div>
+                                                                <!-- text input -->
+                                                                <div class="form-group col-6">
+                                                                    <label id="login-label" for="login">Login</label>
+                                                                    <input type="text" class="form-control" value="<%= userToEdit.data().login %>"
+                                                                    id="login" name="login" placeholder="e.g.: matheus.moura" required>
+                                                                </div>
                                                             </div>
-                                                        <% } %>
-                                                        <% if(updateStatus.loginError) { %>
-                                                            <div class="d-flex mb-3 text-danger justify-content-center align-items-center">
-                                                                <i class="fa-solid fa-triangle-exclamation fa-lg"></i>
-                                                                <span class="font-weight-bold ml-2">Login já existe</span>
+                                                            <div class="d-flex mb-3">
+                                                                <!-- text input -->
+                                                                <div class="form-group col-6">
+                                                                    <label id="email-label" for="email">E-mail</label>
+                                                                    <input type="text" class="form-control" value="<%= userToEdit.data().email %>"
+                                                                    id="email" placeholder="e.g.: emailexemplo@email.com" name="email" required>
+                                                                </div>
+                                                                <!-- text input -->
+                                                                <div class="form-group col-6">
+                                                                    <label id="phone-label" for="phone">Telefone</label>
+                                                                    <input type="text" class="form-control" value="<%= userToEdit.data().phone %>"
+                                                                    id="phone" name="phone" placeholder="e.g.: (11) 98765-4321" required>
+                                                                </div>
                                                             </div>
-                                                        <% } %>
-                                                    <% } %>
-                                                    <div class="d-flex mb-3">
-                                                        <!-- text input -->
-                                                        <div class="form-group col-6">
-                                                            <label id="name-label" for="name">Nome</label>
-                                                            <input type="text" class="form-control" value="<%= userToEdit.data().name %>"
-                                                            id="name" placeholder="e.g.: Matheus Moura Silva" name="name" required>
-                                                        </div>
-                                                        <!-- text input -->
-                                                        <div class="form-group col-6">
-                                                            <label id="login-label" for="login">Login</label>
-                                                            <input type="text" class="form-control" value="<%= userToEdit.data().login %>"
-                                                            id="login" name="login" placeholder="e.g.: matheus.moura" required>
+                                                            <div class="d-flex mb-3">
+                                                                <!-- text input -->
+                                                                <div class="form-group col-6">
+                                                                    <label id="password-label" for="password">Senha</label>
+                                                                    <input type="password" class="form-control"
+                                                                    id="password" placeholder="********" name="password">
+                                                                </div>
+                                                                <!-- text input -->
+                                                                <div class="form-group col-6">
+                                                                    <label id="confirm-password-label" for="confirm-password">Confirmar Senha</label>
+                                                                    <input type="password" class="form-control"
+                                                                    id="confirm-password" name="confirmPassword" placeholder="********">
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                    <div class="d-flex mb-3">
-                                                        <!-- text input -->
-                                                        <div class="form-group col-6">
-                                                            <label id="email-label" for="email">E-mail</label>
-                                                            <input type="text" class="form-control" value="<%= userToEdit.data().email %>"
-                                                            id="email" placeholder="e.g.: emailexemplo@email.com" name="email" required>
-                                                        </div>
-                                                        <!-- text input -->
-                                                        <div class="form-group col-6">
-                                                            <label id="phone-label" for="phone">Telefone</label>
-                                                            <input type="text" class="form-control" value="<%= userToEdit.data().phone %>"
-                                                            id="phone" name="phone" placeholder="e.g.: (11) 98765-4321" required>
-                                                        </div>
-                                                    </div>
-                                                    <div class="d-flex mb-3">
-                                                        <!-- text input -->
-                                                        <div class="form-group col-6">
-                                                            <label id="password-label" for="password">Senha</label>
-                                                            <input type="password" class="form-control"
-                                                            id="password" placeholder="********" name="password">
-                                                        </div>
-                                                        <!-- text input -->
-                                                        <div class="form-group col-6">
-                                                            <label id="confirm-password-label" for="confirm-password">Confirmar Senha</label>
-                                                            <input type="password" class="form-control"
-                                                            id="confirm-password" name="confirmPassword" placeholder="********">
+                                                </div>
+                                                <div class="tab-pane fade" id="profiles-form" role="tabpanel" aria-labelledby="profiles-form-tab">
+                                                    <div class="card">
+                                                        <div class="card-body">
+                                                            <h4>Permissões</h4>
+                                                            <div class="card-body p-0">
+                                                                <table class="table table-hover">
+                                                                    <tbody>
+                                                                        <% profiles.forEach(profile => { %>
+                                                                            <tr data-widget="expandable-table" aria-expanded="false" class="table-row <%= profile.id %>">
+                                                                                <td class="d-flex justify-content-between">
+                                                                                    <div>
+                                                                                        <%= profile.data().profileName %>
+                                                                                    </div>
+                                                                                    <!-- checkbox -->
+                                                                                    <div class="form-group clearfix">
+                                                                                        <div class="icheck-primary d-inline">
+                                                                                            <input type="checkbox" class="checkbox" name="profiles" id="<%= profile.id %>" value="<%= profile.id %>"
+                                                                                            <%= userProfiles.includes(profile.id) ? "checked" : null %>>
+                                                                                            <label for="<%= profile.id %>" class="checkbox-label">
+                                                                                            </label>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </td>
+                                                                            </tr>
+                                                                        <% }); %>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -107,62 +151,97 @@
                                         </form>
                                     <% } else if(operation == "create") { %>
                                         <form id="userCreateForm" method="POST" action="/users/create">
-                                            <div class="card">
-                                                <div class="card-body ">
-                                                    <% if(createStatus) { %>
-                                                        <% if(createStatus.emailError) { %>
-                                                            <div class="d-flex mb-3 text-danger justify-content-center align-items-center">
-                                                                <i class="fa-solid fa-triangle-exclamation fa-lg"></i>
-                                                                <span class="font-weight-bold ml-2">E-mail já existe</span>
+                                            <div class="tab-content form-user" id="form-tab-content">
+
+                                                <div class="tab-pane fade show active" id="user-form" role="tabpanel" aria-labelledby="user-form-tab">
+                                                    <div class="card">
+                                                        <div class="card-body ">
+                                                            <% if(createStatus) { %>
+                                                                <% if(createStatus.emailExists) { %>
+                                                                    <div class="d-flex mb-3 text-danger justify-content-center align-items-center">
+                                                                        <i class="fa-solid fa-triangle-exclamation fa-lg"></i>
+                                                                        <span class="font-weight-bold ml-2">E-mail já existe</span>
+                                                                    </div>
+                                                                <% } %>
+                                                                <% if(createStatus.loginExists) { %>
+                                                                    <div class="d-flex mb-3 text-danger justify-content-center align-items-center">
+                                                                        <i class="fa-solid fa-triangle-exclamation fa-lg"></i>
+                                                                        <span class="font-weight-bold ml-2">Login já existe</span>
+                                                                    </div>
+                                                                <% } %>
+                                                            <% } %>
+                                                            <div class="d-flex mb-3">
+                                                                <!-- text input -->
+                                                                <div class="form-group col-6">
+                                                                    <label id="name-label" for="name">Nome</label>
+                                                                    <input type="text" class="form-control"
+                                                                    id="name" placeholder="e.g.: Matheus Moura Silva" name="name" required>
+                                                                </div>
+                                                                <!-- text input -->
+                                                                <div class="form-group col-6">
+                                                                    <label id="login-label" for="login">Login</label>
+                                                                    <input type="text" class="form-control"
+                                                                    id="login" name="login" placeholder="e.g.: matheus.moura" required>
+                                                                </div>
                                                             </div>
-                                                        <% } %>
-                                                        <% if(createStatus.loginError) { %>
-                                                            <div class="d-flex mb-3 text-danger justify-content-center align-items-center">
-                                                                <i class="fa-solid fa-triangle-exclamation fa-lg"></i>
-                                                                <span class="font-weight-bold ml-2">Login já existe</span>
+                                                            <div class="d-flex mb-3">
+                                                                <!-- text input -->
+                                                                <div class="form-group col-6">
+                                                                    <label id="email-label" for="email">E-mail</label>
+                                                                    <input type="text" class="form-control"
+                                                                    id="email" placeholder="e.g.: emailexemplo@email.com" name="email" required>
+                                                                </div>
+                                                                <!-- text input -->
+                                                                <div class="form-group col-6">
+                                                                    <label id="phone-label" for="phone">Telefone</label>
+                                                                    <input type="text" class="form-control"
+                                                                    id="phone" name="phone" placeholder="e.g.: (11) 98765-4321" required>
+                                                                </div>
                                                             </div>
-                                                        <% } %>
-                                                    <% } %>
-                                                    <div class="d-flex mb-3">
-                                                        <!-- text input -->
-                                                        <div class="form-group col-6">
-                                                            <label id="name-label" for="name">Nome</label>
-                                                            <input type="text" class="form-control"
-                                                            id="name" placeholder="e.g.: Matheus Moura Silva" name="name" required>
-                                                        </div>
-                                                        <!-- text input -->
-                                                        <div class="form-group col-6">
-                                                            <label id="login-label" for="login">Login</label>
-                                                            <input type="text" class="form-control"
-                                                            id="login" name="login" placeholder="e.g.: matheus.moura" required>
+                                                            <div class="d-flex mb-3">
+                                                                <!-- text input -->
+                                                                <div class="form-group col-6">
+                                                                    <label id="password-label" for="password">Senha</label>
+                                                                    <input type="password" class="form-control"
+                                                                    id="password" placeholder="********" name="password">
+                                                                </div>
+                                                                <!-- text input -->
+                                                                <div class="form-group col-6">
+                                                                    <label id="confirm-password-label" for="confirm-password">Confirmar Senha</label>
+                                                                    <input type="password" class="form-control"
+                                                                    id="confirm-password" name="confirmPassword" placeholder="********">
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                    <div class="d-flex mb-3">
-                                                        <!-- text input -->
-                                                        <div class="form-group col-6">
-                                                            <label id="email-label" for="email">E-mail</label>
-                                                            <input type="text" class="form-control"
-                                                            id="email" placeholder="e.g.: emailexemplo@email.com" name="email" required>
-                                                        </div>
-                                                        <!-- text input -->
-                                                        <div class="form-group col-6">
-                                                            <label id="phone-label" for="phone">Telefone</label>
-                                                            <input type="text" class="form-control"
-                                                            id="phone" name="phone" placeholder="e.g.: (11) 98765-4321" required>
-                                                        </div>
-                                                    </div>
-                                                    <div class="d-flex mb-3">
-                                                        <!-- text input -->
-                                                        <div class="form-group col-6">
-                                                            <label id="password-label" for="password">Senha</label>
-                                                            <input type="password" class="form-control"
-                                                            id="password" placeholder="********" name="password">
-                                                        </div>
-                                                        <!-- text input -->
-                                                        <div class="form-group col-6">
-                                                            <label id="confirm-password-label" for="confirm-password">Confirmar Senha</label>
-                                                            <input type="password" class="form-control"
-                                                            id="confirm-password" name="confirmPassword" placeholder="********">
+                                                </div>
+                                                <div class="tab-pane fade" id="profiles-form" role="tabpanel" aria-labelledby="profiles-form-tab">
+                                                    <div class="card">
+                                                        <div class="card-body">
+                                                            <h4>Permissões</h4>
+                                                            <div class="card-body p-0">
+                                                                <table class="table table-hover">
+                                                                    <tbody>
+                                                                        <% profiles.forEach(profile => { %>
+                                                                            <tr data-widget="expandable-table" aria-expanded="false" class="table-row <%= profile.id %>">
+                                                                                <td class="d-flex justify-content-between">
+                                                                                    <div>
+                                                                                        <%= profile.data().profileName %>
+                                                                                    </div>
+                                                                                    <!-- checkbox -->
+                                                                                    <div class="form-group clearfix">
+                                                                                        <div class="icheck-primary d-inline">
+                                                                                            <input type="checkbox" class="checkbox" name="profiles" id="<%= profile.id %>" value="<%= profile.id %>">
+                                                                                            <label for="<%= profile.id %>" class="checkbox-label">
+                                                                                            </label>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </td>
+                                                                            </tr>
+                                                                        <% }); %>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -195,7 +274,7 @@
         window.onload = function() {
         //<% if(operation == "edit") { %>
             //<% if(updateStatus) { %>
-                //<% if(updateStatus.emailError || updateStatus.loginError) { %>
+                //<% if(updateStatus.emailExists || updateStatus.loginExists) { %>
 
                     var name = localStorage.getItem("name");
                     var email = localStorage.getItem("email");
@@ -219,7 +298,7 @@
             //<% } %>
         //<% } else if(operation == "create") { %>
             //<% if(createStatus) { %>
-                //<% if(createStatus.emailError || createStatus.loginError) { %>
+                //<% if(createStatus.emailExists || createStatus.loginExists) { %>
                     var name = localStorage.getItem("name");
                     var email = localStorage.getItem("email");
                     var phone = localStorage.getItem("phone");
@@ -245,6 +324,12 @@
         document.getElementById("cancelButton").onclick = function () {
             location.href = "/users";
         };
+
+        $(function () {
+            $.validator.setDefaults({
+                ignore: []
+            });
+        });
 
         $(function () {
             $('#userUpdateForm').validate({
@@ -288,20 +373,24 @@
                         equalTo: "Senhas devem ser iguais"
                     }
                 },
-                errorElement: 'span',
+                errorElement: "span",
                 errorPlacement: function (error, element) {
-                    error.addClass('invalid-feedback');
-                    element.closest('.form-group').append(error);
+                    error.addClass("invalid-feedback");
+                    element.closest(".form-group").append(error);
                 },
                 highlight: function (element, errorClass, validClass) {
-                    $(element).addClass('is-invalid');
+                    $(element).addClass("is-invalid");
+                    $("#user-form").addClass("active show");
+                    $("#profiles-form").removeClass("active show");
+                    $("#user-form-tab").addClass("active");
+                    $("#profiles-form-tab").removeClass("active");
                 },
                 unhighlight: function (element, errorClass, validClass) {
                     $(element).removeClass('is-invalid');
                 }
             });
 
-            $('#userCreateForm').validate({
+            $("#userCreateForm").validate({
                 rules: {
                     name: {
                         required: true

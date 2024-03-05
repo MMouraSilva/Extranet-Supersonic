@@ -1,0 +1,378 @@
+<%- include('../partials/header.ejs') %>
+
+    <body class="hold-transition sidebar-mini layout-fixed sidebar-collapse justify-content-center">
+        <%- include('../partials/navbar2.ejs') %>
+        <div class="wrapper user">
+        <%- include('../partials/sidebar.ejs') %>
+            <div class="container justify-content-center">
+                <div class="content-wrapper">
+                    <!-- Content Header (Page header) -->
+                    <section class="content-header">
+                        <div class="container-fluid">
+                            <div class="row mb-2">
+                                <div class="col-sm-6">
+                                    <% if(operation == "edit") { %>
+                                        <h1>Editar Perfil</h1>
+                                    <% } else if(operation == "create") { %>
+                                        <h1>Cadastrar Perfil</h1>
+                                    <% } %>
+                                </div>
+                                <div class="col-sm-6">
+                                    <ol class="breadcrumb float-sm-right">
+                                        <li class="breadcrumb-item"><a href="/">Home</a></li>
+                                        <li class="breadcrumb-item"><a href="/profiles">Perfis</a></li>
+                                        <% if(operation == "edit") { %>
+                                            <li class="breadcrumb-item"><a href="/profiles/edit/<%= profileToEdit.id %>"><%= profileToEdit.data().profileName %></a></li>
+                                        <% } else if(operation == "create") { %>
+                                            <li class="breadcrumb-item"><a href="/profiles/create">Cadastro</a></li>
+                                        <% } %>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div><!-- /.container-fluid -->
+                    </section>
+                    <section class="content">
+                        <div class="container-fluid">
+                            <% if(operation == "edit") { %>
+                                <form id="profileUpdateForm" method="POST" action="/profiles/edit" onsubmit="sendData(event, this)">
+                                    <input type="hidden" id="id" name="id" value="<%= profileToEdit.id %>">
+                                    <div class="card">
+                                        <div class="card-body ">
+                                            <% if(updateStatus) { %>
+                                                <% if(updateStatus.profileError) { %>
+                                                    <div class="d-flex mb-3 text-danger justify-content-center align-items-center">
+                                                        <i class="fa-solid fa-triangle-exclamation fa-lg"></i>
+                                                        <span class="font-weight-bold ml-2">Perfil já existe</span>
+                                                    </div>
+                                                <% } %>
+                                            <% } %>
+                                            <div class="d-flex mb-3">
+                                                <div class="form-group col-6">
+                                                    <label id="profile-name-label" for="profileName">Nome do Perfil</label>
+                                                    <input type="text" class="form-control" value="<%= profileToEdit.data().profileName %>"
+                                                    id="profileName" placeholder="e.g.: Faturamento" name="profileName" required>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                            <h4>Permissões</h4>
+                                            <div class="card-body p-0">
+                                                <table class="table table-hover">
+                                                    <tbody>
+                                                        <% pages.forEach(page => { %>
+                                                            <% if(!page.data().isSubMenu) { %>
+                                                                <tr data-widget="expandable-table" aria-expanded="false" class="table-row <%= page.id %>">
+                                                                    <td class="d-flex justify-content-between">
+                                                                        <div>
+                                                                            <% if(page.data().isMenuGroup) { %>
+                                                                                <i class="expandable-table-caret fas fa-caret-right fa-fw"></i>
+                                                                            <% } %>
+                                                                            <%= page.data().pageName %>
+                                                                        </div>
+                                                                        <!-- checkbox -->
+                                                                        <div class="form-group clearfix">
+                                                                            <div class="icheck-primary d-inline">
+                                                                                <input type="checkbox" class="checkbox" name="permissions" id="<%= page.id %>" value="<%= page.id %>">
+                                                                                <label for="<%= page.id %>" class="checkbox-label">
+                                                                                </label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                                <% if(page.data().isMenuGroup) { %>
+                                                                    <tr class="expandable-body <%= page.id %>">
+                                                                        <td>
+                                                                            <!-- <div class="p-0"> -->
+                                                                                <table class="table table-hover <%= page.id %>">
+                                                                                    <tbody>
+                                                                                        <% pages.forEach(subPage => { %>
+                                                                                            <% if(page.id == subPage.data().menuGroupId) { %>
+                                                                                                <tr>
+                                                                                                    <td>
+                                                                                                        <%= subPage.data().pageName %>
+                                                                                                    </td>
+                                                                                                    <td class="col-md-1">
+                                                                                                        <!-- checkbox -->
+                                                                                                        <div class="form-group clearfix">
+                                                                                                            <div class="icheck-primary d-inline">
+                                                                                                                <input type="checkbox" class="sub-checkbox <%= page.id %>" name="permissions" id="<%= subPage.id %>" value="<%= subPage.id %>" disabled>
+                                                                                                                <label for="<%= subPage.id %>">
+                                                                                                                </label>
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                    </td>
+                                                                                                </tr>
+                                                                                            <% } %>
+                                                                                        <% }); %>
+                                                                                    </tbody>
+                                                                                </table>
+                                                                            <!-- </div> -->
+                                                                        </td>
+                                                                    </tr>
+                                                                <% } %>
+                                                            <% } %>
+                                                        <% }); %>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-end col-12">
+                                        <div class="col-4 col-sm-6 col-md-6 col-lg-4">
+                                            <button type="button" id="cancelButton" class="btn btn-block bg-gradient btn-danger btn-lg col-12 text-white font-weight-bold">Cancelar</button>
+                                        </div>
+                                        <div class="col-4 col-sm-6 col-md-6 col-lg-4">
+                                            <button type="submit" class="btn btn-block bg-gradient btn-login btn-lg col-12 text-white font-weight-bold">Salvar</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            <% } else if(operation == "create") { %>
+                                <form id="profileCreateForm" method="POST" action="/profiles/create" onsubmit="sendData(event, this)">
+                                    <div class="card">
+                                        <div class="card-body ">
+                                            <% if(createStatus) { %>
+                                                <% if(createStatus.profileError) { %>
+                                                    <div class="d-flex mb-3 text-danger justify-content-center align-items-center">
+                                                        <i class="fa-solid fa-triangle-exclamation fa-lg"></i>
+                                                        <span class="font-weight-bold ml-2">Perfil já existe</span>
+                                                    </div>
+                                                <% } %>
+                                            <% } %>
+                                            <div class="d-flex mb-3">
+                                                <div class="form-group col-6">
+                                                    <label id="profile-name-label" for="profileName">Nome do Perfil</label>
+                                                    <input type="text" class="form-control"
+                                                    id="profileName" placeholder="e.g.: Faturamento" name="profileName" required>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                            <h4>Permissões</h4>
+                                            <div class="card-body p-0">
+                                                <table class="table table-hover">
+                                                    <tbody>
+                                                        <% pages.forEach(page => { %>
+                                                            <% if(!page.data().isSubMenu) { %>
+                                                                <tr data-widget="expandable-table" aria-expanded="false" class="table-row <%= page.id %>">
+                                                                    <td class="d-flex justify-content-between">
+                                                                        <div>
+                                                                            <% if(page.data().isMenuGroup) { %>
+                                                                                <i class="expandable-table-caret fas fa-caret-right fa-fw"></i>
+                                                                            <% } %>
+                                                                            <%= page.data().pageName %>
+                                                                        </div>
+                                                                        <!-- checkbox -->
+                                                                        <div class="form-group clearfix">
+                                                                            <div class="icheck-primary d-inline">
+                                                                                <input type="checkbox" class="checkbox" name="permissions" id="<%= page.id %>" value="<%= page.id %>">
+                                                                                <label for="<%= page.id %>" class="checkbox-label">
+                                                                                </label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                                <% if(page.data().isMenuGroup) { %>
+                                                                    <tr class="expandable-body <%= page.id %>">
+                                                                        <td>
+                                                                            <!-- <div class="p-0"> -->
+                                                                                <table class="table table-hover <%= page.id %>">
+                                                                                    <tbody>
+                                                                                        <% pages.forEach(subPage => { %>
+                                                                                            <% if(page.id == subPage.data().menuGroupId) { %>
+                                                                                                <tr>
+                                                                                                    <td>
+                                                                                                        <%= subPage.data().pageName %>
+                                                                                                    </td>
+                                                                                                    <td class="col-md-1">
+                                                                                                        <!-- checkbox -->
+                                                                                                        <div class="form-group clearfix">
+                                                                                                            <div class="icheck-primary d-inline">
+                                                                                                                <input type="checkbox" class="sub-checkbox <%= page.id %>" name="permissions" id="<%= subPage.id %>" value="<%= subPage.id %>" disabled>
+                                                                                                                <label for="<%= subPage.id %>">
+                                                                                                                </label>
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                    </td>
+                                                                                                </tr>
+                                                                                            <% } %>
+                                                                                        <% }); %>
+                                                                                    </tbody>
+                                                                                </table>
+                                                                            <!-- </div> -->
+                                                                        </td>
+                                                                    </tr>
+                                                                <% } %>
+                                                            <% } %>
+                                                        <% }); %>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-end col-12">
+                                        <div class="col-4 col-sm-6 col-md-6 col-lg-4">
+                                            <button type="button" id="cancelButton" class="btn btn-block bg-gradient btn-danger btn-lg col-12 text-white font-weight-bold">Cancelar</button>
+                                        </div>
+                                        <div class="col-4 col-sm-6 col-md-6 col-lg-4">
+                                            <button type="submit" class="btn btn-block bg-gradient btn-login btn-lg col-12 text-white font-weight-bold">Cadastrar</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            <% } %>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </body>
+    <%- include('../partials/footer.ejs') %>
+    <script>
+        window.onbeforeunload = function() {
+            localStorage.setItem("profileName", $('#profileName').val());
+
+            // <% pages.forEach(page => { %>
+                if($("#<%= page.id %>").is(":checked")) {
+                    localStorage.setItem("<%= page.id %>", true);
+                } else {
+                    localStorage.setItem("<%= page.id %>", false);
+                }
+            // <% }); %>
+
+        }
+
+        window.onload = function() {
+        // <% if(operation == "edit") { %>
+            // <% permissions.forEach(permission => { %>
+                var id = "<%= permission.data().idPage %>";
+
+                $("#" + id).prop("checked", true);
+                $(".sub-checkbox." + id).removeAttr("disabled");
+                $(".table-row." + id).attr("aria-expanded", "true");
+                $(".expandable-body." + id).removeClass("d-none");
+                $(".table." + id).show();
+            // <% }); %>
+
+
+            // <% if(updateStatus) { %>
+                // <% if(updateStatus.pageError) { %>
+
+                    var profileName = localStorage.getItem("profileName");
+                    
+                    if (profileName !== null) { 
+                        $("#profileName").val(profileName);
+                    }
+
+                    // <% pages.forEach(page => { %>
+                        var id = "<%= page.id %>";
+
+                        if (localStorage.getItem(id) == "true") { 
+                            $("#" + id).prop("checked", true);
+                            $(".sub-checkbox." + id).removeAttr("disabled");
+                            $(".table-row." + id).attr("aria-expanded", "true");
+                            $(".expandable-body." + id).removeClass("d-none");
+                            $(".table." + id).show();
+                        }
+                    // <% }); %>
+                // <% } %>
+            // <% } %>
+        // <% } else if(operation == "create") { %>
+            // <% if(createStatus) { %>
+                // <% if(createStatus.profileError) { %>
+                    var profileName = localStorage.getItem("profileName");
+                    
+                    if (profileName !== null) { 
+                        $("#profileName").val(profileName);
+                    }
+
+                    // <% pages.forEach(page => { %>
+                        var id = "<%= page.id %>";
+
+                        if (localStorage.getItem(id) == "true") { 
+                            $("#" + id).prop("checked", true);
+                            $(".sub-checkbox." + id).removeAttr("disabled");
+                            $(".table-row." + id).attr("aria-expanded", "true");
+                            $(".expandable-body." + id).removeClass("d-none");
+                            $(".table." + id).show();
+                        }  
+                    // <% }); %>
+                // <% } %>
+            // <% } %>
+        // <% } %>
+        }
+
+        $(".checkbox").click(function(event){
+            event.stopPropagation();
+        });
+
+        $(".checkbox-label").click(function(event){
+            event.stopPropagation();
+        });
+
+        $(".checkbox").change(function() {
+            const id = $(this).attr("id");
+
+            if(this.checked) {
+                $(".table-row." + id).attr("aria-expanded", "true");
+                $(".expandable-body." + id).removeClass("d-none");
+                $(".table." + id).show();
+                $(".sub-checkbox." + id).removeAttr("disabled");
+            } else {
+                $(".table-row." + id).attr("aria-expanded", "false");
+                $(".expandable-body." + id).addClass("d-none");
+                $(".table." + id).hide();
+                $(".sub-checkbox." + id).attr("disabled", "true");
+            }
+        });
+
+        document.getElementById("cancelButton").onclick = function () {
+            location.href = "/profiles";
+        };
+
+        $(function () {
+            $('#profileUpdateForm').validate({
+                rules: {
+                    profileName: {
+                        required: true
+                    }
+                },
+                messages: {
+                    profileName: {
+                        required: "Digite um nome para o perfil"
+                    }
+                },
+                errorElement: 'span',
+                errorPlacement: function (error, element) {
+                    error.addClass('invalid-feedback');
+                    element.closest('.form-group').append(error);
+                },
+                highlight: function (element, errorClass, validClass) {
+                    $(element).addClass('is-invalid');
+                },
+                unhighlight: function (element, errorClass, validClass) {
+                    $(element).removeClass('is-invalid');
+                }
+            });
+
+            $('#profileCreateForm').validate({
+                rules: {
+                    profileName: {
+                        required: true
+                    }
+                },
+                messages: {
+                    profileName: {
+                        required: "Digite um nome para o perfil"
+                    }
+                },
+                errorElement: 'span',
+                errorPlacement: function (error, element) {
+                    error.addClass('invalid-feedback');
+                    element.closest('.form-group').append(error);
+                },
+                highlight: function (element, errorClass, validClass) {
+                    $(element).addClass('is-invalid');
+                },
+                unhighlight: function (element, errorClass, validClass) {
+                    $(element).removeClass('is-invalid');
+                }
+            });
+        });
+    </script>

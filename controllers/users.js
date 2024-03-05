@@ -6,6 +6,8 @@ const frontendUrl = process.env.APP_HOST;
 const userAuth = require("../middlewares/userAuth");
 const loginPageAuth = require("../middlewares/loginPageAuth");
 const User = require("../models/User");
+const Profile = require("../models/Profile");
+const Page = require("../models/Page");
 
 router.get("/users", userAuth, async (req, res) => {
     try {
@@ -28,40 +30,27 @@ router.get("/users", userAuth, async (req, res) => {
     }
 });
 
-router.get("/users/edit/:id", userAuth, async (req, res) => {
-    const id = req.params.id;
-
-    const updateStatus = req.session.updateUserStatus;
-    req.session.updateUserStatus = undefined;
-
-    if(id) {
-        const user = new User(req.params);
-        const userToEdit = await user.GetUserById(id);
-
-        res.render("users/form", { userToEdit, operation: "edit", user: req.session.user, updateStatus });
-    } else {
-        res.redirect("/users");
-    }
-});
-
 router.get("/users/create", userAuth, async (req, res) => {
     const createStatus = req.session.createUserStatus;
     req.session.createUserStatus = undefined;
 
-    res.render("users/form", { operation: "create", user: req.session.user, createStatus });
+    const profiles = await User.GetProfiles();
+
+    res.render("users/form", { operation: "create", user: req.session.user, createStatus, profiles });
 });
 
-router.post("/users/edit", async (req, res) => {
+router.post("/users/create", async (req, res) => {
     const user = new User(req.body);
-    const updateRes = await user.UpdateUser();
+    const createRes = await user.CreateUser();
 
-    if(updateRes.hasError) {
-        console.log(updateRes.error);
-        if(updateRes.emailError || updateRes.loginError) {
-            req.session.updateUserStatus = { completed: false, error: updateRes.error, loginError: updateRes.loginError, emailError: updateRes.emailError };
-            res.redirect("/users/edit/" + req.body.id);
+    // TODO: Ao refatorar, adicionar tratamento para a captura de erro de cadastro dos perfils de acesso do usuário.
+
+    if(createRes.hasError) {
+        if(createRes.emailExists || createRes.loginExists) {
+            req.session.createUserStatus = { completed: false, error: createRes.error, loginExists: createRes.loginExists, emailExists: createRes.emailExists };
+            res.redirect("/users/create");
         } else {
-            req.session.updateUserStatus = { completed: false, error: updateRes.error, loginError: updateRes.loginError, emailError: updateRes.emailError };
+            req.session.createUserStatus = { completed: false, error: createRes.error, loginExists: createRes.loginExists, emailExists: createRes.emailExists };
             res.redirect("/users");
         }
     } else {
@@ -70,17 +59,37 @@ router.post("/users/edit", async (req, res) => {
     }
 });
 
-router.post("/users/create", async (req, res) => {
-    const user = new User(req.body);
-    const createRes = await user.CreateUser();
+router.get("/users/edit/:id", userAuth, async (req, res) => {
+    const id = req.params.id;
 
-    if(createRes.hasError) {
-        console.log(createRes.error);
-        if(createRes.emailError || createRes.loginError) {
-            req.session.createUserStatus = { completed: false, error: createRes.error, loginError: createRes.loginError, emailError: createRes.emailError };
-            res.redirect("/users/create");
+    const updateStatus = req.session.updateUserStatus;
+    req.session.updateUserStatus = undefined;
+
+    if(id) {
+        const user = new User(req.params);
+        const userToEdit = await user.GetUserById();
+        const userProfilesQuery = await user.GetUsersProfilesByUserId();
+        const userProfiles = await user.PushIdProfileToArray(userProfilesQuery);
+
+        const profiles = await User.GetProfiles();
+
+        res.render("users/form", { userToEdit, operation: "edit", user: req.session.user, updateStatus, profiles, userProfiles });
+    } else {
+        res.redirect("/users");
+    }
+});
+
+router.post("/users/edit", async (req, res) => {
+    const user = new User(req.body);
+    const updateRes = await user.UpdateUser();
+
+    if(updateRes.hasError) {
+        // console.log(updateRes.error);
+        if(updateRes.emailExists || updateRes.loginExists) {
+            req.session.updateUserStatus = { completed: false, error: updateRes.error, loginExists: updateRes.loginExists, emailExists: updateRes.emailExists };
+            res.redirect("/users/edit/" + req.body.id);
         } else {
-            req.session.createUserStatus = { completed: false, error: createRes.error, loginError: createRes.loginError, emailError: createRes.emailError };
+            req.session.updateUserStatus = { completed: false, error: updateRes.error, loginExists: updateRes.loginExists, emailExists: updateRes.emailExists };
             res.redirect("/users");
         }
     } else {
@@ -106,19 +115,35 @@ router.post("/authenticate", async (req, res) => {
     const { login, password } = req.body;
 
     const user = new User(req.body);
-
+    
     const userCorrect = await user.GetUserByLogin();
+    
+    // TODO: Após transformar o controller em Classes e separar as rotas em outro arquivo, transformar esse treco em um método
+    user.profiles = await user.PushIdProfileToArray(await user.GetUsersProfilesByUserId());
+    var profilesPermissions;
+    var pages = [];
+    
+    for(var i = 0; i < user.profiles.length; i++) {
+        var profile = new Profile({ id: user.profiles[i] });
+        profilesPermissions = await profile.GetPermissionsIdById();
+    }
+    
+    for(var i = 0; i < profilesPermissions.length; i++) {
+        var page = new Page({ id: profilesPermissions[i] });
+        pages.push(await page.GetPagesObject());
+    }
 
-    if (userCorrect) {
+    if(userCorrect) {
         const userAuthenticate = await user.AuthenticateUser(password);
 
-        if (userAuthenticate) {
+        if(userAuthenticate) {
             req.session.user = {
                 id: user.id,
                 name: user.name,
                 login: user.login,
                 email: user.email,
-                phone: user.phone
+                phone: user.phone,
+                permissions: pages
             }
             res.redirect("/");
         } else {

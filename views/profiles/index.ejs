@@ -18,14 +18,14 @@
                                             <div class="alert alert-success alert-dismissible">
                                                 <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
                                                 <h5><i class="icon fas fa-check"></i> Sucesso!</h5>
-                                                Usuário atualizado com sucesso!
+                                                Perfil atualizado com sucesso!
                                             </div>
                                         <% } else { %>
                                             <br>
                                             <div class="alert alert-danger alert-dismissible">
                                                 <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
                                                 <h5><i class="icon fas fa-ban"></i> Erro! </h5>
-                                                Não foi possível atualizar o usuário devido à um erro!
+                                                Não foi possível atualizar o perfil devido à um erro!
                                             </div>
                                         <% } %>
                                     <% } %>
@@ -35,14 +35,14 @@
                                             <div class="alert alert-success alert-dismissible">
                                                 <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
                                                 <h5><i class="icon fas fa-check"></i> Sucesso!</h5>
-                                                Usuário atualizado com sucesso!
+                                                Perfil cadastrado com sucesso!
                                             </div>
                                         <% } else { %>
                                             <br>
                                             <div class="alert alert-danger alert-dismissible">
                                                 <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
                                                 <h5><i class="icon fas fa-ban"></i> Erro! </h5>
-                                                Não foi possível atualizar o usuário devido à um erro!
+                                                Não foi possível cadastrar o perfil devido à um erro!
                                             </div>
                                         <% } %>
                                     <% } %>
@@ -58,7 +58,7 @@
                     </section>
                     <section class="content">
                         <div class="container-fluid">
-                            <button type="button" id="createButton" class="btn btn-primary mb-3 text-white font-weight-bold">Cadastrar Página</button>
+                            <button type="button" id="createButton" class="btn btn-primary mb-3 text-white font-weight-bold">Cadastrar Perfil</button>
                             <table id="example1" class="table table-bordered table-striped" width="100%">
                                 <thead>
                                     <tr>
@@ -75,9 +75,9 @@
                                             <td><%= profile.data().createdAt ? moment(profile.data().createdAt.toDate()).format("DD/MM/YYYY HH:mm") : profile.data().createdAt %></td>
                                             <td><%= profile.data().updatedAt ? moment(profile.data().updatedAt.toDate()).format("DD/MM/YYYY HH:mm") : profile.data().updatedAt %></td>
                                             <td>
-                                                <a href="/pages/edit/<%= profile.id %>" class="btn btn-warning"><i class="fa-solid fa-pen-to-square"></i></a>
+                                                <a href="/profiles/edit/<%= profile.id %>" class="btn btn-warning"><i class="fa-solid fa-pen-to-square"></i></a>
 
-                                                <form method="POST" action="/pages/delete" style="display: inline;" onsubmit="confirmDelete(event, this)">
+                                                <form method="POST" action="/profiles/delete" style="display: inline;" onsubmit="confirmDelete(event, this)">
                                                     <input type="hidden" name="id" value="<%= profile.id %>">
                                                     <button class="btn btn-danger"><i class="fa-solid fa-trash"></i></button>
                                                 </form>
@@ -95,7 +95,7 @@
     <%- include('../partials/footer.ejs') %>
         <script>
             document.getElementById("createButton").onclick = function () {
-                location.href = "/pages/create";
+                location.href = "/profiles/create";
             };
 
             $(function () {
@@ -107,7 +107,7 @@
 
             function confirmDelete(event, form) {
                 event.preventDefault();
-                var decision = confirm("Você quer deletar esta página?");
+                var decision = confirm("Você quer deletar este Perfil?");
 
                 if(decision) {
                     form.submit();

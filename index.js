@@ -141,9 +141,9 @@ app.set('view engine', 'ejs');
 // Sessions
 app.use(session({
     secret: "2i3fmcjkds oiniofds$¨#³²45",
-    cookie: {
-        maxAge: 30 * 60 * 1000
-    },
+    // cookie: {
+    //     maxAge: 30 * 60 * 1000
+    // },
     resave: true,
     saveUninitialized: true
 }));

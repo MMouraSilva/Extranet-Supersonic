@@ -13,52 +13,81 @@ class User {
         this.login = data.login;
         this.password = data.password;
         this.phone = data.phone;
+        this.profiles = [].concat(data.profiles);
     }
 
     async CreateUser() {
-        try {
-            const loginExists = await this.GetUserByLogin(this.login); // Falso atualiza, Verdadeiro da erro
-            const emailExists = await this.GetUserByEmail(this.email); // Falso atualiza, Verdadeiro da erro
-            var emailError, loginError, hasError;
+        const { loginExists, emailExists, loginOrEmailHasError } = await this.CheckIfFieldValuesExists();
+        const { hasError, hasProfileCreationError } = loginOrEmailHasError ? { hasError: true, hasProfileCreationError: true } : await this.SaveUserInDatabase();
 
-            if(emailExists) {
-                emailError = true;
-            } else {
-                emailError = false;
-            }
+        return { hasError, loginExists, emailExists, hasProfileCreationError, id: this.id };
+    }
 
-            if(loginExists) {
-                loginError = true;
-            } else {
-                loginError = false;
-            }
+    async CheckIfFieldValuesExists() {
+        const loginExists = await this.GetUserByLogin(this.login);
+        const emailExists = await this.GetUserByEmail(this.email);
+        const loginOrEmailHasError = loginExists || emailExists ? true : false;
 
-            if(loginError || emailError) {
-                hasError = true;
-            } else {
-                hasError = false;
-            }
+        return { loginExists, emailExists, loginOrEmailHasError };
+    }
 
-            if(hasError) {
-                return { hasError, loginError, emailError, error: "Login ou e-mail já existe" };
-            } else {
-                const data = {
-                    name: this.name,
-                    email: this.email,
-                    login: this.login,
-                    password: this.password,
-                    phone: this.phone,
-                    createdAt: FieldValue.serverTimestamp(),
-                    updatedAt: null
-                }
-        
-                await db.collection("users").add(data);
-        
-                return { hasError: false };
+    async SaveUserInDatabase() {
+        let hasError, hasProfileCreationError;
+
+        const data = await this.GetUserDataToRegister();
+
+        await db.collection("users").add(data)
+        .then(async (docRef) => {
+            this.id = docRef.id;
+            hasError = false;
+
+            await this.AssignUserProfiles()
+            .then(() => {
+                hasProfileCreationError = false;
+            })
+            .catch(error => {
+                hasProfileCreationError = true;
+                console.error(error);
+            });
+        })
+        .catch(error => {
+            hasError = true;
+            console.error(error);
+        });
+
+        return { hasError, hasProfileCreationError };
+    }
+
+    async GetUserDataToRegister() {
+        const hash = await this.GeneratePasswordHash();
+
+        return {
+            name: this.name,
+            email: this.email,
+            login: this.login,
+            password: hash,
+            phone: this.phone,
+            createdAt: FieldValue.serverTimestamp(),
+            updatedAt: null
+        };
+    }
+
+    async AssignUserProfiles() {
+        if(this.profiles) {
+            for(var i = 0; i < this.profiles.length; i++) {
+                await this.SaveUserProfilesInDatabase(this.profiles[i]);
             }
-        } catch(error) {
-            return { hasError: true, error };
         }
+    }
+
+    async SaveUserProfilesInDatabase(idProfile) {
+        const profileData = {
+            idUser: this.id,
+            idProfile,
+            createdAt: FieldValue.serverTimestamp()
+        }
+
+        await db.collection("users_profiles").add(profileData);
     }
 
     async GetUserByLogin(login) {
@@ -66,15 +95,15 @@ class User {
             const userDocs = await db.collection("users").where('login', '==', login).limit(1).get();
     
             if(userDocs.empty) {
-                return false; // User don't exist
+                return false;
             } else {
-                return true; // User exists
+                return true;
             }
         } else {
             const userDocs = await db.collection("users").where('login', '==', this.login).limit(1).get();
     
             if(userDocs.empty) {
-                return false; // User don't exist
+                return false;
             } else {
                 userDocs.forEach(doc => {
                     this.id = doc.id;
@@ -83,7 +112,7 @@ class User {
                     this.password = doc.data().password;
                     this.phone = doc.data().phone;
                 });
-                return true; // User exists
+                return true;
             }
         }
     }
@@ -92,9 +121,9 @@ class User {
         const user = await db.collection("users").where('email', '==', email).limit(1).get();
 
         if(user.empty) {
-            return false; // User don't exist
+            return false;
         } else {
-            return true; // User exists
+            return true;
         }
     }
 
@@ -102,58 +131,29 @@ class User {
         return await db.collection("users").get();
     }
 
-    async GetUserById(id) {
-        return await db.collection("users").doc(id).get();
+    async GetUserById() {
+        return await db.collection("users").doc(this.id).get();
+    }
+
+    static async GetProfiles() {
+        return await db.collection("profiles").orderBy("profileName").get();
     }
 
     async UpdateUser() {
         try {
-            const user = await this.GetUserById(this.id);
-            const loginExists = await this.GetUserByLogin(this.login); // Falso atualiza, Verdadeiro da erro
-            const emailExists = await this.GetUserByEmail(this.email); // Falso atualiza, Verdadeiro da erro
-            var changeEmail, changeLogin, hasError, emailError, loginError;
-
-            if(user.data().email == this.email) {
-                changeEmail = false;
-            } else {
-                changeEmail = true;
-            }
-
-            if(user.data().login == this.login) {
-                changeLogin = false;
-            } else {
-                changeLogin = true;
-            }
-
-            if(changeEmail) {
-                if(emailExists) {
-                    emailError = true;
-                } else {
-                    emailError = false;
-                }
-            }
-
-            if(changeLogin) {
-                if(loginExists) {
-                    loginError = true;
-                } else {
-                    loginError = false;
-                }
-            }
-
-            if(loginError || emailError) {
-                hasError = true;
-            } else {
-                hasError = false;
-            }
-
-            if(hasError) {
-                return { hasError, loginError, emailError, error: "Login ou e-mail já existe" };
-            } else {
-                if(this.password) {
-                    // Update user changing the password
-                    const salt = bcrypt.genSaltSync(10);
-                    const hash = bcrypt.hashSync(this.password, salt);
+            var hasError = false;
+            const user = await this.GetUserById();
+            const { loginExists, emailExists } = await this.CheckIfFieldValuesExists();
+            const { changeEmail, changeLogin } = await this.CheckIfFieldWillBeChanged(user.data());
+            var emailError = changeEmail && emailExists ? true : false;
+            var loginError = changeLogin && loginExists ? true : false;
+            const changePassword = this.password ? true : false;
+            hasError = emailError || loginError ? true : false;
+    
+    
+            if(!hasError) {
+                if(changePassword) {
+                    const hash = await this.GeneratePasswordHash();
         
                     const data = {
                         name: this.name,
@@ -165,10 +165,8 @@ class User {
                     }
         
                     await db.collection("users").doc(this.id).update(data);
-                    return { hasError: false };
                 } else {
-                    // Update user without changing the password
-                     const data = {
+                        const data = {
                         name: this.name,
                         email: this.email,
                         login: this.login,
@@ -177,16 +175,103 @@ class User {
                     }
         
                     await db.collection("users").doc(this.id).update(data);
-                    return { hasError: false };
                 }
+
+                var hasProfileUpdateError = await this.UpdateUserProfiles();
             }
         } catch(error) {
-            return { hasError: true, error };
+            console.error(error);
+            hasError = true;
+        } finally {
+            return { hasError, loginError, emailError, hasProfileUpdateError };
         }
     }
 
+    async UpdateUserProfiles() {
+        try {
+            var hasProfileUpdateError = false;
+            const actualProfiles = await this.GetUsersProfilesByUserId();
+            await this.CheckForProfilesToDelete(actualProfiles);
+            await this.CheckForProfilesToCreate(actualProfiles);
+        } catch(error) {
+            console.error(error);
+            hasProfileUpdateError = true;
+        } finally {
+            return hasProfileUpdateError;
+        }
+    }
+
+    async CheckForProfilesToDelete(profiles) {
+        const profileDeletions = profiles.docs.map(async (doc) => {
+            if(!this.profiles.includes(doc.data().idProfile)) {
+                await doc.ref.delete();
+            }
+        });
+
+        await Promise.all(profileDeletions);
+    }
+
+    async CheckForProfilesToCreate(profiles) {
+        const userProfiles = await this.PushIdProfileToArray(profiles);
+
+        const profileCreation = this.profiles.map(async (doc) => {
+            if(!userProfiles.includes(doc) && doc) {
+                await this.SaveUserProfilesInDatabase(doc);
+            }
+        });
+
+        await Promise.all(profileCreation);
+    }
+
+    async PushIdProfileToArray(profiles) {
+        var userProfiles = [];
+
+        profiles.docs.map(doc => {
+            userProfiles.push(doc.data().idProfile);
+        });
+
+        return userProfiles;
+    }
+
+    async CheckIfFieldWillBeChanged(user) {
+        var changeEmail = user.email == this.email ? false : true;
+        var changeLogin = user.login == this.login ? false : true;
+
+        return { changeEmail, changeLogin }
+    }
+
+    async GeneratePasswordHash() {
+        const salt = bcrypt.genSaltSync(10);
+        return bcrypt.hashSync(this.password, salt);
+    }
+
     async DeleteUser() {
-        await db.collection("users").doc(this.id).delete();
+        try {
+            var success = false;
+
+            await this.DeleteUserProfiles();
+            await db.collection("users").doc(this.id).delete();
+
+            success = true;
+        } catch(error) {
+            console.error("Error deleting user and user profiles: ", error)
+        } finally {
+            return success;
+        }
+    }
+
+    async DeleteUserProfiles() {
+        const profilesQuery = await this.GetUsersProfilesByUserId();
+    
+        const profileDeletions = profilesQuery.docs.map(async (doc) => {
+            await doc.ref.delete();
+        });
+
+        await Promise.all(profileDeletions);
+    }
+
+    async GetUsersProfilesByUserId() {
+        return await db.collection("users_profiles").where("idUser", "==", this.id).get();
     }
 
     async AuthenticateUser(password) {
