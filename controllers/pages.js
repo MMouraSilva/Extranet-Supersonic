@@ -3,10 +3,10 @@ const router = express.Router();
 require('dotenv').config();
 const backendUrl = process.env.APP_TIMER_HOST; // passar os dados do .env para as constantes
 const frontendUrl = process.env.APP_HOST;
-const userAuth = require("../middlewares/userAuth");
+const userAccess = require("../middlewares/userAccess");
 const Page = require("../models/Page");
 
-router.get("/pages", userAuth, async (req, res) => {
+router.get("/pages", userAccess, async (req, res) => {
     try {
         const updateStatus = req.session.updatePageStatus;
         const createStatus = req.session.createPageStatus;
@@ -22,7 +22,7 @@ router.get("/pages", userAuth, async (req, res) => {
     }
 });
 
-router.get("/pages/edit/:id", userAuth, async (req, res) => {
+router.get("/pages/edit/:id", userAccess, async (req, res) => {
     const id = req.params.id;
 
     const updateStatus = req.session.updatePageStatus;
@@ -80,7 +80,7 @@ router.post("/pages/edit", async (req, res) => {
     }
 });
 
-router.get("/pages/create", userAuth, async (req, res) => {
+router.get("/pages/create", userAccess, async (req, res) => {
     const createStatus = req.session.createPageStatus;
     req.session.createPageStatus = undefined;
 

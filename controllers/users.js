@@ -3,13 +3,13 @@ const router = express.Router();
 require('dotenv').config();
 const backendUrl = process.env.APP_TIMER_HOST; // passar os dados do .env para as constantes
 const frontendUrl = process.env.APP_HOST;
-const userAuth = require("../middlewares/userAuth");
+const userAccess = require("../middlewares/userAccess");
 const loginPageAuth = require("../middlewares/loginPageAuth");
 const User = require("../models/User");
 const Profile = require("../models/Profile");
 const Page = require("../models/Page");
 
-router.get("/users", userAuth, async (req, res) => {
+router.get("/users", userAccess, async (req, res) => {
     try {
         const updateStatus = req.session.updateUserStatus;
         const createStatus = req.session.createUserStatus;
@@ -30,7 +30,7 @@ router.get("/users", userAuth, async (req, res) => {
     }
 });
 
-router.get("/users/create", userAuth, async (req, res) => {
+router.get("/users/create", userAccess, async (req, res) => {
     const createStatus = req.session.createUserStatus;
     req.session.createUserStatus = undefined;
 
@@ -59,7 +59,7 @@ router.post("/users/create", async (req, res) => {
     }
 });
 
-router.get("/users/edit/:id", userAuth, async (req, res) => {
+router.get("/users/edit/:id", userAccess, async (req, res) => {
     const id = req.params.id;
 
     const updateStatus = req.session.updateUserStatus;
@@ -122,6 +122,7 @@ router.post("/authenticate", async (req, res) => {
     user.profiles = await user.PushIdProfileToArray(await user.GetUsersProfilesByUserId());
     var profilesPermissions;
     var pages = [];
+    var allowedRoutes = [];
     
     for(var i = 0; i < user.profiles.length; i++) {
         var profile = new Profile({ id: user.profiles[i] });
@@ -131,6 +132,12 @@ router.post("/authenticate", async (req, res) => {
     for(var i = 0; i < profilesPermissions.length; i++) {
         var page = new Page({ id: profilesPermissions[i] });
         pages.push(await page.GetPagesObject());
+    }
+    
+    for(var i = 0; i < pages.length; i++) {
+        if(pages[i].urlPath) {
+            allowedRoutes.push(pages[i].urlPath);
+        }
     }
 
     if(userCorrect) {
@@ -143,7 +150,8 @@ router.post("/authenticate", async (req, res) => {
                 login: user.login,
                 email: user.email,
                 phone: user.phone,
-                permissions: pages
+                permissions: pages,
+                allowedRoutes
             }
             res.redirect("/");
         } else {

@@ -15,7 +15,7 @@ const io = require("socket.io")(http, {
     },
     maxHttpBufferSize: 1e8
 });
-const userAuth = require("./middlewares/userAuth");
+const userAccess = require("./middlewares/userAccess");
 
 const vendasController = require("./controllers/vendas");
 const indicadoresController = require("./controllers/indicadores");
@@ -171,7 +171,7 @@ app.use("/", pagesController);
 
 app.use("/", profilesController);
 
-app.get("/", userAuth, (req, res) => {
+app.get("/", userAccess, (req, res) => {
     res.render("index", { frontendUrl, user: req.session.user });
 });
 

@@ -3,10 +3,10 @@ const router = express.Router();
 require('dotenv').config();
 const backendUrl = process.env.APP_TIMER_HOST; // passar os dados do .env para as constantes
 const frontendUrl = process.env.APP_HOST;
-const userAuth = require("../middlewares/userAuth");
+const userAccess = require("../middlewares/userAccess");
 const Profile = require("../models/Profile");
 
-router.get("/profiles", userAuth, async (req, res) => {
+router.get("/profiles", userAccess, async (req, res) => {
     try {
         const updateStatus = req.session.updateProfileStatus;
         const createStatus = req.session.createProfileStatus;
@@ -22,7 +22,7 @@ router.get("/profiles", userAuth, async (req, res) => {
     }
 });
 
-router.get("/profiles/edit/:id", userAuth, async (req, res) => {
+router.get("/profiles/edit/:id", userAccess, async (req, res) => {
     const id = req.params.id;
 
     const updateStatus = req.session.updateProfileStatus;
@@ -63,7 +63,7 @@ router.post("/profiles/edit", async (req, res) => {
     }
 });
 
-router.get("/profiles/create", userAuth, async (req, res) => {
+router.get("/profiles/create", userAccess, async (req, res) => {
     const createStatus = req.session.createProfileStatus;
     req.session.createProfileStatus = undefined;
 
