@@ -1,11 +1,9 @@
 const express = require("express");
 require('dotenv').config();
-const backendUrl = process.env.APP_TIMER_HOST; // passar os dados do .env para as constantes
-const frontendUrl = process.env.APP_HOST;
 const app = express();
 const bodyParser = require("body-parser");
 const http = require("http").createServer(app);
-const session = require("express-session");
+const session = require("cookie-session");
 const moment = require("moment");
 const io = require("socket.io")(http, {
     cors: {
@@ -152,7 +150,7 @@ app.use(session({
 app.use(express.static('public'));
 
 app.use((req, res, next) => {
-    res.locals.moment= moment;
+    res.locals.moment = moment;
     next();
 });
 
@@ -172,14 +170,13 @@ app.use("/", pagesController);
 app.use("/", profilesController);
 
 app.get("/", userAccess, (req, res) => {
-    res.render("index", { frontendUrl, user: req.session.user });
+    res.render("index", { user: req.session.user });
 });
 
-app.get("/recebimento", (req, res) => {
-    res.render("recebimento", { frontendUrl, backendUrl });
+app.get("/recebimento", userAccess, (req, res) => {
+    res.render("recebimento");
 });
 
-http.listen(8080, () => {
+http.listen(80, () => {
     console.log("App rodando!");
 });
-

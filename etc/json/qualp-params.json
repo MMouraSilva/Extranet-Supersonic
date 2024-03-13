@@ -1,0 +1,55 @@
+{
+    "locations": [],
+    "config": {
+        "route": {
+            "optimized_route": true,
+            "optimized_route_destination": "last",
+            "calculate_return": false,
+            "alternative_routes": "0",
+            "avoid_locations": false,
+            "avoid_locations_key": "",
+            "type_route": "efficient"
+        },
+        "vehicle": {
+            "type": "truck",
+            "axis": "all",
+            "top_speed": null
+        },
+        "tolls": {
+            "retroactive_date": ""
+        },
+        "freight_table": {
+            "category": "all",
+            "freight_load": "all",
+            "axis": "all"
+        },
+        "fuel_consumption": {
+            "fuel_price": "",
+            "km_fuel": ""
+        },
+        "private_places": {
+            "max_distance_from_location_to_route": "1000",
+            "categories": false,
+            "areas": false,
+            "contacts": false,
+            "products": false,
+            "services": false
+        }
+    },
+    "show": {
+        "tolls": true,
+        "freight_table": false,
+        "maneuvers": "false",
+        "truck_scales": false,
+        "static_image": false,
+        "link_to_qualp": true,
+        "private_places": false,
+        "polyline": true,
+        "simplified_polyline": true,
+        "ufs": false,
+        "fuel_consumption": false,
+        "link_to_qualp_report": true
+    },
+    "format": "json",
+    "exception_key": ""
+}

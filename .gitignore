@@ -122,4 +122,4 @@ out
 .yarn/install-state.gz
 .pnp.*
 
-key
+secrets

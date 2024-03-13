@@ -1,0 +1,180 @@
+<%- include('../partials/header.ejs') %>
+
+	<body class="hold-transition sidebar-mini layout-fixed">
+		<%- include('../partials/navbar.ejs') %>
+			<div class="container">
+				<section class="d-flex mt-5">
+					<div class="row col-12">
+						<div class="col-12 col-sm-12 col-md-12 col-lg-6 img-div">
+							<div class="d-flex">
+								<img src="/img/Carragamento.png" class="image-custo" alt="">
+							</div>
+						</div>
+						<div class="col-12 col-sm-12 col-md-12 col-lg-6">
+							<form id="quotationForm" method="POST" action="/quotation">
+								<div class="card">
+									<div class="card-header">
+										<div class="header-title">
+											<p>Dados da Mercadoria</p>
+										</div>
+									</div>
+									<div class="card-body">
+										<!-- <form id="quotationForm" method="POST" action="/quotation"> -->
+										<div class="d-flex">
+											<!-- text input -->
+											<div class="form-group col-6 col-sm-6 col-md-6 col-lg-6">
+												<label id="estado-origem-label" for="estado-origem">Estado de Origem</label>
+												<select class="form-control select2" id="estado-origem"
+													name="estadoOrigem" style="width: 100%;" required
+													tabindex="1"></select>
+											</div>
+											<!-- text input -->
+											<div class="form-group col-6 col-sm-6 col-md-6 col-lg-6">
+												<label id="estado-destino-label" for="estado-destino">Estado de Destino</label>
+												<select class="form-control select2" id="estado-destino"
+													name="estadoDestino" style="width: 100%;" required
+													tabindex="3"></select>
+											</div>
+										</div>
+										<div class="d-flex">
+											<!-- text input -->
+											<div class="form-group col-6 col-sm-6 col-md-6 col-lg-6">
+												<label id="cidade-origem-label" for="cidade-origem">Cidade de Origem</label>
+												<select class="form-control select2" id="cidade-origem"
+													name="cidadeOrigem" style="width: 100%;" required
+													tabindex="2"></select>
+											</div>
+											<!-- text input -->
+											<div class="form-group col-6 col-sm-6 col-md-6 col-lg-6">
+												<label id="cidade-destino-label" for="cidade-destino">Cidade de Destino</label>
+												<select class="form-control select2" id="cidade-destino"
+													name="cidadeDestino" style="width: 100%;" required
+													tabindex="4"></select>
+											</div>
+										</div>
+										<div class="d-flex">
+											<!-- text input -->
+											<div class="form-group col-6 col-sm-6 col-md-6 col-lg-6">
+												<label id="valor-mercadoria-label" for="valor-mercadoria">Valor total da mercadoria</label>
+												<input type="text" class="form-control currency" id="valor-mercadoria"
+													placeholder="R$ 0,00" name="currency" required tabindex="5">
+											</div>
+											<!-- text input -->
+											<div class="form-group col-6 col-sm-6 col-md-6 col-lg-6">
+												<label id="peso-label" for="peso">Peso</label>
+												<div class="input-group">
+													<input type="number" class="form-control form-control-input"
+														id="peso" name="peso" placeholder="0" min="0"
+														oninput="validity.valid||(value='');" required tabindex="6">
+													<div class="input-group-append">
+														<span class="input-group-text">Kg</span>
+													</div>
+												</div>
+											</div>
+										</div>
+										<!-- </form> -->
+									</div>
+								</div>
+								<div class="d-flex justify-content-end col-12">
+									<button type="submit" class="btn btn-block bg-gradient btn-lg col-12 col-sm-12 col-md-12 col-lg-4" tabindex="7">Cotar</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</section>
+			</div>
+	</body>
+	<%- include('../partials/footer.ejs') %>
+		<script>
+			$(function () {
+				//Initialize Select2 Elements
+				$('.select2').select2()
+
+				$('.currency').maskMoney({
+					prefix: 'R$ ',
+					allowNegative: false,
+					thousands: '.',
+					decimal: ',',
+					affixesStay: true
+				});
+
+				// $.validator.setDefaults({
+				// 	submitHandler: function () {
+				// 		alert("Form successful submitted!");
+				// 	}
+				// });
+
+				$('#quotationForm').validate({
+					rules: {
+						estadoOrigem: {
+							required: true,
+						},
+						estadoDestino: {
+							required: true,
+						},
+						cidadeOrigem: {
+							required: true
+						},
+						cidadeDestino: {
+							required: true
+						},
+						currency: {
+							required: true
+						},
+						peso: {
+							required: true
+						}
+					},
+					messages: {
+						estadoOrigem: {
+							required: "Selecione o estado de origem",
+						},
+						estadoDestino: {
+							required: "Selecione o estado de destino",
+						},
+						cidadeOrigem: {
+							required: "Selecione a cidade de origem",
+						},
+						cidadeDestino: {
+							required: "Selecione a cidade de destino",
+						},
+						currency: {
+							required: "Preencha o valor da mercadoria",
+						},
+						peso: {
+							required: "Preencha o peso da mercadoria",
+						}
+					},
+					errorElement: 'span',
+					errorPlacement: function (error, element) {
+						error.addClass('invalid-feedback');
+						element.closest('.form-group').append(error);
+					},
+					highlight: function (element, errorClass, validClass) {
+						$(element).addClass('is-invalid');
+						if(element.nodeName == "SELECT") {
+							$(element).siblings('.select2').addClass('is-invalid');
+						} else if(element.name == "peso") {
+							$('.input-group-text').addClass('is-invalid');
+						}
+					},
+					unhighlight: function (element, errorClass, validClass) {
+						$(element).removeClass('is-invalid');
+						if(element.nodeName == "SELECT") {
+							$(element).siblings('.select2').removeClass('is-invalid');
+						} else if(element.name == "peso") {
+							$('.input-group-text').removeClass('is-invalid');
+						}
+					}
+				});
+			});
+
+			$(document).ready(function () {
+				var requiredFields = $("[required]");
+
+				for (var i = 0; i <= requiredFields.length - 1; i++) {
+					var fieldId = "#" + requiredFields[i].id + "-label";
+					$(fieldId).addClass("required");
+				}
+			});
+		</script>
