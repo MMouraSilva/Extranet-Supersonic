@@ -7,11 +7,10 @@ function userAuth(req, res, next) {
 }
 
 function userPermission(req, res, next) {
-    var re = new RegExp("(\/[a-z]+)");
-    var reqRoutePath = req.route.path;
-    var routePath = reqRoutePath.match(re) ? reqRoutePath.match(re) : "Home";
+    var reqRoutePath = req.route.path.split("/");
+    var routePath = "/" + reqRoutePath[1];
     
-    if(req.session.user.allowedRoutes.includes(routePath[1]) || routePath == "Home") {
+    if(req.session.user.allowedRoutes.includes(routePath) || routePath == "/") {
         next();
     } else {
         res.redirect("/");

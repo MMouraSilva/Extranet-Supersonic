@@ -20,6 +20,7 @@ const indicadoresController = require("./controllers/indicadores");
 const usersController = require("./controllers/users");
 const pagesController = require("./controllers/pages");
 const profilesController = require("./controllers/profiles");
+const freightRulesRoutes = require("./routes/freight-rules");
 
 var recebimentos;
 var vendas;
@@ -133,12 +134,11 @@ io.on("connection", (socket) => {
 
 
 
-// Indicando para o Express utilizar o EJS como View Engine
 app.set('view engine', 'ejs');
 
-// Sessions
 app.use(session({
     secret: "2i3fmcjkds oiniofds$¨#³²45",
+    // TODO: Sistema de sessão por tempo que se renova conforme o usuário navega
     // cookie: {
     //     maxAge: 30 * 60 * 1000
     // },
@@ -146,7 +146,6 @@ app.use(session({
     saveUninitialized: true
 }));
 
-// Static
 app.use(express.static('public'));
 
 app.use((req, res, next) => {
@@ -154,11 +153,10 @@ app.use((req, res, next) => {
     next();
 });
 
-// Importando Body Parser, lib para ler as informações enviadas pelo POST
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-// Rotas
+
 app.use("/", indicadoresController);
 
 app.use("/", usersController);
@@ -168,6 +166,8 @@ app.use("/", vendasController);
 app.use("/", pagesController);
 
 app.use("/", profilesController);
+
+app.use("/", freightRulesRoutes);
 
 app.get("/", userAccess, (req, res) => {
     res.render("index", { user: req.session.user });
