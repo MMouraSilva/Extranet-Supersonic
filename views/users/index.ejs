@@ -59,7 +59,7 @@
                     <section class="content">
                         <div class="container-fluid">
                             <button type="button" id="createButton" class="btn btn-primary mb-3 text-white font-weight-bold">Criar Usuário</button>
-                            <table id="example1" class="table table-bordered table-striped" width="100%">
+                            <table id="users-table" class="table table-bordered table-striped" width="100%">
                                 <thead>
                                     <tr>
                                         <th>Login</th>
@@ -105,10 +105,10 @@
             };
 
             $(function () {
-                $("#example1").DataTable({
+                $("#users-table").DataTable({
                     "responsive": true, "lengthChange": false, "autoWidth": false,
                     "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
-                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                }).buttons().container().appendTo('#users-table_wrapper .col-md-6:eq(0)');
             });
 
             function confirmDelete(event, form) {
