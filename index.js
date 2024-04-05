@@ -20,7 +20,7 @@ const indicadoresController = require("./controllers/indicadores");
 const usersController = require("./controllers/users");
 const pagesController = require("./controllers/pages");
 const profilesController = require("./controllers/profiles");
-const freightRulesRoutes = require("./routes/freight-rules");
+const freightRulesRoutes = require("./routes/freightRules");
 
 var recebimentos;
 var vendas;
