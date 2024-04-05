@@ -3,6 +3,8 @@ const { initializeApp, applicationDefault, cert } = require('firebase-admin/app'
 const { getFirestore, Timestamp, FieldValue, Filter } = require('firebase-admin/firestore');
 const bcrypt = require("bcrypt");
 
+const Firebase = require("./Firebase");
+
 const db = getFirestore(connection);
 
 class User {
@@ -14,11 +16,14 @@ class User {
         this.password = data.password;
         this.phone = data.phone;
         this.profiles = [].concat(data.profiles);
+
+        this.firebase = new Firebase();
     }
 
     async CreateUser() {
         const { loginExists, emailExists, loginOrEmailHasError } = await this.CheckIfFieldValuesExists();
-        const { hasError, hasProfileCreationError } = loginOrEmailHasError ? { hasError: true, hasProfileCreationError: true } : await this.SaveUserInDatabase();
+        const hasError = loginOrEmailHasError ? true : await this.SaveUserInDatabase();
+        const hasProfileCreationError = await this.AssignUserProfiles();
 
         return { hasError, loginExists, emailExists, hasProfileCreationError, id: this.id };
     }
@@ -32,30 +37,13 @@ class User {
     }
 
     async SaveUserInDatabase() {
-        let hasError, hasProfileCreationError;
-
         const data = await this.GetUserDataToRegister();
 
-        await db.collection("users").add(data)
-        .then(async (docRef) => {
-            this.id = docRef.id;
-            hasError = false;
+        this.firebase.collection = "users";
+        const { error, docRef } = await this.firebase.FirebaseAddDoc(data);
+        this.id = docRef.id;
 
-            await this.AssignUserProfiles()
-            .then(() => {
-                hasProfileCreationError = false;
-            })
-            .catch(error => {
-                hasProfileCreationError = true;
-                console.error(error);
-            });
-        })
-        .catch(error => {
-            hasError = true;
-            console.error(error);
-        });
-
-        return { hasError, hasProfileCreationError };
+        return error ? true : false;
     }
 
     async GetUserDataToRegister() {
@@ -73,11 +61,14 @@ class User {
     }
 
     async AssignUserProfiles() {
-        if(this.profiles) {
+        let hasError = false;
+        if(this.profiles[0]) {
             for(var i = 0; i < this.profiles.length; i++) {
-                await this.SaveUserProfilesInDatabase(this.profiles[i]);
+                hasError = await this.SaveUserProfilesInDatabase(this.profiles[i]) ? true : hasError;
             }
         }
+
+        return hasError;
     }
 
     async SaveUserProfilesInDatabase(idProfile) {
@@ -87,7 +78,10 @@ class User {
             createdAt: FieldValue.serverTimestamp()
         }
 
-        await db.collection("users_profiles").add(profileData);
+        this.firebase.collection = "users_profiles";
+        const { error } = await this.firebase.FirebaseAddDoc(profileData);
+
+        return error ? true : false;
     }
 
     async GetUserByLogin(login) {
