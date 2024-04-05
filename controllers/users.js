@@ -84,7 +84,6 @@ router.post("/users/edit", async (req, res) => {
     const updateRes = await user.UpdateUser();
 
     if(updateRes.hasError) {
-        // console.log(updateRes.error);
         if(updateRes.emailExists || updateRes.loginExists) {
             req.session.updateUserStatus = { completed: false, error: updateRes.error, loginExists: updateRes.loginExists, emailExists: updateRes.emailExists };
             res.redirect("/users/edit/" + req.body.id);
