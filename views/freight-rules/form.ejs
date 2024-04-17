@@ -3,210 +3,610 @@
     <body class="hold-transition sidebar-mini layout-fixed sidebar-collapse justify-content-center">
         <%- include('../partials/navbar2.ejs') %>
         <div class="wrapper user">
-                <%- include('../partials/sidebar.ejs') %>
-                    <div class="container justify-content-center">
-                        <div class="content-wrapper">
-                            <!-- Content Header (Page header) -->
-                            <section class="content-header">
-                                <div class="container-fluid">
-                                    <div class="row mb-2">
-                                        <div class="col-sm-6">
-                                            <% if(operation == "edit") { %>
-                                                <h1>Editar Regra de Frete</h1>
-                                            <% } else if(operation == "create") { %>
-                                                <h1>Cadastrar Regra de Frete</h1>
-                                            <% } %>
+            <%- include('../partials/sidebar.ejs') %>
+            <div class="container justify-content-center">
+                <div class="content-wrapper">
+                    <section class="content-header">
+                        <div class="container-fluid">
+                            <div class="row mb-2">
+                                <div class="col-sm-6">
+                                    <% if(operation == "edit") { %>
+                                        <h1>Editar Regra de Frete</h1>
+                                    <% } else if(operation == "create") { %>
+                                        <h1>Cadastrar Regra de Frete</h1>
+                                    <% } %>
+                                </div>
+                                <div class="col-sm-6">
+                                    <ol class="breadcrumb float-sm-right">
+                                        <li class="breadcrumb-item"><a href="/">Home</a></li>
+                                        <li class="breadcrumb-item"><a href="/freight-rules">Regras de Frete</a></li>
+                                        <% if(operation == "edit") { %>
+                                            <li class="breadcrumb-item"><a href="/freight-rules/edit/<%= freightRule.id %>">
+                                                <%=
+                                                    freightRule.ruleType == "distance-range" ?
+                                                        (
+                                                            freightRule.minDistance != 0 && freightRule.maxDistance != 0 ?
+                                                                freightRule.minDistance + "Km até " + freightRule.maxDistance + "Km"
+                                                            : freightRule.minDistance != 0 ?
+                                                                freightRule.minDistance + "Km +"
+                                                            : freightRule.maxDistance == 999999999999999 ?
+                                                                "Sem restrição"
+                                                            : freightRule.maxDistance != 0 ?
+                                                                "Até " + freightRule.maxDistance + "Km"
+                                                            : null
+                                                        )
+                                                    : freightRule.ruleType == "source-to-destination" ?
+                                                        freightRule.origin + " x " + freightRule.destination
+                                                    : freightRule.ruleType == "source-to-region" ?
+                                                        freightRule.origin + " x " + freightRule.destinationRegion.charAt(0).toUpperCase() + freightRule.destinationRegion.slice(1)
+                                                    : null
+                                                %>
+                                            </a></li>
+                                        <% } else if(operation == "create") { %>
+                                            <li class="breadcrumb-item"><a href="/freight-rules/create">Cadastro</a></li>
+                                        <% } %>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                        <% if(errorStatus) { %>
+                            <% if(!errorStatus.completed) { %>
+                                <br>
+                                <div class="alert alert-danger alert-dismissible">
+                                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                                    <h5><i class="icon fas fa-ban"></i> Erro! </h5>
+                                    Não foi possível criar a regra: Regra já existe!
+                                </div>
+                            <% } %>
+                        <% } %>
+                    </section>
+                    <section class="content">
+                        <div class="container-fluid">
+                            <form id="freightRulesForm" name="freightRulesForm" method="POST" class="mb-3"
+                            action="/freight-rules/<%= operation == 'create' ? 'create' : operation == 'edit' ? 'edit' : ' ' %>">
+                                <input type="hidden" id="id" name="id" value="<%= operation == 'edit' ? freightRule.id : null %>" >
+                                <div class="card">
+                                    <div class="card-body ">
+                                        <div class="d-flex mb-3 justify-content-center">
+                                            <h4 class="font-weight-bold">Tipo de Regra de Frete</h3>
                                         </div>
-                                        <div class="col-sm-6">
-                                            <ol class="breadcrumb float-sm-right">
-                                                <li class="breadcrumb-item"><a href="/">Home</a></li>
-                                                <li class="breadcrumb-item"><a href="/freight-rules">Regras de Frete</a></li>
-                                                <% if(operation == "edit") { %>
-                                                    <li class="breadcrumb-item"><a href="/freight-rules/edit/<%= // userToEdit.id %>"><%= // userToEdit.data().name %></a></li>
-                                                <% } else if(operation == "create") { %>
-                                                    <li class="breadcrumb-item"><a href="/freight-rules/create">Cadastro</a></li>
-                                                <% } %>
-                                            </ol>
+
+                                        <div class="d-flex mb-3">
+                                            <div class="form-group col-4 mt-2">
+                                                <div class="custom-control custom-radio mb-2">
+                                                    <input class="custom-control-input" type="radio"
+                                                    id="distance-range" name="ruleType" value="distance-range" tabindex="1"
+                                                    <%=
+                                                        operation == "create" ?
+                                                            "checked"
+                                                        : operation == "edit" ?
+                                                            freightRule.ruleType == "distance-range" ?
+                                                                "checked"
+                                                            : null
+                                                        : null
+                                                    %>
+                                                    <%=
+                                                        operation == "edit" ?
+                                                            " disabled"
+                                                        : null
+                                                    %>
+                                                    >
+                                                    <label for="distance-range" class="custom-control-label">Faixa de Km</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group col-4 mt-2">
+                                                <div class="custom-control custom-radio mb-2">
+                                                    <input class="custom-control-input" type="radio"
+                                                    id="source-to-destination" name="ruleType" value="source-to-destination" tabindex="2"
+                                                    <%=
+                                                        operation == "edit" ?
+                                                            freightRule.ruleType == "source-to-destination" ?
+                                                                "checked"
+                                                            : null
+                                                        : null
+                                                    %>
+                                                    <%=
+                                                        operation == "edit" ?
+                                                            " disabled"
+                                                        : null
+                                                    %>
+                                                    >
+                                                    <label for="source-to-destination" class="custom-control-label">Origem x Destino</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group col-4 mt-2">
+                                                <div class="custom-control custom-radio mb-2">
+                                                    <input class="custom-control-input" type="radio"
+                                                    id="source-to-region" name="ruleType" value="source-to-region" tabindex="3"
+                                                    <%=
+                                                        operation == "edit" ?
+                                                            freightRule.ruleType == "source-to-region" ?
+                                                                "checked"
+                                                            : null
+                                                        : null
+                                                    %>
+                                                    <%=
+                                                        operation == "edit" ?
+                                                            " disabled"
+                                                        : null
+                                                    %>
+                                                    >
+                                                    <label for="source-to-region" class="custom-control-label">Origem x Região</label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <hr>
+
+                                        <div class="d-flex mb-3 justify-content-center" id="distanceRange">
+                                            <h5 class="font-weight-bold">Faixa de Km</h3>
+                                        </div>
+                                        <div class="d-flex justify-content-center">
+                                            <span class="text-danger font-weight-bold d-none mb-3" id="distanceRangeError">
+                                                Ao menos um dos campos de distância deve ser preenchido
+                                            </span>
+                                        </div>
+                                            
+                                        <div class="d-flex mb-3 distance-range">
+                                            <div class="form-group col-6">
+												<label id="min-distance-label" for="min-distance">Distância Mínima (Km)</label>
+												<div class="input-group">
+													<input type="number" class="form-control"
+														id="min-distance" name="minDistance" placeholder="e.g.: 600" min="0"
+														oninput="validity.valid||(value='');" tabindex="4"
+                                                        <%=
+                                                            operation == "edit" ?
+                                                                freightRule.minDistance ?
+                                                                    "value=" + freightRule.minDistance
+                                                                : null
+                                                            : null
+                                                        %>
+
+                                                        <%=
+                                                            operation == "edit" ?
+                                                                " disabled"
+                                                            : null
+                                                        %>
+                                                        >
+													<div class="input-group-append">
+														<span class="input-group-text">Km</span>
+													</div>
+												</div>
+											</div>
+
+                                            <div class="form-group col-6">
+												<label id="max-distance-label" for="max-distance">Distância Máxima (Km)</label>
+												<div class="input-group">
+													<input type="number" class="form-control"
+														id="max-distance" name="maxDistance" placeholder="e.g.: 800" min="0"
+														oninput="validity.valid||(value='');" tabindex="5"
+                                                        <%=
+                                                            operation == "edit" ?
+                                                                freightRule.minDistance ?
+                                                                    "value=" + freightRule.maxDistance
+                                                                : null
+                                                            : null
+                                                        %>
+
+                                                        <%=
+                                                            operation == "edit" ?
+                                                                " disabled"
+                                                            : null
+                                                        %>
+                                                        >
+													<div class="input-group-append">
+														<span class="input-group-text">Km</span>
+													</div>
+												</div>
+											</div>
+                                        </div>
+
+                                        <hr>
+
+                                        <div class="d-flex mb-3 justify-content-center">
+                                            <h5 class="font-weight-bold">Origem x Destino</h3>
+                                        </div>
+
+                                        <div class="d-flex mb-3 source-to-destination">
+                                            <div class="form-group col-6">
+                                                <label id="estado-origem-label" for="estado-origem">Estado de Origem</label>
+                                                <select class="form-control select2" id="estado-origem"
+                                                    name="originState" style="width: 100%;" required disabled
+                                                    tabindex="6"></select>
+                                            </div>
+
+                                            <div class="form-group col-6">
+                                                <label id="estado-destino-label" for="estado-destino">Estado de Destino</label>
+                                                <select class="form-control select2" id="estado-destino"
+                                                    name="destinationState" style="width: 100%;" required disabled
+                                                    tabindex="8"></select>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex mb-3 source-to-destination">
+                                            <div class="form-group col-6">
+                                                <label id="cidade-origem-label" for="cidade-origem">Cidade de Origem</label>
+                                                <select class="form-control select2" id="cidade-origem"
+                                                    name="originCity" style="width: 100%;" required disabled
+                                                    tabindex="7"></select>
+                                            </div>
+
+                                            <div class="form-group col-6">
+                                                <label id="cidade-destino-label" for="cidade-destino">Cidade de Destino</label>
+                                                <select class="form-control select2" id="cidade-destino"
+                                                    name="destinationCity" style="width: 100%;" required disabled
+                                                    tabindex="9"></select>
+                                            </div>
+                                        </div>
+
+                                        <hr>
+
+                                        <div class="d-flex mb-3 justify-content-center">
+                                            <h5 class="font-weight-bold">Origem x Região</h3>
+                                        </div>
+
+                                        <div class="d-flex mb-3 source-to-region">
+                                            <div class="form-group col-6">
+                                                <label id="estado-origem-regiao-label" for="estado-origem-regiao">Estado de Origem</label>
+                                                <select class="form-control select2" id="estado-origem-regiao"
+                                                    name="originState" style="width: 100%;" required disabled
+                                                    tabindex="10"></select>
+                                            </div>
+
+                                            <div class="form-group col-6">
+                                                <label id="destination-region-label" for="destination-region">Região Destino</label>
+                                                <select class="form-control select2" id="destination-region"
+                                                name="destinationRegion" style="width: 100%;" required disabled
+                                                tabindex="12">
+                                                    <option value="">Escolha uma Região</option>
+                                                    <option value="norte">Norte</option>
+                                                    <option value="nordeste">Nordeste</option>
+                                                    <option value="centro-oeste">Centro-Oeste</option>
+                                                    <option value="sudeste">Sudeste</option>
+                                                    <option value="sul">Sul</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex mb-3 source-to-region">
+                                            <div class="form-group col-6">
+                                                <label id="cidade-origem-regiao-label" for="cidade-origem">Cidade de Origem</label>
+                                                <select class="form-control select2" id="cidade-origem-regiao"
+                                                    name="originCity" style="width: 100%;" required disabled
+                                                    tabindex="11"></select>
+                                            </div>
+
+                                            <div class="form-group col-6 mt-4">
+                                                <div class="custom-control custom-checkbox mb-2">
+                                                    <input class="custom-control-input" type="checkbox" disabled
+                                                    id="useDistanceRange" name="useDistanceRange" value="true" tabindex="13"
+                                                    <%=
+                                                        operation == "edit" ?
+                                                            freightRule.ruleType == "source-to-region" ?
+                                                                freightRule.minDistance != 0 || freightRule.maxDistance != 999999999999999 ?
+                                                                    "checked"
+                                                                : null
+                                                            : null
+                                                        : null
+                                                    %>
+                                                    >
+                                                    <label for="useDistanceRange" class="custom-control-label">Usa Faixa de Km?</label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <hr>
+
+                                        <div class="d-flex justify-content-center">
+                                            <span class="text-danger font-weight-bold d-none mb-3" id="weightRangeError">
+                                                Ao menos um dos campos de peso deve ser preenchido
+                                            </span>
+                                        </div>
+
+                                        <div class="d-flex mb-3">
+                                            <div class="form-group col-6">
+												<label id="min-weight-label" for="min-weight">Peso Mínimo (t)</label>
+												<div class="input-group">
+													<input type="number" class="form-control"
+														id="min-weight" name="minWeight" placeholder="e.g.: 20" min="0"
+														oninput="validity.valid||(value='');" tabindex="14"
+                                                        <%=
+                                                            operation == "edit" ?
+                                                                freightRule.minWeight ?
+                                                                    "value=" + freightRule.minWeight
+                                                                : null
+                                                            : null
+                                                        %>
+                                                        >
+													<div class="input-group-append">
+														<span class="input-group-text">ton</span>
+													</div>
+												</div>
+											</div>
+
+                                            <div class="form-group col-6">
+												<label id="max-weight-label" for="max-weight">Peso Máximo (t)</label>
+												<div class="input-group">
+													<input type="number" class="form-control"
+														id="max-weight" name="maxWeight" placeholder="e.g.: 30" min="0"
+														oninput="validity.valid||(value='');" tabindex="15"
+                                                        <%=
+                                                            operation == "edit" ?
+                                                                freightRule.maxWeight ?
+                                                                    "value=" + freightRule.maxWeight
+                                                                : null
+                                                            : null
+                                                        %>
+                                                        >
+													<div class="input-group-append">
+														<span class="input-group-text">ton</span>
+													</div>
+												</div>
+											</div>
+                                        </div>
+
+                                        <div class="d-flex mb-3">
+                                            <div class="form-group col-6">
+												<label id="price-per-distance-label" for="price-per-distance">Preço por Km</label>
+                                                <input type="text" class="form-control currency" id="price-per-distance"
+                                                placeholder="R$ 0,00" name="pricePerDistance" required tabindex="16">
+											</div>
+
+                                            <div class="form-group col-6">
+												<label id="number-of-axles-label" for="number-of-axles">Quantidade de Eixos</label>
+                                                <input type="number" class="form-control"
+                                                id="number-of-axles" name="numberOfAxles" placeholder="e.g.: 3" min="1" max="15"
+                                                oninput="validity.valid||(value='');" required tabindex="17"
+                                                <%=
+                                                    operation == "edit" ?
+                                                        freightRule.numberOfAxles ?
+                                                            "value=" + freightRule.numberOfAxles
+                                                        : null
+                                                    : null
+                                                %>
+                                                >
+											</div>
+                                        </div>
+
+                                        <div class="d-flex mb-3">
+                                            <div class="form-group col-6">
+                                                <div class="custom-control custom-checkbox mb-2">
+                                                    <input class="custom-control-input" type="checkbox"
+                                                    id="use-in-contrariwise" name="useInContrariwise" value="true" tabindex="18"
+                                                    <%=
+                                                        operation == "edit" ?
+                                                            freightRule.useInContrariwise ?
+                                                                "checked"
+                                                            : null
+                                                        : null
+                                                    %>
+                                                    >
+                                                    <label for="use-in-contrariwise" id="use-in-contrariwise-label" class="custom-control-label">
+                                                        Aplicar regra para o sentido contrário
+                                                    </label>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div><!-- /.container-fluid -->
-                            </section>
-                            <section class="content">
-                                <div class="container-fluid">
-                                    <form id="userUpdateForm" method="POST" action="/freight-rules/<%= operation == 'create' ? 'create' : operation == 'edit' ? 'edit' : ' ' %>">
-                                        <input type="hidden" id="id" name="id" value="">
-                                        <div class="tab-content form-user" id="form-tab-content">
-                                            <div class="tab-pane fade show active" id="user-form" role="tabpanel" aria-labelledby="user-form-tab">
-                                                <div class="card">
-                                                    <div class="card-body ">
-                                                        <% if(errorStatus) { %>
-                                                            <% if(errorStatus.emailExists) { %>
-                                                                <div class="d-flex mb-3 text-danger justify-content-center align-items-center">
-                                                                    <i class="fa-solid fa-triangle-exclamation fa-lg"></i>
-                                                                    <span class="font-weight-bold ml-2">E-mail já existe</span>
-                                                                </div>
-                                                            <% } %>
-                                                            <% if(errorStatus.loginExists) { %>
-                                                                <div class="d-flex mb-3 text-danger justify-content-center align-items-center">
-                                                                    <i class="fa-solid fa-triangle-exclamation fa-lg"></i>
-                                                                    <span class="font-weight-bold ml-2">Login já existe</span>
-                                                                </div>
-                                                            <% } %>
-                                                        <% } %>
-                                                        <div class="d-flex mb-3">
-                                                            <!-- text input -->
-                                                            <div class="form-group col-6">
-                                                                <label id="name-label" for="name">Nome</label>
-                                                                <input type="text" class="form-control" value="<%= // userToEdit.data().name %>"
-                                                                id="name" placeholder="e.g.: Matheus Moura Silva" name="name" required>
-                                                            </div>
-                                                            <!-- text input -->
-                                                            <div class="form-group col-6">
-                                                                <label id="login-label" for="login">Login</label>
-                                                                <input type="text" class="form-control" value="<%= // userToEdit.data().login %>"
-                                                                id="login" name="login" placeholder="e.g.: matheus.moura" required>
-                                                            </div>
-                                                        </div>
-                                                        <div class="d-flex mb-3">
-                                                            <!-- text input -->
-                                                            <div class="form-group col-6">
-                                                                <label id="email-label" for="email">E-mail</label>
-                                                                <input type="text" class="form-control" value="<%= // userToEdit.data().email %>"
-                                                                id="email" placeholder="e.g.: emailexemplo@email.com" name="email" required>
-                                                            </div>
-                                                            <!-- text input -->
-                                                            <div class="form-group col-6">
-                                                                <label id="phone-label" for="phone">Telefone</label>
-                                                                <input type="text" class="form-control" value="<%= // userToEdit.data().phone %>"
-                                                                id="phone" name="phone" placeholder="e.g.: (11) 98765-4321" required>
-                                                            </div>
-                                                        </div>
-                                                        <div class="d-flex mb-3">
-                                                            <!-- text input -->
-                                                            <div class="form-group col-6">
-                                                                <label id="password-label" for="password">Senha</label>
-                                                                <input type="password" class="form-control"
-                                                                id="password" placeholder="********" name="password">
-                                                            </div>
-                                                            <!-- text input -->
-                                                            <div class="form-group col-6">
-                                                                <label id="confirm-password-label" for="confirm-password">Confirmar Senha</label>
-                                                                <input type="password" class="form-control"
-                                                                id="confirm-password" name="confirmPassword" placeholder="********">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="tab-pane fade" id="profiles-form" role="tabpanel" aria-labelledby="profiles-form-tab">
-                                                <div class="card">
-                                                    <div class="card-body">
-                                                        <h4>Permissões</h4>
-                                                        <div class="card-body p-0">
-                                                            <table class="table table-hover">
-                                                                <tbody>
-                                                                    <% //profiles.forEach(profile => { %>
-                                                                        <tr data-widget="expandable-table" aria-expanded="false" class="table-row <%= // profile.id %>">
-                                                                            <td class="d-flex justify-content-between">
-                                                                                <div>
-                                                                                    <%= // profile.data().profileName %>
-                                                                                </div>
-                                                                                <!-- checkbox -->
-                                                                                <div class="form-group clearfix">
-                                                                                    <div class="icheck-primary d-inline">
-                                                                                        <input type="checkbox" class="checkbox" name="profiles" id="<%= // profile.id %>" value="<%= // profile.id %>"
-                                                                                        <%= // userProfiles.includes(profile.id) ? "checked" : null %>>
-                                                                                        <label for="<%= // profile.id %>" class="checkbox-label">
-                                                                                        </label>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </td>
-                                                                        </tr>
-                                                                    <% //}); %>
-                                                                </tbody>
-                                                            </table>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="d-flex justify-content-end col-12">
-                                            <div class="col-4 col-sm-6 col-md-6 col-lg-4">
-                                                <button type="button" id="cancelButton" class="btn btn-block bg-gradient btn-danger btn-lg col-12 text-white font-weight-bold">Cancelar</button>
-                                            </div>
-                                            <div class="col-4 col-sm-6 col-md-6 col-lg-4">
-                                                <button type="submit" class="btn btn-block bg-gradient btn-login btn-lg col-12 text-white font-weight-bold">Salvar</button>
-                                            </div>
-                                        </div>
-                                    </form>
                                 </div>
-                            </section>
+                                    
+                                <div class="d-flex justify-content-end col-12">
+                                    <div class="col-4 col-sm-6 col-md-6 col-lg-4">
+                                        <button type="button" id="cancelButton" tabindex="20"
+                                        class="btn btn-block bg-gradient btn-danger btn-lg col-12 text-white font-weight-bold">Cancelar</button>
+                                    </div>
+                                    <div class="col-4 col-sm-6 col-md-6 col-lg-4">
+                                        <button type="submit"tabindex="19"
+                                        class="btn btn-block bg-gradient btn-login btn-lg col-12 text-white font-weight-bold">Salvar</button>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
-                    </div>
+                    </section>
+                </div>
+            </div>
         </div>
     </body>
     <%- include('../partials/footer.ejs') %>
     <script>
+        $(document).ready(function () {
+            selectStateAndCity("estado-origem", "cidade-origem");
+            selectStateAndCity("estado-destino", "cidade-destino");
+            selectStateAndCity("estado-origem-regiao", "cidade-origem-regiao");
+        });
+
         window.onbeforeunload = function() {
-            localStorage.setItem("name", $('#name').val());
-            localStorage.setItem("login", $('#login').val());
-            localStorage.setItem("email", $('#email').val());
-            localStorage.setItem("phone", $('#phone').val());
+            localStorage.setItem("distance-range", $("#distance-range").is(":checked"));
+            localStorage.setItem("source-to-destination", $("#source-to-destination").is(":checked"));
+            localStorage.setItem("source-to-region", $("#source-to-region").is(":checked"));
+
+            localStorage.setItem("min-distance", $("#min-distance").val());
+            localStorage.setItem("max-distance", $("#max-distance").val());
+
+            localStorage.setItem("origin-state", $("#estado-origem").val());
+            localStorage.setItem("origin-city", $("#cidade-origem").val());
+            localStorage.setItem("destination-state", $("#estado-destino").val());
+            localStorage.setItem("destination-city", $("#cidade-destino").val());
+
+            localStorage.setItem("origin-state-region", $("#estado-origem-regiao").val());
+            localStorage.setItem("origin-city-region", $("#cidade-origem-regiao").val());
+            localStorage.setItem("destination-region", $("#destination-region").val());
+
+            localStorage.setItem("min-weight", $("#min-weight").val());
+            localStorage.setItem("max-weight", $("#max-weight").val());
+            localStorage.setItem("price-per-distance", $("#price-per-distance").val());
+            localStorage.setItem("number-of-axles", $("#number-of-axles").val());
+            localStorage.setItem("use-in-contrariwise", $("#use-in-contrariwise").val());
         }
 
         window.onload = function() {
-        //<% //if(operation == "edit") { %>
-            //<% //if(updateStatus) { %>
-                //<% //if(updateStatus.emailExists || updateStatus.loginExists) { %>
+        // <% if(errorStatus) { %>
+        //     <% if(!errorStatus.completed) { %>
 
-                    var name = localStorage.getItem("name");
-                    var email = localStorage.getItem("email");
-                    var phone = localStorage.getItem("phone");
-                    var login = localStorage.getItem("login");
+                let distanceRange = localStorage.getItem("distance-range");
+                let sourceToDestination = localStorage.getItem("source-to-destination");
+                let sourceToRegion = localStorage.getItem("source-to-region");
 
-                    if (name !== null) { 
-                        $('#name').val(name);
-                    }
-                    if (email !== null) { 
-                        $('#email').val(email);    
-                    }
-                    if (phone !== null) { 
-                        $('#phone').val(phone);
-                    }     
-                    if (login !== null) { 
-                        $('#login').val(login);
-                    }     
-            
-                //<% //} %>
-            //<% //} %>
-        //<% //} else if(operation == "create") { %>
-            //<% //if(createStatus) { %>
-                //<% //if(createStatus.emailExists || createStatus.loginExists) { %>
-                    var name = localStorage.getItem("name");
-                    var email = localStorage.getItem("email");
-                    var phone = localStorage.getItem("phone");
-                    var login = localStorage.getItem("login");
+                let minWeight = localStorage.getItem("min-weight");
+                let maxWeight = localStorage.getItem("max-weight");
+                let pricePerDistance = localStorage.getItem("price-per-distance");
+                let numberOfAxles = localStorage.getItem("number-of-axles");
+                let useInContrariwise = localStorage.getItem("use-in-contrariwise");
+                
+                if(distanceRange == "false") { 
+                    $("#distance-range").prop("checked", false);
+                    enableDistanceRange();
+                }
+                if(sourceToDestination == "true") { 
+                    $("#source-to-destination").prop("checked", true);
+                    enableSourceToDestination();
 
-                    if (name !== null) { 
-                        $('#name').val(name);
-                    }
-                    if (email !== null) { 
-                        $('#email').val(email);    
-                    }
-                    if (phone !== null) { 
-                        $('#phone').val(phone);
-                    }
-                    if (login !== null) { 
-                        $('#login').val(login);
-                    }  
-                //<% //} %>
-            //<% //} %>
-        //<% //} %>
+                    let originState = localStorage.getItem("origin-state");
+                    let originCity = localStorage.getItem("origin-city");
+                    let destinationState = localStorage.getItem("destination-state");
+                    let destinationCity = localStorage.getItem("destination-city");
+
+                    $(function(){
+                        $("#estado-origem").val(originState).change();
+                        $("#estado-destino").val(destinationState).change();
+                        $("#cidade-origem").val(originCity).change();
+                        $("#cidade-destino").val(destinationCity).change();
+                    });
+                    
+                }
+                if(sourceToRegion == "true") { 
+                    $("#source-to-region").prop("checked", true);
+                    enableSourceToRegion();
+
+                    let originState = localStorage.getItem("origin-state-region");
+                    let originCity = localStorage.getItem("origin-city-region");
+                    let destinationRegion = localStorage.getItem("destination-region");
+
+                    $(function(){
+                        $("#estado-origem-regiao").val(originState).change();
+                        $("#cidade-origem-regiao").val(originCity).change();
+                        $("#destination-region").val(destinationRegion).change();
+                    });
+                }
+
+                if(minWeight !== null) { 
+                    $("#min-weight").val(minWeight);
+                }
+                if(maxWeight !== null) { 
+                    $("#max-weight").val(maxWeight);
+                }
+                if(pricePerDistance !== null) { 
+                    $("#price-per-distance").val(pricePerDistance);
+                }
+                if(numberOfAxles !== null) { 
+                    $("#number-of-axles").val(numberOfAxles);
+                }
+                if(useInContrariwise == "true") { 
+                    $("#use-in-contrariwise").prop("checked", true);
+                }
+
+        //     <% } %>
+        // <% } %>
+
+        // <% if(operation == "edit") { %>
+            $(function(){
+        //  <% if(freightRule.ruleType == "source-to-destination") { %>
+                $("#estado-origem").val("<%= freightRule.originState %>").change();
+                $("#estado-destino").val("<%= freightRule.destinationState %>").change();
+                $("#cidade-origem").val("<%= freightRule.originCity %>").change();
+                $("#cidade-destino").val("<%= freightRule.destinationCity %>").change();
+        //  <% } else if(freightRule.ruleType == "source-to-region") { %>
+                $("#estado-origem-regiao").val("<%= freightRule.originState %>").change();
+                $("#cidade-origem-regiao").val("<%= freightRule.originCity %>").change();
+                $("#destination-region").val("<%= freightRule.destinationRegion %>").change();
+        //  <% } %>
+                $("#price-per-distance").val("<%= freightRule.pricePerDistance %>");
+            });
+        // <% } %>
         }
 
         document.getElementById("cancelButton").onclick = function () {
-            location.href = "/users";
+            location.href = "/freight-rules";
         };
+
+        var rad = document.freightRulesForm.ruleType;
+
+        for(var i = 0; i < rad.length; i++) {
+            rad[i].addEventListener("change", function () {
+                if(this.value == "distance-range") {
+                    enableDistanceRange();
+                } else if(this.id == "source-to-destination") {
+                    enableSourceToDestination();
+                } else if(this.id == "source-to-region") {
+                    enableSourceToRegion();
+                }
+            });
+        }
+
+        function enableDistanceRange() {
+            $(".distance-range :input").attr("disabled", false);
+            $(".source-to-destination :input").attr("disabled", true);
+            $(".source-to-region :input").attr("disabled", true);
+
+            $(".source-to-destination :input").removeClass("is-invalid");
+            $(".source-to-region :input").removeClass("is-invalid");
+
+            $(".source-to-destination :input").val("");
+            $(".source-to-region :input").val("");
+            $(".source-to-region :input").prop("checked", false);
+        }
+
+        function enableSourceToDestination() {
+            $(".distance-range :input").attr("disabled", true);
+            $(".source-to-destination :input").attr("disabled", false);
+            $(".source-to-region :input").attr("disabled", true);
+    
+            $(".distance-range :input").removeClass("is-invalid");
+            $(".source-to-region :input").removeClass("is-invalid");
+            $("#min-distance-error").css("display", "none");
+            $("#max-distance-error").css("display", "none");
+            $("#distanceRangeError").addClass("d-none");
+    
+            $(".distance-range :input").val("");
+            $(".source-to-region :input").val("");
+            $(".source-to-region :input").prop("checked", false);
+        }
+            
+        function enableSourceToRegion() {
+            $(".distance-range :input").attr("disabled", true);
+            $(".source-to-destination :input").attr("disabled", true);
+            $(".source-to-region :input").attr("disabled", false);
+    
+            $(".distance-range :input").removeClass("is-invalid");
+            $(".source-to-destination :input").removeClass("is-invalid");
+            $("#min-distance-error").css("display", "none");
+            $("#max-distance-error").css("display", "none");
+            $("#distanceRangeError").addClass("d-none");
+    
+            $(".distance-range :input").val("");
+            $(".source-to-destination :input").val("");
+        }
+                    
+
+        const checkbox = document.getElementById("useDistanceRange");
+
+        checkbox.addEventListener("change", (event) => {
+            if (event.currentTarget.checked) {
+                $(".distance-range :input").attr("disabled", false);
+            } else {
+                $(".distance-range :input").attr("disabled", true);
+            }
+        });
+
+        $(".currency").maskMoney({
+            prefix: "R$ ",
+            allowNegative: false,
+            thousands: ".",
+            decimal: ",",
+            affixesStay: true
+        });
 
         $(function () {
             $.validator.setDefaults({
@@ -214,108 +614,112 @@
             });
         });
 
-        $(function () {
-            $('#userUpdateForm').validate({
-                rules: {
-                    name: {
-                        required: true,
-                    },
-                    login: {
-                        required: true,
-                    },
-                    email: {
-                        required: true,
-                    },
-                    phone: {
-                        required: true,
-                    },
-                    password: {
-                        minlength: 6,
-                    },
-                    confirmPassword: {
-                        equalTo: "#password"
-                    }
-                },
-                messages: {
-                    name: {
-                        required: "Digite um nome válido",
-                    },
-                    login: {
-                        required: "Digite um login válido",
-                    },
-                    email: {
-                        required: "Digite um e-mail válido",
-                    },
-                    phone: {
-                        required: "Digite um número de telefone válido",
-                    },
-                    password: {
-                        minlength: "Senha deve conter no mínimo 6 dígitos"
-                    },
-                    confirmPassword: {
-                        equalTo: "Senhas devem ser iguais"
-                    }
-                },
-                errorElement: "span",
-                errorPlacement: function (error, element) {
-                    error.addClass("invalid-feedback");
-                    element.closest(".form-group").append(error);
-                },
-                highlight: function (element, errorClass, validClass) {
-                    $(element).addClass("is-invalid");
-                    $("#user-form").addClass("active show");
-                    $("#profiles-form").removeClass("active show");
-                    $("#user-form-tab").addClass("active");
-                    $("#profiles-form-tab").removeClass("active");
-                },
-                unhighlight: function (element, errorClass, validClass) {
-                    $(element).removeClass('is-invalid');
-                }
-            });
+        $.validator.addMethod("greaterThanOrBlank", (value, element, param) => {
+            const firstElement = $("#" + element.id);
+            const secondElement = $(param.id);
+            showDistanceRangeError(firstElement, secondElement, param.errorSpan);
 
-            $("#userCreateForm").validate({
+            return secondElement.val() ?
+                (value ?
+                    parseInt(value, 10) > parseInt(secondElement.val(), 10) ||
+                    (parseInt(value, 10) == 0 && parseInt(secondElement.val(), 10) == 0)
+                : true)
+            : (value ? true : false);
+        });
+
+        $.validator.addMethod("lessThanOrBlank", (value, element, param) => {
+            const firstElement = $("#" + element.id);
+            const secondElement = $(param.id);
+            showDistanceRangeError(firstElement, secondElement, param.errorSpan);
+
+            return secondElement.val() ?
+                (value ?
+                    parseInt(value, 10) < parseInt(secondElement.val(), 10) ||
+                    (parseInt(value, 10) == 0 && parseInt(secondElement.val(), 10) == 0)
+                : true)
+            : (value ? true : false);
+        });
+
+        function showDistanceRangeError(firstElement, secondElement, errorTagId) {
+            if(!firstElement.val() && !secondElement.val()) {
+                $(errorTagId).removeClass("d-none");
+            } else {
+                $(errorTagId).addClass("d-none");
+            }
+            
+            return false;
+        }
+
+        $(function () {
+            $("#freightRulesForm").validate({
                 rules: {
-                    name: {
+                    minDistance: {
+                        lessThanOrBlank: { id: "#max-distance", errorSpan: "#distanceRangeError" }
+                    },
+                    maxDistance: {
+                        greaterThanOrBlank: { id: "#min-distance", errorSpan: "#distanceRangeError" }
+                    },
+                    originState: {
                         required: true
                     },
-                    login: {
+                    originCity: {
                         required: true
                     },
-                    email: {
+                    destinationState: {
                         required: true
                     },
-                    phone: {
+                    destinationCity: {
                         required: true
                     },
-                    password: {
-                        required: true,
-                        minlength: 6
+                    destinationRegion: {
+                        required: true
                     },
-                    confirmPassword: {
-                        required: true,
-                        equalTo: "#password"
+                    minWeight: {
+                        lessThanOrBlank: { id: "#max-weight", errorSpan: "#weightRangeError" }
+                    },
+                    maxWeight: {
+                        greaterThanOrBlank: { id: "#min-weight", errorSpan: "#weightRangeError" }
+                    },
+                    pricePerDistance: {
+                        required: true
+                    },
+                    numberOfAxles: {
+                        required: true
                     }
                 },
                 messages: {
-                    name: {
-                        required: "Digite um nome válido"
+                    minDistance: {
+                        lessThanOrBlank: "O valor deve ser menor que Distância Máxima ou estar em branco"
                     },
-                    login: {
-                        required: "Digite um login válido"
+                    maxDistance: {
+                        greaterThanOrBlank: "O valor deve ser maior que Distância Mínima ou estar em branco"
                     },
-                    email: {
-                        required: "Digite um e-mail válido"
+                    originState: {
+                        required: "Selecione o estado de origem"
                     },
-                    phone: {
-                        required: "Digite um número de telefone válido"
+                    originCity: {
+                        required: "Selecione a cidade de origem"
                     },
-                    password: {
-                        required: "Digite uma senha válida",
-                        minlength: "Senha deve conter no mínimo 6 dígitos"
+                    destinationState: {
+                        required: "Selecione o estado de destino"
                     },
-                    confirmPassword: {
-                        required: "",
-                        equalTo: "Senhas devem ser iguais"
+                    destinationCity: {
+                        required: "Selecione a cidade de destino"
+                    },
+                    destinationRegion: {
+                        required: "Selecione a região de destino"
+                    },
+                    minWeight: {
+                        lessThanOrBlank: "O valor deve ser menor que Peso Máximo ou estar em branco"
+                    },
+                    maxWeight: {
+                        greaterThanOrBlank: "O valor deve ser maior que Peso Mínimo ou estar em branco"
+                    },
+                    pricePerDistance: {
+                        required: "Digite um valor de preço por Km válido"
+                    },
+                    numberOfAxles: {
+                        required: "Digite um número de eixos válido"
                     }
                 },
                 errorElement: 'span',

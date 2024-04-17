@@ -25,15 +25,22 @@ class FreightRulesInterfaceController {
         res.render("freight-rules/form", { operation: "create", frontendUrl: this.frontendUrl, backendUrl: this.backendUrl, user: req.session.user, errorStatus });
     }
 
+    async RenderUpdateForm(req, res) {
+        const errorStatus = this.#CheckForErrorsOnSession(req);
+        const freightRule = await this.freightRules.GetFreightRuleById(req.params.id);
+
+        res.render("freight-rules/form", { operation: "edit", frontendUrl: this.frontendUrl, backendUrl: this.backendUrl, user: req.session.user, freightRule, errorStatus });
+    }
+
     #CheckForErrorsOnSession(req) {
-        const createStatus = req.session.createFreightRulesStatus;
+        const createStatus = req.session.FreightRulesErrorStatus;
         this.#ClearErrorsOnSession(req);
 
         return createStatus;
     }
 
     #ClearErrorsOnSession(req) {
-        req.session.createFreightRulesStatus = undefined;
+        req.session.FreightRulesErrorStatus = undefined;
     }
 
     get backendUrl() {
@@ -56,30 +63,42 @@ class FreightRulesController {
         this.#HandleCreateResponse(req, res, await this.freightRules.CreateFreightRule());
     }
 
-    #HandleCreateResponse(req, res, createResponse) {
-        if (!createResponse.hasSucceed) {
-            this.#HandleCreateError(req, res, createResponse);
-        } else this.#RedirectCreationSuccess(req, res);
+    async HandleUpdateRequest(req, res) {
+        const id = req.body.id;
+        this.freightRules.dataModel.SetFreightRule(req.body);
+        this.#HandleUpdateResponse(req, res, await this.freightRules.UpdateFreightRule(id));
     }
 
-    #HandleCreateError(req, res, createResponse) {
-        if (!createResponse.isFreightRuleValid) this.#RedirectNotValidCreation(req, res);
-        else this.#RedirectCreationError(req, res, createResponse.error);
+    async HandleDeleteRequest(req, res) {
+        const id = req.body.id;
+        this.#RedirectResponse(req, res, await this.freightRules.DeleteFreightRule(id));
+    }
+
+    #HandleCreateResponse(req, res, createResponse) {
+        if(!createResponse.isFreightRuleValid) {
+            this.#RedirectNotValidCreation(req, res);
+        } else this.#RedirectResponse(req, res, createResponse);
+    }
+
+    #HandleUpdateResponse(req, res, updateResponse) {
+        if(!updateResponse.isFreightRuleValid) {
+            this.#RedirectNotValidUpdate(req, res);
+        } else this.#RedirectResponse(req, res, createResponse);
     }
 
     #RedirectNotValidCreation(req, res) {
-        req.session.createFreightRulesStatus = { completed: false };
+        req.session.FreightRulesErrorStatus = { completed: false };
         res.redirect("/freight-rules/create");
     }
 
-    #RedirectCreationError(req, res, error) {
-        this.errorHandler.HandleError(error);
-        req.session.createFreightRulesStatus = { completed: false };
-        res.redirect("/freight-rules");
+    #RedirectNotValidUpdate(req, res) {
+        req.session.FreightRulesErrorStatus = { completed: false };
+        res.redirect("/freight-rules/edit/" + req.body.id);
     }
 
-    #RedirectCreationSuccess(req, res) {
-        req.session.createFreightRulesStatus = { completed: true };
+    #RedirectResponse(req, res, operationResponse) {
+        if(!operationResponse.hasSucceed) this.errorHandler.HandleError(operationResponse.error);
+        req.session.FreightRulesErrorStatus = { completed: operationResponse.hasSucceed, operation: operationResponse.operation };
         res.redirect("/freight-rules");
     }
 }

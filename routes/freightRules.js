@@ -13,4 +13,11 @@ router.get("/freight-rules/create", userAccess, freightRulesInterfaceController.
 
 router.post("/freight-rules/create", freightRulesController.HandleCreateRequest.bind(freightRulesController));
 
+router.get("/freight-rules/edit/:id", userAccess, freightRulesInterfaceController.RenderUpdateForm.bind(freightRulesInterfaceController));
+
+router.post("/freight-rules/edit", freightRulesController.HandleUpdateRequest.bind(freightRulesController));
+
+router.post("/freight-rules/delete", freightRulesController.HandleDeleteRequest.bind(freightRulesController));
+
+
 module.exports = router;

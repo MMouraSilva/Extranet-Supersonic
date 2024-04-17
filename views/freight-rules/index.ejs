@@ -11,40 +11,41 @@
                             <div class="row mb-2">
                                 <div class="col-sm-6">
                                     <h1>Regras de Frete</h1>
-                                    <% //if(updateStatus) { %>
-                                        <% //if(updateStatus.completed) { %>
-                                            <br>
-                                            <div class="alert alert-success alert-dismissible">
-                                                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                                                <h5><i class="icon fas fa-check"></i> Sucesso!</h5>
-                                                Regra atualizada com sucesso!
-                                            </div>
-                                        <% //} else { %>
-                                            <br>
-                                            <div class="alert alert-danger alert-dismissible">
-                                                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                                                <h5><i class="icon fas fa-ban"></i> Erro! </h5>
-                                                Não foi possível atualizar a regra devido à um erro!
-                                            </div>
-                                        <% //} %>
-                                    <% //} %>
-                                    <% //if(createStatus) { %>
-                                        <% //if(createStatus.completed) { %>
-                                            <br>
-                                            <div class="alert alert-success alert-dismissible">
-                                                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                                                <h5><i class="icon fas fa-check"></i> Sucesso!</h5>
-                                                Regra cadastrada com sucesso!
-                                            </div>
-                                        <% //} else { %>
-                                            <br>
-                                            <div class="alert alert-danger alert-dismissible">
-                                                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                                                <h5><i class="icon fas fa-ban"></i> Erro! </h5>
-                                                Não foi possível cadastrar a regra devido à um erro!
-                                            </div>
-                                        <% //} %>
-                                    <% //} %>
+                                    <% if(errorStatus) { %>
+                                        <% if(errorStatus.operation == "create") { %>
+                                            <% if(errorStatus.completed) { %>
+                                                <br>
+                                                <div class="alert alert-success alert-dismissible">
+                                                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                                                    <h5><i class="icon fas fa-check"></i> Sucesso!</h5>
+                                                    Regra criada com sucesso!
+                                                </div>
+                                            <% } else { %>
+                                                <br>
+                                                <div class="alert alert-danger alert-dismissible">
+                                                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                                                    <h5><i class="icon fas fa-ban"></i> Erro! </h5>
+                                                    Não foi possível criar a regra devido à um erro! Tente novamente mais tarde.
+                                                </div>
+                                            <% } %>
+                                        <% } else if(errorStatus.operation == "delete") { %>
+                                            <% if(errorStatus.completed) { %>
+                                                <br>
+                                                <div class="alert alert-success alert-dismissible">
+                                                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                                                    <h5><i class="icon fas fa-check"></i> Sucesso!</h5>
+                                                    Regra deletada com sucesso!
+                                                </div>
+                                            <% } else { %>
+                                                <br>
+                                                <div class="alert alert-danger alert-dismissible">
+                                                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                                                    <h5><i class="icon fas fa-ban"></i> Erro! </h5>
+                                                    Não foi possível deletar a regra devido à um erro! Tente novamente mais tarde.
+                                                </div>
+                                            <% } %>
+                                        <% } %>
+                                    <% } %>
                                 </div>
                                 <div class="col-sm-6">
                                     <ol class="breadcrumb float-sm-right">
@@ -61,34 +62,82 @@
                             <table id="rules-table" class="table table-bordered table-striped" width="100%">
                                 <thead>
                                     <tr>
-                                        <th>Login</th>
-                                        <th>Nome</th>
-                                        <th>E-mail</th>
-                                        <th>Telefone</th>
+                                        <th>Tipo de Regra</th>
+                                        <th>Origem</th>
+                                        <th>Destino</th>
+                                        <th>Região Destino</th>
+                                        <th>Distância</th>
+                                        <th>Peso</th>
+                                        <th>Preço por Km</th>
+                                        <th>Nº de Eixos</th>
+                                        <th>Ida e Volta?</th>
                                         <th>Criado em</th>
                                         <th>Atualizado em</th>
                                         <th>Ações</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <% //users.forEach(user => { %>
+                                    <% freightRules.forEach(freightRule => { %>
                                         <tr>
-                                            <td><%= // user.data().login %></td>
-                                            <td><%= // user.data().name %></td>
-                                            <td><%= // user.data().email %></td>
-                                            <td><%= // user.data().phone %></td>
-                                            <td><%= // user.data().createdAt ? moment(user.data().createdAt.toDate()).format("DD/MM/YYYY HH:mm") : user.data().createdAt %></td>
-                                            <td><%= // user.data().updatedAt ? moment(user.data().updatedAt.toDate()).format("DD/MM/YYYY HH:mm") : user.data().updatedAt %></td>
                                             <td>
-                                                <a href="/users/edit/<%= // user.id %>" class="btn btn-warning"><i class="fa-solid fa-pen-to-square"></i></a>
+                                                <%=
+                                                    freightRule.data().ruleType == "distance-range" ?
+                                                        "Faxia de Km"
+                                                    : freightRule.data().ruleType == "source-to-destination" ?
+                                                        "Origem x Destino"
+                                                    : freightRule.data().ruleType == "source-to-region" ?
+                                                        "Origem x Região"
+                                                    : ""
+                                                %>
+                                            </td>
+                                            <td><%= freightRule.data().origin %></td>
+                                            <td><%= freightRule.data().destination %></td>
+                                            <td>
+                                                <%=
+                                                    freightRule.data().destinationRegion ?
+                                                        freightRule.data().destinationRegion.charAt(0).toUpperCase() + freightRule.data().destinationRegion.slice(1)
+                                                    : ""
+                                                %>
+                                            </td>
+                                            <td>
+                                                <%= 
+                                                    freightRule.data().minDistance != 0 && freightRule.data().maxDistance != 999999999999999 ?
+                                                        freightRule.data().minDistance + "Km até " + freightRule.data().maxDistance + "Km"
+                                                    : freightRule.data().minDistance != 0 ?
+                                                        freightRule.data().minDistance + "Km +"
+                                                    : freightRule.data().maxDistance == 999999999999999 ?
+                                                        "Sem restrição"
+                                                    : freightRule.data().maxDistance != 0 ?
+                                                        "Até " + freightRule.data().maxDistance + "Km"
+                                                    : null
+                                                %>
+                                            </td>
+                                            <td>
+                                                <%= 
+                                                    freightRule.data().minWeight != 0 && freightRule.data().maxWeight != 999999999999999 ?
+                                                        freightRule.data().minWeight + "t até " + freightRule.data().maxWeight + "t"
+                                                    : freightRule.data().minWeight != 0 ?
+                                                        freightRule.data().minWeight + "t +"
+                                                    : freightRule.data().maxWeight != 0 ?
+                                                        "Até " + freightRule.data().maxWeight + "t"
+                                                    : "Sem restrição"
+                                                %>
+                                            </td>
+                                            <td><%= freightRule.data().pricePerDistance %></td>
+                                            <td><%= freightRule.data().numberOfAxles %></td>
+                                            <td><%= freightRule.data().useInContrariwise? "Sim" : "Não" %></td>
+                                            <td><%= freightRule.data().createdAt ? moment(freightRule.data().createdAt.toDate()).format("DD/MM/YYYY HH:mm") : freightRule.data().createdAt %></td>
+                                            <td><%= freightRule.data().updatedAt ? moment(freightRule.data().updatedAt.toDate()).format("DD/MM/YYYY HH:mm") : freightRule.data().updatedAt %></td>
+                                            <td>
+                                                <a href="/freight-rules/edit/<%= freightRule.id %>" class="btn btn-warning"><i class="fa-solid fa-pen-to-square"></i></a>
 
-                                                <form method="POST" action="/users/delete" style="display: inline;" onsubmit="confirmDelete(event, this)">
-                                                    <input type="hidden" name="id" value="<%= // user.id %>">
+                                                <form method="POST" action="/freight-rules/delete" style="display: inline;" onsubmit="confirmDelete(event, this)">
+                                                    <input type="hidden" name="id" value="<%= freightRule.id %>">
                                                     <button class="btn btn-danger"><i class="fa-solid fa-trash"></i></button>
                                                 </form>
                                             </td>
                                         </tr>
-                                    <% //}); %>
+                                    <% }); %>
                                 </tbody>
                             </table>
                         </div>
