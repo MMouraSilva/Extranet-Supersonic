@@ -1,4 +1,5 @@
 var socket = io(frontendUrl);
+var recebimentoGraphChart, separacaoGraphChart, expedicaoGraphChart;
 
 socket.on("disconnect", () => {
     console.log("Desconectado");
@@ -71,9 +72,9 @@ function buildGraph(labels, data, avg, chart, isReload, knobData) {
         var chartName = "#" + chart + "-chart";
         
         // Sales graph chart
-        var salesGraphChartCanvas = $(chartName).get(0).getContext('2d')
+        var graphChartCanvas = $(chartName).get(0).getContext('2d')
         
-        var salesGraphChartData = {
+        var graphChartData = {
             labels,
             datasets: [
                 {
@@ -104,7 +105,7 @@ function buildGraph(labels, data, avg, chart, isReload, knobData) {
             ]
         }
         
-        var salesGraphChartOptions = {
+        var graphChartOptions = {
             maintainAspectRatio: false,
             responsive: true,
             legend: {
@@ -139,13 +140,37 @@ function buildGraph(labels, data, avg, chart, isReload, knobData) {
             }
         }
         
-        // This will get the first returned node in the jQuery collection.
-        // eslint-disable-next-line no-unused-vars
-        var salesGraphChart = new Chart(salesGraphChartCanvas, { // lgtm[js/unused-local-variable]
-            type: 'line',
-            data: salesGraphChartData,
-            options: salesGraphChartOptions
-        })
+        if(chart == "recebimento") {
+            if(recebimentoGraphChart) {
+                recebimentoGraphChart.destroy();
+            }
+
+            recebimentoGraphChart = new Chart(graphChartCanvas, {
+                type: 'line',
+                data: graphChartData,
+                options: graphChartOptions
+            });
+        } else if(chart == "separacao") {
+            if(separacaoGraphChart) {
+                separacaoGraphChart.destroy();
+            }
+
+            separacaoGraphChart = new Chart(graphChartCanvas, {
+                type: 'line',
+                data: graphChartData,
+                options: graphChartOptions
+            });
+        } else if(chart == "expedicao") {
+            if(expedicaoGraphChart) {
+                expedicaoGraphChart.destroy();
+            }
+
+            expedicaoGraphChart = new Chart(graphChartCanvas, {
+                type: 'line',
+                data: graphChartData,
+                options: graphChartOptions
+            });
+        }
 
         if((chart == "separacao" || chart == "expedicao") && !isReload) {
             var tabName = chart + "-chart-tab";

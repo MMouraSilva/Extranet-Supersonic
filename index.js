@@ -26,6 +26,7 @@ var indicadorExpedicaoTipoProd;
 var kpiRecebimento;
 var kpiVendas;
 var kpiExpedicao;
+var indicadorNoShow;
 
 io.on("connection", (socket) => {
     var socketId = socket.id;
@@ -51,6 +52,8 @@ io.on("connection", (socket) => {
         } else if(data.operation == "expedicao-dia") {
             var dateFilter = data.dateFilter;
             io.emit("requireDashboardData", { operation, dateFilter, socketId });
+        } else if(data.operation == "no-show") {
+            socket.emit("getNoShow", { indicadorNoShow });
         }
     });
 
@@ -76,6 +79,8 @@ io.on("connection", (socket) => {
                 indicadorRecebimentoTipoProd, indicadorSeparacaoTipoProd, indicadorExpedicaoTipoProd });
         } else if(data.operation == "igest") {
             socket.emit("getReloadedIgest", { kpiRecebimento, kpiVendas, kpiExpedicao });
+        } else if(data.operation == "no-show") {
+            socket.emit("getNoShow", { indicadorNoShow });
         }
     });
     
@@ -117,10 +122,15 @@ io.on("connection", (socket) => {
         var tabelaExpedicao = data.tabelaExpedicao;
         var socketId = data.socketId;
         socket.to(socketId).emit("getExpedicaoDia", { tabelaExpedicao })
-    })
+    });
+
+    // Sockets No-Show
+    socket.on("getIndicadorNoShow", (data) => {
+        indicadorNoShow = data.indicadorNoShow;
+    });
+
+    io.emit("getData");
 });
-
-
 
 // Indicando para o Express utilizar o EJS como View Engine
 app.set('view engine', 'ejs');
@@ -134,7 +144,7 @@ app.use(bodyParser.json());
 
 app.get("/", async (req, res) => {
     try {
-        res.render("index", { frontendUrl });
+        res.render("index");
     } catch (error) {
         console.error("Erro na rota:", error);
         res.status(500).send("Erro ao executar a rota");
@@ -195,7 +205,15 @@ app.get("/indicadores/igest", async (req, res) => {
     }
 });
 
-http.listen(8080, () => {
-    console.log("App rodando!");
+app.get("/indicadores/no-show", async (req, res) => {
+    try {
+        res.render("no_show", { frontendUrl, backendUrl });
+    } catch (error) {
+        console.error("Erro na rota:", error);
+        res.status(500).send("Erro ao executar a rota");
+    }
 });
 
+http.listen(16800, () => {
+    console.log("App rodando!");
+});

@@ -1,0 +1,130 @@
+<%- include('partials/header.ejs') %>
+
+    <body class="hold-transition sidebar-mini layout-fixed">
+        <div class="containerPage d-flex justify-content-center">
+            <div class="navDiv">
+                <%- include('partials/navbar.ejs') %>
+            </div>
+            <div class="wrapper">
+                <!-- Main content -->
+                <section class="content">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-header expedicao-dia-header">
+                                        <ul
+                                            class="nav nav-pills ml-auto d-flex align-items-center justify-content-between">
+                                            <li class="nav-item">
+                                                <!-- Date and time range -->
+                                                <div class="form-group">
+                                                    <div class="input-group">
+                                                        <button type="button"
+                                                            class="btn btn-default float-right font-weight-bold bg-primary text-white"
+                                                            id="daterange-btn">
+                                                            <i class="far fa-calendar-alt"></i> Date range picker
+                                                            <i class="fas fa-caret-down"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <!-- /.form group -->
+                                            </li>
+
+                                            <li class="nav-item">
+                                                <a class="nav-link font-weight-bold bg-danger text-white"
+                                                    href="/indicadores">
+                                                    Voltar
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <!-- /.card-header -->
+                                    <div class="card-body">
+                                        <table class="table table-bordered" id="table">
+                                            <thead class="text-center">
+                                                <tr>
+                                                    <th style="width: 10px">NF</th>
+                                                    <th>CLIENTE</th>
+                                                    <th>TOTAL PRODUTOS</th>
+                                                    <th>TOTAL DIAS EM NO-SHOW</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tableBody">
+
+                                            </tbody>
+                                            <tfoot class="text-center font-weight-bold">
+                                                <tr>
+                                                    <td colspan="2"></td>
+                                                    <td id="total"></td>
+                                                    <td id="total-dias"></td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                    <!-- /.card-body -->
+                                </div>
+                                <!-- /.card -->
+                                <div class="card">
+                                    <div class="card-header border-0">
+                                        <div class="d-flex justify-content-between">
+                                            <h3 class="card-title font-weight-bold">Cliente X No-Show</h3>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="d-flex">
+                                            <p class="d-flex flex-column">
+                                                <span id="date-range-indicator"></span>
+                                            </p>
+                                        </div>
+                                        <!-- /.d-flex -->
+
+                                        <div class="position-relative mb-4">
+                                            <canvas id="no-show-chart" height="500"></canvas>
+                                        </div>
+
+                                        <div class="d-flex flex-row justify-content-end">
+                                            <span class="mr-2">
+                                                <i class="fas fa-square text-primary"></i> Dias em No-Show
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                    <!-- /.container-fluid -->
+                </section>
+            </div>
+            <!-- ./wrapper -->
+        </div>
+    </body>
+    <%- include('partials/footer.ejs') %>
+        <script>
+            frontendUrl = "<%= frontendUrl %>";
+            backendUrl = "<%= backendUrl %>";
+        </script>
+        <!-- ChartJS -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.0/dist/chart.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+        <!-- jQuery Knob Chart -->
+        <script src="/plugins/jquery-knob/jquery.knob.min.js"></script>
+        <!-- InputMask -->
+        <script src="/plugins/moment/moment.min.js"></script>
+        <script src="/plugins/moment/locales.min.js"></script>
+        <!-- date-range-picker -->
+        <script src="/plugins/daterangepicker/daterangepicker.js"></script>
+        <!-- Tempusdominus Bootstrap 4 -->
+        <script src="/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+        <script src="/js/no_show.js"></script>
+        <script>
+            window.onload = function () {
+                Chart.register(ChartDataLabels);
+                var title = document.getElementById("title");
+                title.innerHTML = "NO-SHOW";
+
+                socket.emit("requireDashboardData", { operation: "no-show" });
+            };
+        </script>
+
+        </html>
