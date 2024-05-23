@@ -67,6 +67,20 @@ function buildGraph(labels, data, avg, chart, isReload, knobData) {
             }
         });
 
+        $("input.knob").trigger(
+            "configure",
+            {
+                "fgColor": "#12E2AB",
+                "readonly": true,
+                "width": "100",
+                "height": "100",
+                "angleOffset": -125,
+                "angleArc": 250
+            }
+        );
+
+        $("input.knob").trigger('change');
+
         /* Chart.js Charts */
 
         var chartName = "#" + chart + "-chart";
@@ -96,10 +110,10 @@ function buildGraph(labels, data, avg, chart, isReload, knobData) {
                     borderWidth: 3,
                     lineTension: 0,
                     spanGaps: true,
-                    borderColor: '#f5b400',
+                    borderColor: '#068D9D',
                     pointRadius: 1,
                     pointHoverRadius: 7,
-                    pointBackgroundColor: '#f5b400',
+                    pointBackgroundColor: '#068D9D',
                     data: avg
                 }
             ]
@@ -260,6 +274,8 @@ function buildDonutGraph(dados, operation, isReload) {
         knobColaId = "knobColaExpedicao";
     }
 
+
+
     if(isReload) {
         var knobBanda = "input." + knobBandaId;
         var knobCoxim = "input." + knobCoximId;
@@ -268,8 +284,6 @@ function buildDonutGraph(dados, operation, isReload) {
         $(knobBanda).val(Math.round(percentBandas));
         $(knobCoxim).val(Math.round(percentBandas));
         $(knobCola).val(Math.round(percentBandas));
-        
-        $("input.knob").trigger('change');
     } else {
         document.getElementById(knobBandaId).value=Math.round(percentBandas);
         document.getElementById(knobCoximId).value=Math.round(percentCoxim);

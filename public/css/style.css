@@ -48,11 +48,19 @@ body {
 }
 
 .graph {
-    background: #4472c4;
+    background: hsla(246, 66%, 28%, 1);
+    background: linear-gradient(45deg, hsla(246, 66%, 28%, 1) 0%, hsla(246, 68%, 63%, 1) 100%);
+    background: -moz-linear-gradient(45deg, hsla(246, 66%, 28%, 1) 0%, hsla(246, 68%, 63%, 1) 100%);
+    background: -webkit-linear-gradient(45deg, hsla(246, 66%, 28%, 1) 0%, hsla(246, 68%, 63%, 1) 100%);
+    filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#221875", endColorstr="#6E61E1", GradientType=1 );
 }
 
 .tab-content {
     height: 700px;
+}
+
+.tab-content.armazenagemGraph {
+    height: 750px;
 }
 
 .tab-pane {

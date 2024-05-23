@@ -27,6 +27,7 @@ var kpiRecebimento;
 var kpiVendas;
 var kpiExpedicao;
 var indicadorNoShow;
+var indicadorArmazenagem;
 
 io.on("connection", (socket) => {
     var socketId = socket.id;
@@ -48,7 +49,7 @@ io.on("connection", (socket) => {
             socket.emit("getIndicador", { indicadorRecebimento, indicadorSeparacao, indicadorExpedicao,
                 indicadorRecebimentoTipoProd, indicadorSeparacaoTipoProd, indicadorExpedicaoTipoProd });
         } else if(data.operation == "igest") {
-            socket.emit("getIgest", { kpiRecebimento, kpiVendas, kpiExpedicao });
+            socket.emit("getIgest", { kpiRecebimento, kpiVendas, kpiExpedicao, indicadorArmazenagem });
         } else if(data.operation == "expedicao-dia") {
             var dateFilter = data.dateFilter;
             io.emit("requireDashboardData", { operation, dateFilter, socketId });
@@ -78,7 +79,7 @@ io.on("connection", (socket) => {
             socket.emit("getReloadedIndicador", { indicadorRecebimento, indicadorSeparacao, indicadorExpedicao,
                 indicadorRecebimentoTipoProd, indicadorSeparacaoTipoProd, indicadorExpedicaoTipoProd });
         } else if(data.operation == "igest") {
-            socket.emit("getReloadedIgest", { kpiRecebimento, kpiVendas, kpiExpedicao });
+            socket.emit("getReloadedIgest", { kpiRecebimento, kpiVendas, kpiExpedicao, indicadorArmazenagem });
         } else if(data.operation == "no-show") {
             socket.emit("getNoShow", { indicadorNoShow });
         }
@@ -115,6 +116,7 @@ io.on("connection", (socket) => {
         kpiRecebimento = data.kpiRecebimento;
         kpiVendas = data.kpiVendas;
         kpiExpedicao = data.kpiExpedicao;
+        indicadorArmazenagem = data.indicadorArmazenagem;
     });
 
     // Sockets Expedição Dia
