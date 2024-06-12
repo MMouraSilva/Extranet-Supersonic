@@ -17,12 +17,12 @@ socket.on("getNoShow", (data) => {
     buildGraphs();
 });
 
-function buildGraphs() {
+function buildGraphs(dateStart, dateEnd) {
     clearChartTable();
     getTableData();
     buildTable();
 
-    buildBarChart();
+    buildBarChart(dateStart, dateEnd);
 }
 
 function getTableData() {
@@ -153,10 +153,16 @@ function clearChartTable() {
     }
 }
 
-function buildBarChart() {
+function buildBarChart(dateStart, dateEnd) {
     "use strict"
 
-    $("#date-range-indicator").html("Período: " + start.format("DD/MM/YYYY") + " - " + end.format("DD/MM/YYYY"));
+    if(dateStart && dateEnd) {
+        $("#date-range-indicator").html("Período: " + dateStart + " - " + dateEnd);
+    } else {
+        $("#date-range-indicator").html("Período: " + start.format("DD/MM/YYYY") + " - " + end.format("DD/MM/YYYY"));
+    }
+
+    console.log(dateStart, dateEnd);
 
     let clientes = []
     let data = [];
@@ -232,7 +238,9 @@ var end = moment();
 
 function cb(start, end) {
     $('#daterange-btn').html(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
-    buildGraphs();
+    let dateStart = start.format('DD/MM/YYYY');
+    let dateEnd = end.format('DD/MM/YYYY');
+    buildGraphs(dateStart, dateEnd);
 }
 
 //Date range as a button

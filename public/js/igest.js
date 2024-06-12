@@ -199,7 +199,7 @@ function buildArmazenagemGraph(indicadorArmazenagem) {
     let porcentagemCapacidadeUtilizada = (indicadorArmazenagem[0].TOTAL_PALLETS * 100) / 2517;
 
     indicadorArmazenagem.forEach(data => {
-        if(data.CODAAR == "ABL2" || data.CODAAT == "DVENT") {
+        if(data.CODAAR == "ABL2" || data.CODAAR == "DVENT") {
             totalProdutosBloqueado += data.PRODUTOS_POR_LOCALIZACAO;
             totalPalletsBloqueado += data.PALLETS_POR_LOCALIZACAO;
             porcentagemBloqueado += data.PORCENTAGEM_PRODUTOS_POR_LOCALIZACAO;
