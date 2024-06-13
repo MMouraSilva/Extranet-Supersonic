@@ -6,9 +6,9 @@ const db = getFirestore(connection);
 
 class Profile {
     constructor(data) {
-        this.id = data.id;
-        this.profileName = data.profileName;
-        this.permissions = data.permissions;
+        this.id = data ? data.id : null;
+        this.profileName = data ? data.profileName : null;
+        this.permissions = data ? data.permissions : null;
     }
 
     async CreateProfile() {
@@ -69,8 +69,8 @@ class Profile {
         }
     }
 
-    static async GetProfiles() {
-        return await db.collection("profiles").get();
+    async GetProfiles() {
+        return await db.collection("profiles").orderBy("profileName").get();
     }
 
     async GetProfileByName() {
@@ -87,7 +87,7 @@ class Profile {
         return await db.collection("profiles").doc(this.id).get();
     }
 
-    static async GetPages() {
+    async GetPages() {
         return await db.collection("pages").orderBy("pageName").get();
     }
 

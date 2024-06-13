@@ -1,171 +1,234 @@
 const express = require("express");
 const router = express.Router();
-require('dotenv').config();
-const backendUrl = process.env.APP_TIMER_HOST; // passar os dados do .env para as constantes
-const frontendUrl = process.env.APP_HOST;
+require('dotenv').config();;
 const userAccess = require("../middlewares/userAccess");
-const loginPageAuth = require("../middlewares/loginPageAuth");
 const User = require("../models/User");
 const Profile = require("../models/Profile");
 const Page = require("../models/Page");
+const ErrorHandler = require("../models/ErrorHandler");
 
-router.get("/users", userAccess, async (req, res) => {
-    try {
-        const updateStatus = req.session.updateUserStatus;
-        const createStatus = req.session.createUserStatus;
+class UserInterfaceController {
+    #backendUrl;
+    #frontendUrl;
+    #updateStatus;
+    #createStatus;
+    #loginStatus;
+
+    constructor() {
+        this.user = new User();
+        this.#backendUrl = process.env.APP_TIMER_HOST;
+        this.#frontendUrl = process.env.APP_HOST;
+    }
+
+    RenderIndexPage = async (req, res) => {
+        this.#CheckForErrorsOnSession(req);
+        const users = await this.user.GetUsers();
+        const tableUsers = this.#GetUsersFromFirebaseObject(users);
         
-        req.session.updateUserStatus = undefined;
-        req.session.createUserStatus = undefined;
+        let user = req.session.user;
 
-        const users = await User.GetUsers();
-        var arrUsers = [];
+        res.render("users/index", { frontendUrl: this.frontendUrl, backendUrl: this.backendUrl, user, users: tableUsers, updateStatus: this.updateStatus, createStatus: this.createStatus });
+    }
+
+    RenderCreateForm = async (req, res) => {
+        this.#CheckForErrorsOnSession(req);
+        const profiles = await this.user.profile.GetProfiles();
+        const arrProfiles = this.#GetProfilesFromFirebaseObject(profiles);
+    
+        res.render("users/form", { operation: "create", user: req.session.user, createStatus: this.createStatus, profiles: arrProfiles });
+    }
+
+    RenderUpdateForm = async (req, res) => {
+        const id = req.params.id;
+        this.#CheckForErrorsOnSession(req);
+        
+        if(id) {
+            const { userToEdit, userProfiles, arrProfiles } = this.#GetDataToRenderUpdateForm();
+            res.render("users/form", { operation: "edit", user: req.session.user, updateStatus: this.updateStatus, profiles: arrProfiles, userToEdit, userProfiles });
+        } else res.redirect("/users");
+    }
+
+    RenderLoginPage = async (req, res) => {
+        this.#CheckForLoginStatusOnSession(req);
+        
+        res.render("users/login", { loginStatus: this.loginStatus });
+    }
+
+    async #GetDataToRenderUpdateForm() {
+        const { userToEdit, userProfiles } = await this.#GetUserToEditData(id);
+        const arrProfiles = this.#GetProfilesFromFirebaseObject(await this.user.profile.GetProfiles());
+
+        return { userToEdit, userProfiles, arrProfiles };
+    }
+
+    async #GetUserToEditData(id) {
+        const userToEdit = await this.user.GetUserById(id);
+        const userProfilesQuery = await this.user.usersProfiles.GetUsersProfilesByUserId(id);
+        const userProfiles = await this.user.PushIdProfileToArray(userProfilesQuery);
+
+        return { userToEdit, userProfiles };
+    }
+
+    #GetUsersFromFirebaseObject(users) {
+        let arrUsers = [];
 
         users.forEach(user => {
             arrUsers.push(user);
         });
 
-        res.render("users/index", { frontendUrl, backendUrl, user: req.session.user, users: arrUsers, updateStatus, createStatus });
-    } catch(error) {
-        console.log(error);
+        return arrUsers;
     }
-});
 
-router.get("/users/create", userAccess, async (req, res) => {
-    const createStatus = req.session.createUserStatus;
-    req.session.createUserStatus = undefined;
+    #GetProfilesFromFirebaseObject(object) {
+        let arrProfiles = [];
 
-    const profiles = await User.GetProfiles();
+        object.forEach(profile => {
+            let array = profile.data();
+            array.id = profile.id;
+            arrProfiles.push(array);
+        });
 
-    res.render("users/form", { operation: "create", user: req.session.user, createStatus, profiles });
-});
+        return arrProfiles;
+    }
 
-router.post("/users/create", async (req, res) => {
-    const user = new User(req.body);
-    const createRes = await user.CreateUser();
+    #CheckForErrorsOnSession(req) {
+        this.updateStatus = req.session.updateUserStatus;
+        this.createStatus = req.session.createUserStatus;
+        this.#ClearErrorsOnSession(req);
+    }
 
-    // TODO: Ao refatorar, adicionar tratamento para a captura de erro de cadastro dos perfils de acesso do usuário.
+    #ClearErrorsOnSession(req) {
+        req.session.updateUserStatus = undefined;
+        req.session.createUserStatus = undefined;
+    }
 
-    if(createRes.hasError) {
-        if(createRes.emailExists || createRes.loginExists) {
-            req.session.createUserStatus = { completed: false, error: createRes.error, loginExists: createRes.loginExists, emailExists: createRes.emailExists };
-            res.redirect("/users/create");
-        } else {
-            req.session.createUserStatus = { completed: false, error: createRes.error, loginExists: createRes.loginExists, emailExists: createRes.emailExists };
-            res.redirect("/users");
+    #CheckForLoginStatusOnSession(req) {
+        this.loginStatus = req.session.loginStatus;
+        this.#ClearLoginStatusOnSession(req);
+    }
+
+    #ClearLoginStatusOnSession(req) {
+        req.session.loginStatus = undefined;
+    }
+
+    get backendUrl() {
+        return this.#backendUrl;
+    }
+
+    get frontendUrl() {
+        return this.#frontendUrl;
+    }
+
+    get updateStatus() {
+        return this.#updateStatus;
+    }
+    set updateStatus(newValue) {
+        this.#updateStatus = newValue;
+    }
+
+    get createStatus() {
+        return this.#createStatus;
+    }
+    set createStatus(newValue) {
+        this.#createStatus = newValue;
+    }
+
+    get loginStatus() {
+        return this.#loginStatus;
+    }
+    set loginStatus(newValue) {
+        this.#loginStatus = newValue;
+    }
+}
+
+class UserController {
+    constructor() {
+        this.user = new User();
+        this.errorHandler = new ErrorHandler();
+    }
+
+    HandleCreateRequest = async (req, res) => {
+        this.user.dataModel.SetUser(req.body);
+        this.#HandleCreateResponse(req, res, await this.user.CreateUser());
+    }
+
+    HandleUpdateRequest = async (req, res) => {
+        this.user.dataModel.SetUser(req.body);
+        this.#HandleUpdateResponse(req, res, await this.user.UpdateUser());
+    }
+
+    HandleDeleteRequest = async (req, res) => {
+        const id = req.body.id;
+        this.#RedirectDeleteResponse(req, res, await this.user.DeleteUser(id));
+    }
+
+    HandleUserAuthentication = async (req, res) => {
+        this.user.dataModel.SetUser(req.body);
+        await this.#AuthenticateUser(req, res, await this.user.ValidateCredentialToAuthenticate());
+    }
+
+    HandleUserLogout = (req, res) => {
+        req.session.user = undefined;
+        res.redirect("/");
+    }
+
+    async #AuthenticateUser(req, res, isUserValid) {
+        const { password } = req.body;
+
+        if(isUserValid) {    
+            if(await this.user.AuthenticateUserPassword(password)) this.#RegisterSession(req, res);
+            else this.#RedirectLoginError(req, res);
+        } else this.#RedirectLoginError(req, res);
+    }
+
+    #RegisterSession(req, res) {
+        req.session.user = {
+            id: this.user.dataModel.id,
+            name: this.user.dataModel.name,
         }
-    } else {
-        req.session.updateUserStatus = { completed: true };
-        res.redirect("/users");
-    }
-});
-
-router.get("/users/edit/:id", userAccess, async (req, res) => {
-    const id = req.params.id;
-
-    const updateStatus = req.session.updateUserStatus;
-    req.session.updateUserStatus = undefined;
-
-    if(id) {
-        const user = new User(req.params);
-        const userToEdit = await user.GetUserById();
-        const userProfilesQuery = await user.GetUsersProfilesByUserId();
-        const userProfiles = await user.PushIdProfileToArray(userProfilesQuery);
-
-        const profiles = await User.GetProfiles();
-
-        res.render("users/form", { userToEdit, operation: "edit", user: req.session.user, updateStatus, profiles, userProfiles });
-    } else {
-        res.redirect("/users");
-    }
-});
-
-router.post("/users/edit", async (req, res) => {
-    const user = new User(req.body);
-    const updateRes = await user.UpdateUser();
-
-    if(updateRes.hasError) {
-        if(updateRes.emailExists || updateRes.loginExists) {
-            req.session.updateUserStatus = { completed: false, error: updateRes.error, loginExists: updateRes.loginExists, emailExists: updateRes.emailExists };
-            res.redirect("/users/edit/" + req.body.id);
-        } else {
-            req.session.updateUserStatus = { completed: false, error: updateRes.error, loginExists: updateRes.loginExists, emailExists: updateRes.emailExists };
-            res.redirect("/users");
-        }
-    } else {
-        req.session.updateUserStatus = { completed: true };
-        res.redirect("/users");
-    }
-});
-
-router.post("/users/delete", async (req, res) => {
-    const user = new User(req.body);
-    await user.DeleteUser();
-
-    res.redirect("/users");
-});
-
-router.get("/login", loginPageAuth, (req, res) => {
-    const loginStatus = req.session.loginStatus;
-    req.session.loginStatus = undefined;
-    res.render("users/login", { loginStatus });
-});
-
-router.post("/authenticate", async (req, res) => {
-    const { login, password } = req.body;
-
-    const user = new User(req.body);
-    
-    const userCorrect = await user.GetUserByLogin();
-    
-    // TODO: Após transformar o controller em Classes e separar as rotas em outro arquivo, transformar esse treco em um método
-    user.profiles = await user.PushIdProfileToArray(await user.GetUsersProfilesByUserId());
-    var profilesPermissions;
-    var pages = [];
-    var allowedRoutes = [];
-    
-    for(var i = 0; i < user.profiles.length; i++) {
-        var profile = new Profile({ id: user.profiles[i] });
-        profilesPermissions = await profile.GetPermissionsIdById();
-    }
-    
-    for(var i = 0; i < profilesPermissions.length; i++) {
-        var page = new Page({ id: profilesPermissions[i] });
-        pages.push(await page.GetPagesObject());
-    }
-    
-    for(var i = 0; i < pages.length; i++) {
-        if(pages[i].urlPath) {
-            allowedRoutes.push(pages[i].urlPath);
-        }
+        res.redirect("/");
     }
 
-    if(userCorrect) {
-        const userAuthenticate = await user.AuthenticateUser(password);
-
-        if(userAuthenticate) {
-            req.session.user = {
-                id: user.id,
-                name: user.name,
-                login: user.login,
-                email: user.email,
-                phone: user.phone,
-                permissions: pages,
-                allowedRoutes
-            }
-            res.redirect("/");
-        } else {
-            req.session.loginStatus = "error";
-            res.redirect("/login");
-        }
-    } else {
+    #RedirectLoginError(req, res) {
         req.session.loginStatus = "error";
         res.redirect("/login");
     }
-});
 
-router.get("/logout", (req, res) => {
-    req.session.user = undefined;
-    res.redirect("/");
-});
+    #HandleCreateResponse(req, res, createResponse) {
+        if(createResponse.emailExists || createResponse.loginExists) {
+            this.#RedirectNotValidCreation(req, res, createResponse);
+        } else this.#RedirectResponse(req, res, createResponse, "create");
+    }
 
-module.exports = router;
+    #HandleUpdateResponse(req, res, updateResponse) {
+        if(updateResponse.emailExists || updateResponse.loginExists) {
+            this.#RedirectNotValidUpdate(req, res);
+        } else this.#RedirectResponse(req, res, updateResponse, "update");
+    }
+
+    #RedirectNotValidCreation(req, res, createResponse) {
+        req.session.createUserStatus = { completed: false, loginExists: createResponse.loginExists, emailExists: createResponse.emailExists };
+        res.redirect("/users/create");
+    }
+
+    #RedirectNotValidUpdate(req, res) {
+        req.session.updateUserStatus = { completed: false };
+        res.redirect("/users/edit/" + req.body.id);
+    }
+
+    #RedirectResponse(req, res, operationResponse, operation) {
+        if(operationResponse.hasError) this.errorHandler.HandleError(operationResponse.error);
+        if(operation == "create")
+            req.session.createUserStatus = { completed: !operationResponse.hasError, loginExists: operationResponse.loginExists, emailExists: operationResponse.emailExists };
+        else if(operation == "update")
+            req.session.updateUserStatus = { completed: !operationResponse.hasError, loginExists: operationResponse.loginExists, emailExists: operationResponse.emailExists };
+        res.redirect("/users");
+    }
+
+    #RedirectDeleteResponse(req, res, operationResponse) {
+        if(operationResponse.error) this.errorHandler.HandleError(operationResponse.error);
+        res.redirect("/users");
+    }
+}
+
+module.exports = { UserInterfaceController, UserController };

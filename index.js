@@ -13,11 +13,13 @@ const io = require("socket.io")(http, {
     },
     maxHttpBufferSize: 1e8
 });
-const userAccess = require("./middlewares/userAccess");
+
+const Middleware = require("./middlewares/userAccess");
+const userAccess = new Middleware;
 
 const vendasController = require("./controllers/vendas");
 const indicadoresController = require("./controllers/indicadores");
-const usersController = require("./controllers/users");
+const usersRoutes = require("./routes/users");
 const pagesController = require("./controllers/pages");
 const profilesController = require("./controllers/profiles");
 const freightRulesRoutes = require("./routes/freightRules");
@@ -159,7 +161,7 @@ app.use(bodyParser.json());
 
 app.use("/", indicadoresController);
 
-app.use("/", usersController);
+app.use("/", usersRoutes);
 
 app.use("/", vendasController);
 
@@ -169,11 +171,11 @@ app.use("/", profilesController);
 
 app.use("/", freightRulesRoutes);
 
-app.get("/", userAccess, (req, res) => {
+app.get("/", userAccess.UserAuth, async (req, res) => {
     res.render("index", { user: req.session.user });
 });
 
-app.get("/recebimento", userAccess, (req, res) => {
+app.get("/recebimento", userAccess.UserAuth, (req, res) => {
     res.render("recebimento");
 });
 

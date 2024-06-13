@@ -1,7 +1,6 @@
 const Firebase = require("./Firebase");
 const ErrorHandler = require("./ErrorHandler");
 const StatesArray = require("../public/plugins/municipios-brasileiros/estados.json");
-const { forEach } = require("../middlewares/userAccess");
 
 class FreightRules {
     constructor() {
@@ -45,9 +44,10 @@ class FreightRules {
     }
 
     async #GetDataToValidate(id) {
-        const dataToUpdate = await this.firebaseFreightRule.firebase.FirebaseGetDocById(id);
+        const { doc, error } = await this.firebaseFreightRule.firebase.FirebaseGetDocById(id);
+        if(error) this.errorHandler.HandleError(error);
         
-        return this.#BuildObjectToValidate(dataToUpdate.doc);
+        return this.#BuildObjectToValidate(doc);
     }
 
     async #ValidateFreighRule(data, operation) {
@@ -93,12 +93,7 @@ class FreightRules {
 
     async #IsDistanceRangeRuleUnique(data, operation) {
         const docs = await this.firebaseFreightRule.GetConflictingDistanceRange(data);
-        let duplicates;
-
-        if(operation == "update") {
-            duplicates = this.#CheckForDuplicates(docs, data.id);
-        }
-
+        if(operation == "update") var duplicates = this.#CheckForDuplicates(docs, data.id);
         let size = docs._size - duplicates;
 
         return size ? false : true
@@ -106,12 +101,7 @@ class FreightRules {
 
     async #IsSourceToDestinationRuleUnique(data, operation) {
         const docs = await this.firebaseFreightRule.GetConflictingSourceToDestination(data);
-        let duplicates;
-
-        if(operation == "update") {
-            duplicates = this.#CheckForDuplicates(docs, data.id);
-        }
-
+        if(operation == "update") var duplicates = this.#CheckForDuplicates(docs, data.id);
         let size = docs._size - duplicates;
 
         return size ? false : true
@@ -119,12 +109,7 @@ class FreightRules {
 
     async #IsSourceToRegionRuleUnique(data, operation) {
         const docs = await this.firebaseFreightRule.GetConflictingSourceToRegion(data);
-        let duplicates;
-
-        if(operation == "update") {
-            duplicates = this.#CheckForDuplicates(docs, data.id);
-        }
-
+        if(operation == "update") var duplicates = this.#CheckForDuplicates(docs, data.id);
         let size = docs._size - duplicates;
 
         return size ? false : true
@@ -132,12 +117,7 @@ class FreightRules {
 
     #CheckForDuplicates(docs, id) {
         let size = 0;
-
-        docs.forEach((doc) => {
-            if(doc.id == id) {
-                size++;
-            }
-        });
+        docs.forEach((doc) => { size = doc.id == id ? size++ : size; });
 
         return size;
     }

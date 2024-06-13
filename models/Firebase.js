@@ -21,7 +21,7 @@ class Firebase {
             .then((docRef) => this.docRef = docRef)
             .catch(error => this.error = error);
 
-        return { hasSucceed: this.error ? false : true , error: this.error, docRef: this.docRef, operation: "create" }
+        return { hasSucceed: this.error ? false : true, error: this.error, docRef: this.docRef, operation: "create" }
     }
 
     async FirebaseGetDocs() {
@@ -42,8 +42,17 @@ class Firebase {
     }
     
     async FirebaseGetDocByField(value) {
-        const docs = await this.db.collection(this.collection).where(this.field, "==", value).get();
-        return docs;
+        const docs = await this.db.collection(this.collection).where(this.field, "==", value).get()
+            .catch(error => this.error = error);
+
+        return { docs, error: this.error };
+    }
+    
+    async FirebaseGetUniqueDocByField(value) {
+        const doc = await this.db.collection(this.collection).where(this.field, "==", value).limit(1).get()
+            .catch(error => this.error = error);
+
+        return { doc: doc, error: this.error };
     }
     
     async FirebaseUpdateDoc(id, data) {

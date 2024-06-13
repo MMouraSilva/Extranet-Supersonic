@@ -3,10 +3,12 @@ const router = express.Router();
 require('dotenv').config();
 const backendUrl = process.env.APP_TIMER_HOST; // passar os dados do .env para as constantes
 const frontendUrl = process.env.APP_HOST;
-const userAccess = require("../middlewares/userAccess");
+const Middleware = require("../middlewares/userAccess");
 const Profile = require("../models/Profile");
 
-router.get("/profiles", userAccess, async (req, res) => {
+const userAccess = new Middleware();
+
+router.get("/profiles", userAccess.UserAuth, async (req, res) => {
     try {
         const updateStatus = req.session.updateProfileStatus;
         const createStatus = req.session.createProfileStatus;
@@ -14,7 +16,7 @@ router.get("/profiles", userAccess, async (req, res) => {
         req.session.updateProfileStatus = undefined;
         req.session.createProfileStatus = undefined;
 
-        const profiles = await Profile.GetProfiles();
+        const profiles = await (new Profile()).GetProfiles();
 
         res.render("profiles/index", { frontendUrl, backendUrl, user: req.session.user, profiles, updateStatus, createStatus });
     } catch(error) {
@@ -22,7 +24,7 @@ router.get("/profiles", userAccess, async (req, res) => {
     }
 });
 
-router.get("/profiles/edit/:id", userAccess, async (req, res) => {
+router.get("/profiles/edit/:id", userAccess.UserAuth, async (req, res) => {
     const id = req.params.id;
 
     const updateStatus = req.session.updateProfileStatus;
@@ -34,7 +36,7 @@ router.get("/profiles/edit/:id", userAccess, async (req, res) => {
 
         const permissions = await profile.GetPermissions();
         
-        const pages = await Profile.GetPages();
+        const pages = await profile.GetPages();
 
         res.render("profiles/form", { profileToEdit, operation: "edit", user: req.session.user, updateStatus, pages, permissions });
     } else {
@@ -63,11 +65,11 @@ router.post("/profiles/edit", async (req, res) => {
     }
 });
 
-router.get("/profiles/create", userAccess, async (req, res) => {
+router.get("/profiles/create", userAccess.UserAuth, async (req, res) => {
     const createStatus = req.session.createProfileStatus;
     req.session.createProfileStatus = undefined;
 
-    const pages = await Profile.GetPages();
+    const pages = await (new Profile()).GetPages();
 
     res.render("profiles/form", { operation: "create", user: req.session.user, createStatus, pages });
 });

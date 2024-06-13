@@ -12,20 +12,20 @@ class FreightRulesInterfaceController {
         this.#frontendUrl = process.env.APP_HOST;
     }
 
-    async RenderIndexPage(req, res) {
+    RenderIndexPage = async (req, res) => {
         const errorStatus = this.#CheckForErrorsOnSession(req);
         const freightRules = await this.freightRules.GetFreightRules();
 
         res.render("freight-rules/index", { frontendUrl: this.frontendUrl, backendUrl: this.backendUrl, user: req.session.user, freightRules, errorStatus });
     }
 
-    RenderCreateForm(req, res) {
+    RenderCreateForm = (req, res) => {
         const errorStatus = this.#CheckForErrorsOnSession(req);
 
         res.render("freight-rules/form", { operation: "create", frontendUrl: this.frontendUrl, backendUrl: this.backendUrl, user: req.session.user, errorStatus });
     }
 
-    async RenderUpdateForm(req, res) {
+    RenderUpdateForm = async (req, res) => {
         const errorStatus = this.#CheckForErrorsOnSession(req);
         const freightRule = await this.freightRules.GetFreightRuleById(req.params.id);
 
@@ -58,18 +58,18 @@ class FreightRulesController {
         this.errorHandler = new ErrorHandler();
     }
 
-    async HandleCreateRequest(req, res) {
+    HandleCreateRequest = async (req, res) => {
         this.freightRules.dataModel.SetFreightRule(req.body);
         this.#HandleCreateResponse(req, res, await this.freightRules.CreateFreightRule());
     }
 
-    async HandleUpdateRequest(req, res) {
+    HandleUpdateRequest = async (req, res) => {
         const id = req.body.id;
         this.freightRules.dataModel.SetFreightRule(req.body);
         this.#HandleUpdateResponse(req, res, await this.freightRules.UpdateFreightRule(id));
     }
 
-    async HandleDeleteRequest(req, res) {
+    HandleDeleteRequest = async (req, res) => {
         const id = req.body.id;
         this.#RedirectResponse(req, res, await this.freightRules.DeleteFreightRule(id));
     }
@@ -83,7 +83,7 @@ class FreightRulesController {
     #HandleUpdateResponse(req, res, updateResponse) {
         if(!updateResponse.isFreightRuleValid) {
             this.#RedirectNotValidUpdate(req, res);
-        } else this.#RedirectResponse(req, res, createResponse);
+        } else this.#RedirectResponse(req, res, updateResponse);
     }
 
     #RedirectNotValidCreation(req, res) {
