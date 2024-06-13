@@ -5,7 +5,7 @@ socket.on("disconnect", () => {
 });
 
 socket.on("getIgest", (data) => {
-    buildIgest(data);
+    buildIgest(data, false);
 });
 
 socket.on("displayTimer", (data) => {
@@ -20,10 +20,26 @@ socket.on("reloadData", () => {
 });
 
 socket.on("getReloadedIgest", (data) => {
-    buildIgest(data);
+    buildIgest(data, true);
 });
 
-function buildIgest(data) {
+function buildIgest(data, isReload) {
+    var activeChart;
+    var igestChart = document.getElementById("igest-chart-tab");
+    var armazenagemChart = document.getElementById("armazenagem-chart-tab");
+
+    if(isReload) {
+        if(igestChart.classList.contains("active")) {
+            activeChart = igestChart.id;
+            armazenagemChart.classList.add("active");
+        } else if(armazenagemChart.classList.contains("active")) {
+            activeChart = armazenagemChart.id;
+            igestChart.classList.add("active");
+        }
+    }
+
+    buildArmazenagemGraph(data.indicadorArmazenagem);
+
     var recebimentos = data.kpiRecebimento;
     var vendas = data.kpiVendas;
     var expedicoes = data.kpiExpedicao;
@@ -101,18 +117,31 @@ function buildIgest(data) {
 
     percentualAtendido = (totalTTATE * 100) / totalTTPED;
 
-    document.getElementById('knobAtendido').value=Math.round(percentualAtendido);
+    document.getElementById("knobAtendido").value=Math.round(percentualAtendido);
 
     /* jQueryKnob */
-    $('.knob-atendido').knob({
-        'format' : function (value) {
-            return value + '%';
+    $(".knob-atendido").knob({
+        "format" : function (value) {
+            return value + "%";
         }
     });
 
-    $('.knob-atendido').val(Math.round(percentualAtendido));
+    $(".knob-atendido").val(Math.round(percentualAtendido));
         
-    $("input.knob").trigger('change');
+    $("input.knob").trigger(
+        "configure",
+        {
+            "fgColor": "#12E2AB",
+            "readonly": true,
+            "width": "110",
+            "height": "110",
+            "angleOffset": -125,
+            "angleArc": 250
+        }
+    );
+
+    $("input.knob").trigger("change");
+
 
     var maiorTempoSepElement = document.getElementById("maiorTempoSep");
     var maiorTempoM51Hours =  padWithLeadingZeros(parseInt(maiorOctM51 / 60), 2);
@@ -147,32 +176,140 @@ function buildIgest(data) {
 
     var totalExpElement = document.getElementById("totalExp");
     totalExpElement.innerHTML = totalExpedicao;
+
+    if(isReload && activeChart == "armazenagem-chart-tab") {
+        igestChart.classList.remove("active");
+    } else {
+        armazenagemChart.classList.remove("active");
+    }
+}
+
+function buildArmazenagemGraph(indicadorArmazenagem) {
+    const totalProdutos = document.getElementById("totalProdutosUnidadePallet");
+    const totalEnderecado = document.getElementById("totalEnderecado");
+    const totalEnderecadoNivelUm = document.getElementById("totalEnderecadoNivelUm");
+    const totalBlocado = document.getElementById("totalBlocado");
+    const totalBloqueado = document.getElementById("totalBloqueado");
+    const capacidadeUtilizada = document.getElementById("capacidadeUtilizada");
+    
+    let totalProdutosEnderecado = 0, totalPalletsEnderecado = 0, porcentagemEnderecado = 0;
+    let totalProdutosEnderecadoNivelUm = 0, totalPalletsEnderecadoNivelUm = 0, porcentagemEnderecadoNivelUm = 0;
+    let totalProdutosBlocado = 0, totalPalletsBlocado = 0, porcentagemBlocado = 0;
+    let totalProdutosBloqueado = 0, totalPalletsBloqueado = 0, porcentagemBloqueado = 0;
+    let porcentagemCapacidadeUtilizada = (indicadorArmazenagem[0].TOTAL_PALLETS * 100) / 2517;
+
+    indicadorArmazenagem.forEach(data => {
+        if(data.CODAAR == "ABL2" || data.CODAAR == "DVENT") {
+            totalProdutosBloqueado += data.PRODUTOS_POR_LOCALIZACAO;
+            totalPalletsBloqueado += data.PALLETS_POR_LOCALIZACAO;
+            porcentagemBloqueado += data.PORCENTAGEM_PRODUTOS_POR_LOCALIZACAO;
+        } else if(data.CODAAR == "AC2P") {
+            if(data.PALLETS_POR_LOCALIZACAO >= 586) {
+                totalProdutosEnderecadoNivelUm = 586 * 20;
+                totalPalletsEnderecadoNivelUm = 586;
+                porcentagemEnderecadoNivelUm += (totalProdutosEnderecadoNivelUm * data.PORCENTAGEM_PRODUTOS_POR_LOCALIZACAO) / data.PRODUTOS_POR_LOCALIZACAO;
+                
+                totalProdutosBlocado += data.PRODUTOS_POR_LOCALIZACAO - totalProdutosEnderecadoNivelUm;
+                totalPalletsBlocado += data.PALLETS_POR_LOCALIZACAO - totalPalletsEnderecadoNivelUm;
+                porcentagemBlocado += data.PORCENTAGEM_PRODUTOS_POR_LOCALIZACAO - porcentagemEnderecadoNivelUm;
+            } else {
+                totalProdutosEnderecadoNivelUm += data.PRODUTOS_POR_LOCALIZACAO;
+                totalPalletsEnderecadoNivelUm += data.PALLETS_POR_LOCALIZACAO;
+                porcentagemEnderecadoNivelUm += data.PORCENTAGEM_PRODUTOS_POR_LOCALIZACAO;
+            }
+        } else {
+            totalProdutosEnderecado += data.PRODUTOS_POR_LOCALIZACAO;
+            totalPalletsEnderecado += data.PALLETS_POR_LOCALIZACAO;
+            porcentagemEnderecado += data.PORCENTAGEM_PRODUTOS_POR_LOCALIZACAO;
+        }
+    });
+
+    totalProdutos.innerHTML = indicadorArmazenagem[0].TOTAL_PRODUTOS + " / " + indicadorArmazenagem[0].TOTAL_PALLETS;
+    totalEnderecado.innerHTML = totalProdutosEnderecado + " / " + totalPalletsEnderecado;
+    totalEnderecadoNivelUm.innerHTML = totalProdutosEnderecadoNivelUm + " / " + totalPalletsEnderecadoNivelUm;
+    totalBlocado.innerHTML = totalProdutosBlocado + " / " + totalPalletsBlocado;
+    totalBloqueado.innerHTML = totalProdutosBloqueado + " / " + totalPalletsBloqueado;
+    capacidadeUtilizada.innerHTML = indicadorArmazenagem[0].TOTAL_PALLETS + " / 2517";
+
+    document.getElementById("knobEnderecado").value=Math.round(porcentagemEnderecado);
+    document.getElementById("knobEnderecadoNivelUm").value=Math.round(porcentagemEnderecadoNivelUm);
+    document.getElementById("knobBlocado").value=Math.round(porcentagemBlocado);
+    document.getElementById("knobBloqueado").value=Math.round(porcentagemBloqueado);
+    document.getElementById("knobCapacidadeUtilizada").value=Math.round(porcentagemCapacidadeUtilizada);
+
+    /* jQueryKnob */
+    $(".knob-enderecado").knob({
+        "format" : function (value) {
+            return value + "%";
+        }
+    });
+    $(".knob-enderecado-nivel-um").knob({
+        "format" : function (value) {
+            return value + "%";
+        }
+    });
+    $(".knob-blocado").knob({
+        "format" : function (value) {
+            return value + "%";
+        }
+    });
+    $(".knob-bloqueado").knob({
+        "format" : function (value) {
+            return value + "%";
+        }
+    });
+    $(".knob-capacidade-utilizada").knob({
+        "format" : function (value) {
+            return value + "%";
+        }
+    });
+
+    $(".knob-enderecado").val(Math.round(porcentagemEnderecado));
+    $(".knob-enderecado-nivel-um").val(Math.round(porcentagemEnderecadoNivelUm));
+    $(".knob-blocado").val(Math.round(porcentagemBlocado));
+    $(".knob-bloqueado").val(Math.round(porcentagemBloqueado));
+    $(".knob-capacidade-utilizada").val(Math.round(porcentagemCapacidadeUtilizada));
+
+    $("input.knob-capacidade-utilizada").val(Math.round(porcentagemCapacidadeUtilizada)).trigger(
+        "configure",
+        {
+            "min": 0,
+            "max": Math.round(porcentagemCapacidadeUtilizada) > 100 ? Math.round(porcentagemCapacidadeUtilizada) : 100
+        }
+    );
+
+    $("input.knob-capacidade-utilizada").val(Math.round(porcentagemCapacidadeUtilizada)).trigger("change");
+
+    if(Math.round(porcentagemCapacidadeUtilizada) < 100) {
+        var avisoCapacidade = document.getElementById("avisoCapacidade");
+        avisoCapacidade.classList.add("d-none");
+    }
 }
 
 function padWithLeadingZeros(num, totalLength) {
     return String(num).padStart(totalLength, '0');
 }
 
-var start = moment().subtract(29, 'days');
+var start = moment().subtract(29, "days");
 var end = moment();
 
 function cb(start, end) {
-    $('#daterange-btn').html(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
+    $("#daterange-btn").html(start.format("DD/MM/YYYY") + ' - ' + end.format("DD/MM/YYYY"));
     socket.emit("reloadedData", { operation: "igest" });
 }
 
 //Date range as a button
-$('#daterange-btn').daterangepicker(
+$("#daterange-btn").daterangepicker(
     {
         ranges   : {
-        'Hoje'           : [moment(), moment()],
-        'Ontem'          : [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-        'Últimos 7 Dias' : [moment().subtract(6, 'days'), moment()],
-        'Últimos 30 Dias': [moment().subtract(29, 'days'), moment()],
-        'Este Mês'       : [moment().startOf('month'), moment().endOf('month')],
-        'Último Mês'     : [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        "Hoje"           : [moment(), moment()],
+        "Ontem"          : [moment().subtract(1, "days"), moment().subtract(1, "days")],
+        "Últimos 7 Dias" : [moment().subtract(6, "days"), moment()],
+        "Últimos 30 Dias": [moment().subtract(29, "days"), moment()],
+        "Este Mês"       : [moment().startOf("month"), moment().endOf("month")],
+        "Último Mês"     : [moment().subtract(1, "month").startOf("month"), moment().subtract(1, "month").endOf("month")]
         },
-        startDate: moment().subtract(29, 'days'),
+        startDate: moment().subtract(29, "days"),
         endDate  : moment(),
         locale: {
             "format": "DD/MM/YYYY",
@@ -210,8 +347,8 @@ $('#daterange-btn').daterangepicker(
     }, cb
 );
 
-$('#daterange-btn').html(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
+$("#daterange-btn").html(start.format("DD/MM/YYYY") + ' - ' + end.format("DD/MM/YYYY"));
 
-$('.nav-item').on('click', function() { 
-   console.log($(this).children().attr('href'));
+$(".nav-item").on("click", function() { 
+   console.log($(this).children().attr("href"));
 });

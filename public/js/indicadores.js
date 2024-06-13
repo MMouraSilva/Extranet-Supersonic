@@ -1,4 +1,5 @@
 var socket = io(frontendUrl);
+var recebimentoGraphChart, separacaoGraphChart, expedicaoGraphChart;
 
 socket.on("disconnect", () => {
     console.log("Desconectado");
@@ -66,14 +67,28 @@ function buildGraph(labels, data, avg, chart, isReload, knobData) {
             }
         });
 
+        $("input.knob").trigger(
+            "configure",
+            {
+                "fgColor": "#12E2AB",
+                "readonly": true,
+                "width": "100",
+                "height": "100",
+                "angleOffset": -125,
+                "angleArc": 250
+            }
+        );
+
+        $("input.knob").trigger('change');
+
         /* Chart.js Charts */
 
         var chartName = "#" + chart + "-chart";
         
         // Sales graph chart
-        var salesGraphChartCanvas = $(chartName).get(0).getContext('2d')
+        var graphChartCanvas = $(chartName).get(0).getContext('2d')
         
-        var salesGraphChartData = {
+        var graphChartData = {
             labels,
             datasets: [
                 {
@@ -95,16 +110,16 @@ function buildGraph(labels, data, avg, chart, isReload, knobData) {
                     borderWidth: 3,
                     lineTension: 0,
                     spanGaps: true,
-                    borderColor: '#f5b400',
+                    borderColor: '#068D9D',
                     pointRadius: 1,
                     pointHoverRadius: 7,
-                    pointBackgroundColor: '#f5b400',
+                    pointBackgroundColor: '#068D9D',
                     data: avg
                 }
             ]
         }
         
-        var salesGraphChartOptions = {
+        var graphChartOptions = {
             maintainAspectRatio: false,
             responsive: true,
             legend: {
@@ -139,13 +154,37 @@ function buildGraph(labels, data, avg, chart, isReload, knobData) {
             }
         }
         
-        // This will get the first returned node in the jQuery collection.
-        // eslint-disable-next-line no-unused-vars
-        var salesGraphChart = new Chart(salesGraphChartCanvas, { // lgtm[js/unused-local-variable]
-            type: 'line',
-            data: salesGraphChartData,
-            options: salesGraphChartOptions
-        })
+        if(chart == "recebimento") {
+            if(recebimentoGraphChart) {
+                recebimentoGraphChart.destroy();
+            }
+
+            recebimentoGraphChart = new Chart(graphChartCanvas, {
+                type: 'line',
+                data: graphChartData,
+                options: graphChartOptions
+            });
+        } else if(chart == "separacao") {
+            if(separacaoGraphChart) {
+                separacaoGraphChart.destroy();
+            }
+
+            separacaoGraphChart = new Chart(graphChartCanvas, {
+                type: 'line',
+                data: graphChartData,
+                options: graphChartOptions
+            });
+        } else if(chart == "expedicao") {
+            if(expedicaoGraphChart) {
+                expedicaoGraphChart.destroy();
+            }
+
+            expedicaoGraphChart = new Chart(graphChartCanvas, {
+                type: 'line',
+                data: graphChartData,
+                options: graphChartOptions
+            });
+        }
 
         if((chart == "separacao" || chart == "expedicao") && !isReload) {
             var tabName = chart + "-chart-tab";
@@ -235,6 +274,8 @@ function buildDonutGraph(dados, operation, isReload) {
         knobColaId = "knobColaExpedicao";
     }
 
+
+
     if(isReload) {
         var knobBanda = "input." + knobBandaId;
         var knobCoxim = "input." + knobCoximId;
@@ -243,8 +284,6 @@ function buildDonutGraph(dados, operation, isReload) {
         $(knobBanda).val(Math.round(percentBandas));
         $(knobCoxim).val(Math.round(percentBandas));
         $(knobCola).val(Math.round(percentBandas));
-        
-        $("input.knob").trigger('change');
     } else {
         document.getElementById(knobBandaId).value=Math.round(percentBandas);
         document.getElementById(knobCoximId).value=Math.round(percentCoxim);

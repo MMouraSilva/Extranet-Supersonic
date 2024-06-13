@@ -36,6 +36,11 @@ var indicadorExpedicaoTipoProd;
 var kpiRecebimento;
 var kpiVendas;
 var kpiExpedicao;
+var indicadorNoShow;
+var indicadorArmazenagem;
+var indicadorCurvaABCQuadrimestre;
+var indicadorCurvaABCBimestre;
+var indicadorCurvaABCMes;
 
 io.on("connection", (socket) => {
     var socketId = socket.id;
@@ -53,16 +58,18 @@ io.on("connection", (socket) => {
             socket.emit("getVenda", { vendas });
         } else if (data.operation == "venda-finalizada") {
             socket.emit("getVendaFinalizada", { vendasFinalizadas });
-        } else if (data.operation == "indicador") {
-            socket.emit("getIndicador", {
-                indicadorRecebimento, indicadorSeparacao, indicadorExpedicao,
-                indicadorRecebimentoTipoProd, indicadorSeparacaoTipoProd, indicadorExpedicaoTipoProd
-            });
-        } else if (data.operation == "igest") {
-            socket.emit("getIgest", { kpiRecebimento, kpiVendas, kpiExpedicao });
-        } else if (data.operation == "expedicao-dia") {
+        } else if(data.operation == "indicador") {
+            socket.emit("getIndicador", { indicadorRecebimento, indicadorSeparacao, indicadorExpedicao,
+                indicadorRecebimentoTipoProd, indicadorSeparacaoTipoProd, indicadorExpedicaoTipoProd });
+        } else if(data.operation == "igest") {
+            socket.emit("getIgest", { kpiRecebimento, kpiVendas, kpiExpedicao, indicadorArmazenagem });
+        } else if(data.operation == "expedicao-dia") {
             var dateFilter = data.dateFilter;
             io.emit("requireDashboardData", { operation, dateFilter, socketId });
+        } else if(data.operation == "no-show") {
+            socket.emit("getNoShow", { indicadorNoShow });
+        } else if(data.operation == "curva-abc") {
+            socket.emit("getCurvaABC", { indicadorCurvaABCQuadrimestre, indicadorCurvaABCBimestre, indicadorCurvaABCMes });
         }
     });
 
@@ -83,13 +90,15 @@ io.on("connection", (socket) => {
             socket.emit("getReloadedVendas", { vendas });
         } else if (data.operation == "venda-finalizada") {
             socket.emit("getReloadedVendasFinalizada", { vendasFinalizadas });
-        } else if (data.operation == "indicador") {
-            socket.emit("getReloadedIndicador", {
-                indicadorRecebimento, indicadorSeparacao, indicadorExpedicao,
-                indicadorRecebimentoTipoProd, indicadorSeparacaoTipoProd, indicadorExpedicaoTipoProd
-            });
-        } else if (data.operation == "igest") {
-            socket.emit("getReloadedIgest", { kpiRecebimento, kpiVendas, kpiExpedicao });
+        } else if(data.operation == "indicador") {
+            socket.emit("getReloadedIndicador", { indicadorRecebimento, indicadorSeparacao, indicadorExpedicao,
+                indicadorRecebimentoTipoProd, indicadorSeparacaoTipoProd, indicadorExpedicaoTipoProd });
+        } else if(data.operation == "igest") {
+            socket.emit("getReloadedIgest", { kpiRecebimento, kpiVendas, kpiExpedicao, indicadorArmazenagem });
+        } else if(data.operation == "no-show") {
+            socket.emit("getNoShow", { indicadorNoShow });
+        } else if(data.operation == "curva-abc") {
+            socket.emit("getCurvaABC", { indicadorCurvaABCQuadrimestre, indicadorCurvaABCBimestre, indicadorCurvaABCMes });
         }
     });
 
@@ -124,6 +133,7 @@ io.on("connection", (socket) => {
         kpiRecebimento = data.kpiRecebimento;
         kpiVendas = data.kpiVendas;
         kpiExpedicao = data.kpiExpedicao;
+        indicadorArmazenagem = data.indicadorArmazenagem;
     });
 
     // Sockets Expedição Dia
@@ -131,11 +141,24 @@ io.on("connection", (socket) => {
         var tabelaExpedicao = data.tabelaExpedicao;
         var socketId = data.socketId;
         socket.to(socketId).emit("getExpedicaoDia", { tabelaExpedicao })
-    })
+    });
+
+    // Sockets No-Show
+    socket.on("getIndicadorNoShow", (data) => {
+        indicadorNoShow = data.indicadorNoShow;
+    });
+
+    // Sockets Curva-ABC
+    socket.on("getIndicadorCurvaABC", (data) => {
+        indicadorCurvaABCQuadrimestre = data.indicadorCurvaABCQuadrimestre;
+        indicadorCurvaABCBimestre = data.indicadorCurvaABCBimestre;
+        indicadorCurvaABCMes = data.indicadorCurvaABCMes;
+    });
+
+    io.emit("getData");
 });
 
-
-
+// Indicando para o Express utilizar o EJS como View Engine
 app.set('view engine', 'ejs');
 
 app.use(session({
@@ -177,6 +200,69 @@ app.get("/", userAccess.UserAuth, async (req, res) => {
 
 app.get("/recebimento", userAccess.UserAuth, (req, res) => {
     res.render("recebimento");
+});
+
+app.get("/vendas-finalizadas", async (req, res) => {
+    try {
+        res.render("vendas_finalizadas", { frontendUrl, backendUrl });
+    } catch (error) {
+        console.error("Erro na rota:", error);
+        res.status(500).send("Erro ao executar a rota");
+    }
+});
+
+app.get("/recebimento", async (req, res) => {
+    try {
+        res.render("recebimento", { frontendUrl, backendUrl });
+    } catch (error) {
+        console.error("Erro na rota:", error);
+        res.status(500).send("Erro ao executar a rota");
+    }
+});
+
+app.get("/indicadores", async (req, res) => {
+    try {
+        res.render("indicador", { frontendUrl, backendUrl });
+    } catch (error) {
+        console.error("Erro na rota:", error);
+        res.status(500).send("Erro ao executar a rota");
+    }
+});
+
+app.get("/indicadores/expedicao-cliente-dia", async (req, res) => {
+    try {
+        res.render("indicador_expedicao_dia", { frontendUrl, backendUrl });
+    } catch (error) {
+        console.error("Erro na rota:", error);
+        res.status(500).send("Erro ao executar a rota");
+    }
+});
+
+app.get("/indicadores/igest", async (req, res) => {
+    try {
+        res.render("igest", { frontendUrl, backendUrl });
+    } catch (error) {
+        console.error("Erro na rota:", error);
+        res.status(500).send("Erro ao executar a rota");
+    }
+});
+
+app.get("/indicadores/no-show", async (req, res) => {
+    try {
+        res.render("no_show", { frontendUrl, backendUrl });
+    } catch (error) {
+        console.error("Erro na rota:", error);
+        res.status(500).send("Erro ao executar a rota");
+    }
+});
+
+app.get("/indicadores/curva-abc", async (req, res) => {
+    try {
+        res.render("curva_abc", { frontendUrl, backendUrl });
+    } catch (error) {
+        console.error("Erro na rota:", error);
+        res.status(500).send("Erro ao executar a rota");
+    }
 });
 
 http.listen(80, () => {
