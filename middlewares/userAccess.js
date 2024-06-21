@@ -4,12 +4,14 @@ const UsersProfiles = require("../models/UsersProfiles");
 class Middleware {
     #firebase;
     #usersProfiles;
+    #client;
     #profilePermissions;
     #userPermissions;
 
     constructor() {
         this.#firebase = new Firebase();
         this.#usersProfiles = new UsersProfiles();
+        this.#client = require("../config/redisClient");
         this.#userPermissions = [];
     }
 
@@ -20,16 +22,37 @@ class Middleware {
             res.redirect("/login");
         }
     }
+
+    LoginPageAuth(req, res, next) {
+        if (req.session.user) res.redirect("/");
+        else next();
+    }
+
+    UserUpdate = async (req, res, next) => {
+        await this.#client.del(req.body.id);
+        await this.UserAuth(req, res, next);
+    }
+
+    Logout = async (req, res, next) => {
+        await this.#client.del(req.session.user.id);
+        next();
+    }
     
     async #UserPermission(req, res, next) {
         const routePath = this.#GetRoutePath(req);
+        const idUser = req.session.user.id;
 
-        await this.#SetUserPermissions(req.session.user.id);
+        const cachedPermissons = await JSON.parse(await this.#client.get(idUser));
+
+        if(cachedPermissons) this.userPermissions = cachedPermissons;
+        else await this.#SetUserPermissions(req);
+
+        // Implementar Cache e armazenar this.profilePermissions
+        // Executar a linha acima apenas se os valores não existirem no Cache
 
         if(this.userPermissions.includes(routePath) || routePath == "/") {
-            const userPermissions = await this.#usersProfiles.GetUserPermissionsByUserId(req.session.user.id);
-            let user = req.session.user;
-            user.permissions = userPermissions;
+            const userPermissions = req.session.user.permissions ? req.session.user.permissions : await this.#usersProfiles.GetUserPermissionsByUserId(idUser);
+            req.session.user.permissions = userPermissions;
             next();
         } else {
             res.redirect("/");
@@ -41,10 +64,13 @@ class Middleware {
         return "/" + reqRoutePath[1];
     }
 
-    async #SetUserPermissions(idUser) {
+    async #SetUserPermissions(req) {
+        const idUser = req.session.user.id;
         this.#SetCollectionFieldToGet("users_profiles", "idUser");
         const userProfiles = await this.#firebase.FirebaseGetDocByField(idUser);
         if(!this.userPermissions.length) await this.#GetUserPermissionsFromFirebase(userProfiles.docs);
+
+        await this.#client.setEx(idUser, 600, JSON.stringify(this.userPermissions));
     }
 
     async #GetUserPermissionsFromFirebase(userProfiles) {
@@ -63,14 +89,17 @@ class Middleware {
     }
 
     async #GetPagesUrl() {
+        let permissions = [];
         const mapPermissions = this.profilePermissions.docs.map(async doc => {
             this.#SetCollectionFieldToGet("pages");
             const page = await this.#firebase.FirebaseGetDocById(doc.data().idPage);
     
-            if(page.doc.urlPath) this.userPermissions = page.doc.urlPath;
+            if(page.doc.urlPath) permissions.push(page.doc.urlPath);
         });
 
         await Promise.all(mapPermissions);
+
+        this.userPermissions = permissions;
     }
 
     #SetCollectionFieldToGet(collection, field) {
@@ -89,7 +118,7 @@ class Middleware {
         return this.#userPermissions;
     };
     set userPermissions(newValue) {
-        this.#userPermissions.push(newValue);
+        this.#userPermissions = newValue;
     };
 }
 

@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const Middleware = require("../middlewares/userAccess");
-const loginPageAuth = require("../middlewares/loginPageAuth");
 const { UserInterfaceController } = require("../controllers/users");
 const { UserController } = require("../controllers/users");
 
@@ -17,15 +16,15 @@ router.post("/users/create", userAccess.UserAuth, userController.HandleCreateReq
 
 router.get("/users/edit/:id", userAccess.UserAuth, userInterfaceController.RenderUpdateForm);
 
-router.post("/users/edit", userAccess.UserAuth, userController.HandleUpdateRequest);
+router.post("/users/edit", userAccess.UserUpdate, userController.HandleUpdateRequest);
 
 router.post("/users/delete", userAccess.UserAuth, userController.HandleDeleteRequest);
 
-router.get("/login", loginPageAuth, userInterfaceController.RenderLoginPage);
+router.get("/login", userAccess.LoginPageAuth, userInterfaceController.RenderLoginPage);
 
 router.post("/authenticate", userController.HandleUserAuthentication);
 
-router.get("/logout", userController.HandleUserLogout);
+router.get("/logout", userAccess.Logout, userController.HandleUserLogout);
 
 
 module.exports = router;

@@ -115,11 +115,11 @@
                                             <td>
                                                 <%= 
                                                     freightRule.data().minWeight != 0 && freightRule.data().maxWeight != 999999999999999 ?
-                                                        freightRule.data().minWeight + "t até " + freightRule.data().maxWeight + "t"
+                                                        freightRule.data().minWeight + "kg até " + freightRule.data().maxWeight + "kg"
                                                     : freightRule.data().minWeight != 0 ?
-                                                        freightRule.data().minWeight + "t +"
+                                                        freightRule.data().minWeight + "kg +"
                                                     : freightRule.data().maxWeight != 0 ?
-                                                        "Até " + freightRule.data().maxWeight + "t"
+                                                        "Até " + freightRule.data().maxWeight + "kg"
                                                     : "Sem restrição"
                                                 %>
                                             </td>

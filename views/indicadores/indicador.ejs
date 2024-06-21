@@ -1,185 +1,203 @@
 <%- include('../partials/header.ejs') %>
 
-  <body class="hold-transition sidebar-mini layout-fixed">
-    <div class="containerPage d-flex justify-content-center">
-      <div class="navDiv">
-        <%- include('../partials/navbar.ejs') %>
-      </div>
-      <div class="wrapper">
-        <!-- solid sales graph -->
-        <!-- Custom tabs (Charts with tabs)-->
-        <div class="card graphCard">
-          <div class="card-header">
-            <h3 class="card-title font-weight-bold">
-              <i class="fas fa-chart-pie mr-1"></i>
-              Indicadores
-            </h3>
-
-            <div class="card-tools d-flex align-items-center justify-content-end">
-              <ul class="nav nav-pills ml-auto d-flex align-items-center justify-content-end">
-                <li class="nav-item">
-                  <a class="nav-link font-weight-bold bg-primary text-white btnIgest" href="/indicadores/expedicao-cliente-dia">
-                    EXPEDIÇÃO DIA
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link font-weight-bold bg-primary text-white btnIgest" href="/indicadores/igest">
-                    IGEST
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <!-- Date and time range -->
-                  <div class="form-group">
-                    <div class="input-group">
-                      <button type="button" class="btn btn-default float-right font-weight-bold bg-warning text-white" id="daterange-btn">
-                        <i class="far fa-calendar-alt"></i> Date range picker
-                        <i class="fas fa-caret-down"></i>
-                      </button>
-                    </div>
-                  </div>
-                  <!-- /.form group -->
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link font-weight-bold active" href="#recebimento-chart-tab" data-toggle="tab">
-                    Recebimento/Dia
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link font-weight-bold" href="#separacao-chart-tab" data-toggle="tab">
-                    Separação/Dia
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link font-weight-bold" href="#expedicao-chart-tab" data-toggle="tab">
-                    Expedição/Dia
-                  </a>
-                </li>
-              </ul>
+    <body class="hold-transition sidebar-mini layout-fixed">
+        <div class="containerPage d-flex justify-content-center">
+            <div class="navDiv">
+                <%- include('../partials/navbar.ejs') %>
             </div>
-          </div>
-          <!-- /.card-header -->
-          <div class="card-body graph">
-            <div class="tab-content p-0">
-              <div class="chart tab-pane active" id="recebimento-chart-tab">
-                <div class="card-body">
-                  <canvas class="chart" id="recebimento-chart"></canvas>
+            <div class="wrapper">
+                <!-- solid sales graph -->
+                <!-- Custom tabs (Charts with tabs)-->
+                <div class="card graphCard">
+                    <div class="card-header">
+                        <h3 class="card-title font-weight-bold">
+                            <i class="fas fa-chart-pie mr-1"></i>
+                            Indicadores
+                        </h3>
+
+                        <div class="card-tools d-flex align-items-center justify-content-end">
+                            <ul class="nav nav-pills ml-auto d-flex align-items-center justify-content-end">
+                                <li class="nav-item">
+                                    <a class="nav-link font-weight-bold bg-primary text-white btnIgest"
+                                        href="/indicadores/expedicao-cliente-dia">
+                                        EXPEDIÇÃO DIA
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link font-weight-bold bg-primary text-white btnIgest"
+                                        href="/indicadores/no-show">
+                                        NO-SHOW
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link font-weight-bold bg-primary text-white btnIgest"
+                                        href="/indicadores/igest">
+                                        IGEST
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link font-weight-bold bg-primary text-white btnIgest"
+                                        href="/indicadores/curva-abc">
+                                        CURVA ABC
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <!-- Date and time range -->
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <button type="button"
+                                                class="btn btn-default float-right font-weight-bold bg-warning text-white"
+                                                id="daterange-btn">
+                                                <i class="far fa-calendar-alt"></i> Date range picker
+                                                <i class="fas fa-caret-down"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <!-- /.form group -->
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link font-weight-bold active" href="#recebimento-chart-tab"
+                                        data-toggle="tab">
+                                        Recebimento/Dia
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link font-weight-bold" href="#separacao-chart-tab" data-toggle="tab">
+                                        Separação/Dia
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link font-weight-bold" href="#expedicao-chart-tab" data-toggle="tab">
+                                        Expedição/Dia
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- /.card-header -->
+                    <div class="card-body graph">
+                        <div class="tab-content p-0">
+                            <div class="chart tab-pane active" id="recebimento-chart-tab">
+                                <div class="card-body">
+                                    <canvas class="chart" id="recebimento-chart"></canvas>
+                                </div>
+                                <!-- /.card-body -->
+                                <div class="card-footer bg-transparent">
+                                    <div class="row">
+                                        <div class="col-4 text-center">
+                                            <input type="text" class="knob-recebimento knob" id="knobBandaRecebimento">
+
+                                            <div class="text-white">Banda</div>
+                                        </div>
+                                        <!-- ./col -->
+                                        <div class="col-4 text-center">
+                                            <input type="text" class="knob-recebimento knob" id="knobCoximRecebimento">
+
+                                            <div class="text-white">Coxim</div>
+                                        </div>
+                                        <!-- ./col -->
+                                        <div class="col-4 text-center">
+                                            <input type="text" class="knob-recebimento knob" id="knobColaRecebimento">
+
+                                            <div class="text-white">Cola</div>
+                                        </div>
+                                        <!-- ./col -->
+                                    </div>
+                                    <!-- /.row -->
+                                </div>
+                                <!-- /.card-footer -->
+                            </div>
+
+                            <div class="chart tab-pane active" id="separacao-chart-tab">
+                                <div class="card-body">
+                                    <canvas class="chart" id="separacao-chart"></canvas>
+                                </div>
+                                <!-- /.card-body -->
+                                <div class="card-footer bg-transparent">
+                                    <div class="row">
+                                        <div class="col-4 text-center">
+                                            <input type="text" class="knob-separacao knob" id="knobBandaSeparacao">
+
+                                            <div class="text-white">Banda</div>
+                                        </div>
+                                        <!-- ./col -->
+                                        <div class="col-4 text-center knobDiv">
+                                            <input type="text" class="knob-separacao knob" id="knobCoximSeparacao">
+
+                                            <div class="text-white">Coxim</div>
+                                        </div>
+                                        <!-- ./col -->
+                                        <div class="col-4 text-center">
+                                            <input type="text" class="knob-separacao knob" id="knobColaSeparacao">
+
+                                            <div class="text-white">Cola</div>
+                                        </div>
+                                        <!-- ./col -->
+                                    </div>
+                                    <!-- /.row -->
+                                </div>
+                                <!-- /.card-footer -->
+                            </div>
+
+                            <div class="chart tab-pane active" id="expedicao-chart-tab">
+                                <div class="card-body">
+                                    <canvas class="chart" id="expedicao-chart"></canvas>
+                                </div>
+                                <!-- /.card-body -->
+                                <div class="card-footer bg-transparent">
+                                    <div class="row">
+                                        <div class="col-4 text-center">
+                                            <input type="text" class="knob-expedicao knob" id="knobBandaExpedicao">
+
+                                            <div class="text-white">Banda</div>
+                                        </div>
+                                        <!-- ./col -->
+                                        <div class="col-4 text-center">
+                                            <input type="text" class="knob-expedicao knob" id="knobCoximExpedicao">
+
+                                            <div class="text-white">Coxim</div>
+                                        </div>
+                                        <!-- ./col -->
+                                        <div class="col-4 text-center">
+                                            <input type="text" class="knob-expedicao knob" id="knobColaExpedicao">
+
+                                            <div class="text-white">Cola</div>
+                                        </div>
+                                        <!-- ./col -->
+                                    </div>
+                                    <!-- /.row -->
+                                </div>
+                                <!-- /.card-footer -->
+                            </div>
+                        </div>
+                    </div><!-- /.card-body -->
                 </div>
-                <!-- /.card-body -->
-                <div class="card-footer bg-transparent">
-                  <div class="row">
-                    <div class="col-4 text-center">
-                      <input type="text" class="knob-recebimento knob" id="knobBandaRecebimento" data-readonly="true" data-width="100" data-height="100" data-fgColor="#0341b6" data-angleOffset=-125 data-angleArc=250>
-
-                      <div class="text-white">Banda</div>
-                    </div>
-                    <!-- ./col -->
-                    <div class="col-4 text-center">
-                      <input type="text" class="knob-recebimento knob" id="knobCoximRecebimento" data-readonly="true" data-width="100" data-height="100" data-fgColor="#0341b6" data-angleOffset=-125 data-angleArc=250>
-
-                      <div class="text-white">Coxim</div>
-                    </div>
-                    <!-- ./col -->
-                    <div class="col-4 text-center">
-                      <input type="text" class="knob-recebimento knob" id="knobColaRecebimento" data-readonly="true" data-width="100" data-height="100" data-fgColor="#0341b6" data-angleOffset=-125 data-angleArc=250>
-
-                      <div class="text-white">Cola</div>
-                    </div>
-                    <!-- ./col -->
-                  </div>
-                  <!-- /.row -->
-                </div>
-                <!-- /.card-footer -->
-              </div>
-
-              <div class="chart tab-pane active" id="separacao-chart-tab">
-                <div class="card-body">
-                  <canvas class="chart" id="separacao-chart"></canvas>
-                </div>
-                <!-- /.card-body -->
-                <div class="card-footer bg-transparent">
-                  <div class="row">
-                    <div class="col-4 text-center">
-                      <input type="text" class="knob-separacao knob" id="knobBandaSeparacao" data-readonly="true" data-width="100" data-height="100" data-fgColor="#0341b6" data-angleOffset=-125 data-angleArc=250>
-
-                      <div class="text-white">Banda</div>
-                    </div>
-                    <!-- ./col -->
-                    <div class="col-4 text-center knobDiv">
-                      <input type="text" class="knob-separacao knob" id="knobCoximSeparacao" data-readonly="true" data-width="100" data-height="100" data-fgColor="#0341b6" data-angleOffset=-125 data-angleArc=250>
-
-                      <div class="text-white">Coxim</div>
-                    </div>
-                    <!-- ./col -->
-                    <div class="col-4 text-center">
-                      <input type="text" class="knob-separacao knob" id="knobColaSeparacao" data-readonly="true" data-width="100" data-height="100" data-fgColor="#0341b6" data-angleOffset=-125 data-angleArc=250>
-
-                      <div class="text-white">Cola</div>
-                    </div>
-                    <!-- ./col -->
-                  </div>
-                  <!-- /.row -->
-                </div>
-                <!-- /.card-footer -->
-              </div>
-
-              <div class="chart tab-pane active" id="expedicao-chart-tab">
-                <div class="card-body">
-                  <canvas class="chart" id="expedicao-chart"></canvas>
-                </div>
-                <!-- /.card-body -->
-                <div class="card-footer bg-transparent">
-                  <div class="row">
-                    <div class="col-4 text-center">
-                      <input type="text" class="knob-expedicao knob" id="knobBandaExpedicao" data-readonly="true" data-width="100" data-height="100" data-fgColor="#0341b6" data-angleOffset=-125 data-angleArc=250>
-
-                      <div class="text-white">Banda</div>
-                    </div>
-                    <!-- ./col -->
-                    <div class="col-4 text-center">
-                      <input type="text" class="knob-expedicao knob" id="knobCoximExpedicao" data-readonly="true" data-width="100" data-height="100" data-fgColor="#0341b6" data-angleOffset=-125 data-angleArc=250>
-
-                      <div class="text-white">Coxim</div>
-                    </div>
-                    <!-- ./col -->
-                    <div class="col-4 text-center">
-                      <input type="text" class="knob-expedicao knob" id="knobColaExpedicao" data-readonly="true" data-width="100" data-height="100" data-fgColor="#0341b6" data-angleOffset=-125 data-angleArc=250>
-
-                      <div class="text-white">Cola</div>
-                    </div>
-                    <!-- ./col -->
-                  </div>
-                  <!-- /.row -->
-                </div>
-                <!-- /.card-footer -->
-              </div>
+                <!-- /.card -->
             </div>
-          </div><!-- /.card-body -->
+            <!-- ./wrapper -->
         </div>
-        <!-- /.card -->
-      </div>
-      <!-- ./wrapper -->
-    </div>
-  </body>
-  <%- include('../partials/footer.ejs') %>
-    <script>
-      frontendUrl = "<%= frontendUrl %>";
-      backendUrl = "<%= backendUrl %>";
-    </script>
-    <!-- ChartJS -->
-    <script src="/plugins/chart.js/Chart.min.js"></script>
-    <!-- jQuery Knob Chart -->
-    <script src="/plugins/jquery-knob/jquery.knob.min.js"></script>
-    <!-- InputMask -->
-    <script src="/plugins/moment/moment.min.js"></script>
-    <!-- date-range-picker -->
-    <script src="/plugins/daterangepicker/daterangepicker.js"></script>
-    <script src="/js/indicadores.js"></script>
-    <script>
-      window.onload = function () {
-        var title = document.getElementById("title");
-        title.innerHTML = "DASHBOARD";
+    </body>
+    <%- include('../partials/footer.ejs') %>
+        <script>
+            frontendUrl = "<%= frontendUrl %>";
+            backendUrl = "<%= backendUrl %>";
+        </script>
+        <!-- ChartJS -->
+        <script src="/plugins/chart.js/Chart.min.js"></script>
+        <!-- jQuery Knob Chart -->
+        <script src="/plugins/jquery-knob/jquery.knob.min.js"></script>
+        <!-- InputMask -->
+        <script src="/plugins/moment/moment.min.js"></script>
+        <!-- date-range-picker -->
+        <script src="/plugins/daterangepicker/daterangepicker.js"></script>
+        <script src="/js/indicadores.js"></script>
+        <script>
+            window.onload = function () {
+                var title = document.getElementById("title");
+                title.innerHTML = "DASHBOARD";
 
-        socket.emit("requireDashboardData", { operation: "indicador" });
-      };
-    </script>
-</html>
+                socket.emit("requireDashboardData", { operation: "indicador" });
+            };
+        </script>
+
+        </html>

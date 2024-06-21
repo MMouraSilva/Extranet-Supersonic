@@ -114,12 +114,12 @@ body {
     z-index: -1;
 }
 
-.card-header {
+/* .card-header {
     padding: 0.75rem 1.25rem;
     margin-bottom: 0;
     background-color: rgba(0, 0, 0, .03);
     border-bottom: 1px solid rgba(0, 0, 0, .125);
-}
+} */
 
 .card-header h2 {
     font-size: 2rem;
@@ -127,15 +127,6 @@ body {
 
 .knob {
     color: #fff !important;
-}
-
-.form-group {
-    margin-bottom: 0px;
-    margin-right: 15px;
-}
-
-.label-float.form-group {
-    margin-right: 0px;
 }
 
 @media (max-width: 1070px) {
@@ -172,6 +163,12 @@ body {
     background-image: url("../img/login-page3.jpg");
     background-repeat: no-repeat;
     background-size: cover;
+    background-position: center;
+    background-attachment: fixed;       
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    height:100%;
+    width:100%;
 }
 
 
@@ -246,4 +243,99 @@ body {
 
 .wrapper.user {
     width: 100%;
+}
+
+.header-title {
+    padding: 0.4rem 1.25rem;
+    margin-bottom: -1rem;
+    border-bottom: 1px solid rgba(29, 118, 227, 0.39);
+    width: 98%;
+    font-weight: bold;
+    font-size: 2rem;
+}
+
+.card-header.quotation-card-header {
+    border: none;
+}
+
+.form-group.login-group {
+    margin-bottom: 0rem;
+}
+
+.form-group > label {
+    color: rgb(48, 63, 77);
+}
+
+.quotation-form-control {
+    padding: 1rem;
+    border: 1px solid rgb(213, 214, 219);
+    border-radius: 4px;
+    color: rgb(73, 80, 87);
+    font-size: 1rem;
+    margin: 0;
+    height: 3.5rem;
+}
+
+.select2-container .select2-selection--single {
+    padding: 1rem;
+    border: 1px solid rgb(213, 214, 219);
+    height: 3.5rem;
+}
+.select2-selection__arrow {
+    margin-top: 1rem;
+}
+
+.input-group-text {
+    background-color: #fff;
+    font-weight: bold;
+}
+
+.input-group-text.is-invalid {
+    border-color: #dc3545;
+}
+
+.form-control-input {
+    border-right: none;
+}
+
+.select2.is-invalid .select2-selection {
+    border-color: #dc3545;
+}
+
+@media (max-width: 992px) {
+    .img-div{
+        display: none;
+    }
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.image-quotation {
+    width: 100%;
+}
+
+.required:after {
+    content: "";
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgb(241, 99, 52);
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+.btn-quotation {
+    background-color: #fcd526;
+    color: #fff;
+    font-weight: bold;
+}
+
+.btn-quotation:hover {
+    background-color: #212529;
+    color: #fff;
 }

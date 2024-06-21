@@ -307,7 +307,7 @@
 
                                         <div class="d-flex mb-3">
                                             <div class="form-group col-6">
-												<label id="min-weight-label" for="min-weight">Peso Mínimo (t)</label>
+												<label id="min-weight-label" for="min-weight">Peso Mínimo (kg)</label>
 												<div class="input-group">
 													<input type="number" class="form-control"
 														id="min-weight" name="minWeight" placeholder="e.g.: 20" min="0"
@@ -321,16 +321,16 @@
                                                         %>
                                                         >
 													<div class="input-group-append">
-														<span class="input-group-text">ton</span>
+														<span class="input-group-text">kg</span>
 													</div>
 												</div>
 											</div>
 
                                             <div class="form-group col-6">
-												<label id="max-weight-label" for="max-weight">Peso Máximo (t)</label>
+												<label id="max-weight-label" for="max-weight">Peso Máximo (kg)</label>
 												<div class="input-group">
 													<input type="number" class="form-control"
-														id="max-weight" name="maxWeight" placeholder="e.g.: 30" min="0"
+														id="max-weight" name="maxWeight" placeholder="e.g.: 3000" min="0"
 														oninput="validity.valid||(value='');" tabindex="15"
                                                         <%=
                                                             operation == "edit" ?
@@ -341,7 +341,7 @@
                                                         %>
                                                         >
 													<div class="input-group-append">
-														<span class="input-group-text">ton</span>
+														<span class="input-group-text">kg</span>
 													</div>
 												</div>
 											</div>

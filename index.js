@@ -1,5 +1,8 @@
+const compression = require("compression");
 const express = require("express");
 require('dotenv').config();
+const backendUrl = process.env.APP_TIMER_HOST;
+const frontendUrl = process.env.APP_HOST;
 const app = express();
 const bodyParser = require("body-parser");
 const http = require("http").createServer(app);
@@ -23,6 +26,7 @@ const usersRoutes = require("./routes/users");
 const pagesController = require("./controllers/pages");
 const profilesController = require("./controllers/profiles");
 const freightRulesRoutes = require("./routes/freightRules");
+const quotationRoutes = require("./routes/quotation");
 
 var recebimentos;
 var vendas;
@@ -158,8 +162,8 @@ io.on("connection", (socket) => {
     io.emit("getData");
 });
 
-// Indicando para o Express utilizar o EJS como View Engine
-app.set('view engine', 'ejs');
+app.use(compression());
+app.use(express.static('public'));
 
 app.use(session({
     secret: "2i3fmcjkds oiniofds$¨#³²45",
@@ -171,100 +175,32 @@ app.use(session({
     saveUninitialized: true
 }));
 
-app.use(express.static('public'));
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 app.use((req, res, next) => {
     res.locals.moment = moment;
     next();
 });
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-
+app.set('view engine', 'ejs');
 
 app.use("/", indicadoresController);
-
 app.use("/", usersRoutes);
-
 app.use("/", vendasController);
-
 app.use("/", pagesController);
-
 app.use("/", profilesController);
-
 app.use("/", freightRulesRoutes);
+app.use("/", quotationRoutes);
+
+app.get("/recebimento", userAccess.UserAuth, async (req, res) => {
+    res.render("recebimento", { frontendUrl, backendUrl });
+});
 
 app.get("/", userAccess.UserAuth, async (req, res) => {
     res.render("index", { user: req.session.user });
 });
-
-app.get("/recebimento", userAccess.UserAuth, (req, res) => {
-    res.render("recebimento");
-});
-
-app.get("/vendas-finalizadas", async (req, res) => {
-    try {
-        res.render("vendas_finalizadas", { frontendUrl, backendUrl });
-    } catch (error) {
-        console.error("Erro na rota:", error);
-        res.status(500).send("Erro ao executar a rota");
-    }
-});
-
-app.get("/recebimento", async (req, res) => {
-    try {
-        res.render("recebimento", { frontendUrl, backendUrl });
-    } catch (error) {
-        console.error("Erro na rota:", error);
-        res.status(500).send("Erro ao executar a rota");
-    }
-});
-
-app.get("/indicadores", async (req, res) => {
-    try {
-        res.render("indicador", { frontendUrl, backendUrl });
-    } catch (error) {
-        console.error("Erro na rota:", error);
-        res.status(500).send("Erro ao executar a rota");
-    }
-});
-
-app.get("/indicadores/expedicao-cliente-dia", async (req, res) => {
-    try {
-        res.render("indicador_expedicao_dia", { frontendUrl, backendUrl });
-    } catch (error) {
-        console.error("Erro na rota:", error);
-        res.status(500).send("Erro ao executar a rota");
-    }
-});
-
-app.get("/indicadores/igest", async (req, res) => {
-    try {
-        res.render("igest", { frontendUrl, backendUrl });
-    } catch (error) {
-        console.error("Erro na rota:", error);
-        res.status(500).send("Erro ao executar a rota");
-    }
-});
-
-app.get("/indicadores/no-show", async (req, res) => {
-    try {
-        res.render("no_show", { frontendUrl, backendUrl });
-    } catch (error) {
-        console.error("Erro na rota:", error);
-        res.status(500).send("Erro ao executar a rota");
-    }
-});
-
-app.get("/indicadores/curva-abc", async (req, res) => {
-    try {
-        res.render("curva_abc", { frontendUrl, backendUrl });
-    } catch (error) {
-        console.error("Erro na rota:", error);
-        res.status(500).send("Erro ao executar a rota");
-    }
-});
-
+        
 http.listen(80, () => {
     console.log("App rodando!");
 });

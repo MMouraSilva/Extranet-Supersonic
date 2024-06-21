@@ -1,10 +1,5 @@
-const express = require("express");
-const router = express.Router();
-require('dotenv').config();;
-const userAccess = require("../middlewares/userAccess");
+require('dotenv').config();
 const User = require("../models/User");
-const Profile = require("../models/Profile");
-const Page = require("../models/Page");
 const ErrorHandler = require("../models/ErrorHandler");
 
 class UserInterfaceController {
@@ -43,7 +38,7 @@ class UserInterfaceController {
         this.#CheckForErrorsOnSession(req);
         
         if(id) {
-            const { userToEdit, userProfiles, arrProfiles } = this.#GetDataToRenderUpdateForm();
+            const { userToEdit, userProfiles, arrProfiles } = await this.#GetDataToRenderUpdateForm(id);
             res.render("users/form", { operation: "edit", user: req.session.user, updateStatus: this.updateStatus, profiles: arrProfiles, userToEdit, userProfiles });
         } else res.redirect("/users");
     }
@@ -54,7 +49,7 @@ class UserInterfaceController {
         res.render("users/login", { loginStatus: this.loginStatus });
     }
 
-    async #GetDataToRenderUpdateForm() {
+    async #GetDataToRenderUpdateForm(id) {
         const { userToEdit, userProfiles } = await this.#GetUserToEditData(id);
         const arrProfiles = this.#GetProfilesFromFirebaseObject(await this.user.profile.GetProfiles());
 
