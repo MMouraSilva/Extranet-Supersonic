@@ -63,6 +63,10 @@ body {
     height: 750px;
 }
 
+.tab-content.medicao {
+    height: auto;
+}
+
 .tab-pane {
     position: relative;
     height: 100%;
@@ -95,6 +99,10 @@ body {
     position: relative;
     top: 0px;
     z-index: -1;
+}
+
+tfoot {
+    font-weight: bold;
 }
 
 .card-header {
@@ -131,10 +139,20 @@ body {
     margin-right: 15px;
 }
 
-.card-body > .btn {
+.btn-yellow {
     background-color: #fcd526;
 }
 
 .btn:hover {
     background-color: #212529;
+}
+
+@media print {
+    .noPrint {
+        display:none;
+    }
+
+    thead > tr > th {
+        color: #000000;
+    }
 }

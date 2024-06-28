@@ -1,0 +1,113 @@
+<%- include('partials/header.ejs') %>
+
+    <body class="hold-transition sidebar-mini layout-fixed">
+        <div class="containerPage d-flex justify-content-center">
+            <div class="navDiv">
+                <%- include('partials/navbar.ejs') %>
+            </div>
+            <div class="wrapper">
+                <!-- solid sales graph -->
+                <!-- Custom tabs (Charts with tabs)-->
+                <div class="card graphCard">
+                    <div class="card-header noPrint">
+                        <h3 class="card-title font-weight-bold">
+                        </h3>
+
+                        <div class="card-tools d-flex align-items-center justify-content-end">
+                            <ul class="nav nav-pills ml-auto d-flex align-items-center justify-content-end">
+                                <li class="nav-item">
+                                    <!-- Date and time range -->
+                                    <div class="form-group">
+                                        <div class="input-group date" id="monthYear" data-target-input="nearest">
+                                            <input type="text" class="form-control datetimepicker-input"
+                                                data-target="#monthYear" />
+                                            <div class="input-group-append" data-target="#monthYear"
+                                                data-toggle="datetimepicker">
+                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- /.form group -->
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link font-weight-bold bg-primary text-white ml-2" href="javascript: window.print();">
+                                        Imprimir
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link font-weight-bold bg-danger text-white ml-2" href="/indicadores">
+                                        Voltar
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                        <div class="tab-content medicao p-0">
+                            <table class="table table-hover text-center" id="table">
+                                <thead class="bg-purple bg-color-print">
+                                    <tr>
+                                        <th scope="col" colspan="7" id="tableTitle">Medição operação logística Bandas - Bridgestone  Campinas SP - </th>
+                                    </tr>
+                                    <tr>
+                                        <th scope="col" rowspan="3">DIA</th>
+                                        <th scope="col" colspan="2" class="border-right border-left">Valor unit. R$ 2,46</th>
+                                        <th scope="col" colspan="2" class="border-right border-left">Valor unit. R$ 0,12</th>
+                                        <th scope="col" colspan="2" class="border-left">Valor unit. R$ 2,952</th>
+                                    </tr>
+                                    <tr>
+                                        
+                                        <th scope="col" colspan="2" class="border-right border-left">RECEBIMENTO</th>
+                                        <th scope="col" colspan="2" class="border-right border-left">ARMAZENAMENTO</th>
+                                        <th scope="col" colspan="2" class="border-left">EXPEDIÇÃO</th>
+                                    </tr>
+                                    <tr>
+                                        <th scope="col" class="border-left">QUANT.</th>
+                                        <th scope="col" class="border-right">VALOR</th>
+                                        <th scope="col" class="border-left">QUANT.</th>
+                                        <th scope="col" class="border-right">VALOR</th>
+                                        <th scope="col" class="border-left">QUANT.</th>
+                                        <th scope="col">VALOR</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableBody">
+
+                                </tbody>
+                                <tfoot id="tableFoot">
+
+                                </tfoot>
+                            </table>
+                        </div>
+                        <h2 class="font-weight-bold p-2 bg-purple" id="totalWithoutTax">TOTAL SEM IMPOSTOS: </h2>
+                        <h2 class="font-weight-bold p-2 bg-purple" id="taxValue">IMPOSTOS ISS - 5% : </h2>
+                        <h2 class="font-weight-bold p-2 bg-purple" id="totalWithTax">TOTAL COM IMPOSTOS: </h2>
+                    </div>
+                    <!-- /.card-body -->
+                </div>
+                <!-- /.card -->
+            </div>
+            <!-- ./wrapper -->
+        </div>
+    </body>
+    <%- include('partials/footer.ejs') %>
+        <script>
+            frontendUrl = "<%= frontendUrl %>";
+            backendUrl = "<%= backendUrl %>";
+        </script>
+        <!-- InputMask -->
+        <script src="/plugins/moment/moment.min.js"></script>
+        <script src="/plugins/moment/locales.min.js"></script>
+        <!-- Tempusdominus Bootstrap 4 -->
+        <script src="/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+        <script src="/js/medicao.js"></script>
+        <script>
+            window.onload = function () {
+                var title = document.getElementById("title");
+                title.innerHTML = "MEDIÇÃO";
+
+                socket.emit("requireDashboardData", { operation: "medicao" });
+            };
+        </script>
+
+        </html>

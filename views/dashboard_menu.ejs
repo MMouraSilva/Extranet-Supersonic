@@ -1,0 +1,65 @@
+<%- include('partials/header.ejs') %>
+<body class="hold-transition sidebar-mini layout-fixed">
+<%- include('partials/navbar.ejs') %>
+    <div class="container">
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12">
+                        <br>
+                        <div class="card">
+                            <div class="card-header">
+                                <h2 class="card-title font-weight-bold">Indicadores</h2>
+                            </div>
+                            <div class="card-body">
+                                <button type="button" class="btn btn-lg btn-block text-white font-weight-bold btn-primary"
+                                    onclick="goMovimentacao()">MOVIMENTAÇÃO</button>
+                                <hr>
+                                <button type="button" class="btn btn-lg btn-block text-white font-weight-bold btn-primary"
+                                    onclick="goIgest()">IGEST</button>
+                                <hr>
+                                <button type="button" class="btn btn-lg btn-block text-white font-weight-bold btn-primary"
+                                    onclick="goExpedicao()">EXPEDIÇÃO DIA</button>
+                                <hr>
+                                <button type="button" class="btn btn-lg btn-block text-white font-weight-bold btn-primary"
+                                    onclick="goNoShow()">NO-SHOW</button>
+                                <hr>
+                                <button type="button" class="btn btn-lg btn-block text-white font-weight-bold btn-primary"
+                                    onclick="goCurvaAbc()">CURVA ABC</button>
+                                <hr>
+                                <button type="button" class="btn btn-lg btn-block text-white font-weight-bold btn-primary"
+                                    onclick="goMedicao()">MEDIÇÃO OPERAÇÃO</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+<%- include('partials/footer.ejs') %>
+<script>
+    function goMovimentacao() {
+        window.location = "/indicadores/movimentacao";
+    }
+    
+    function goIgest() {
+        window.location = "/indicadores/igest";
+    }
+
+    function goExpedicao() {
+        window.location = "/indicadores/expedicao-cliente-dia";
+    }
+
+    function goNoShow() {
+        window.location = "/indicadores/no-show";
+    }
+
+    function goCurvaAbc() {
+        window.location = "/indicadores/curva-abc";
+    }
+
+    function goMedicao() {
+        window.location = "/indicadores/medicao";
+    }
+</script>

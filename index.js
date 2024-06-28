@@ -31,6 +31,7 @@ var indicadorArmazenagem;
 var indicadorCurvaABCQuadrimestre;
 var indicadorCurvaABCBimestre;
 var indicadorCurvaABCMes;
+var medicaoArmazenagem;
 
 io.on("connection", (socket) => {
     var socketId = socket.id;
@@ -60,6 +61,8 @@ io.on("connection", (socket) => {
             socket.emit("getNoShow", { indicadorNoShow });
         } else if(data.operation == "curva-abc") {
             socket.emit("getCurvaABC", { indicadorCurvaABCQuadrimestre, indicadorCurvaABCBimestre, indicadorCurvaABCMes });
+        } else if(data.operation == "medicao") {
+            socket.emit("getMedicao", { indicadorRecebimento, indicadorExpedicao, medicaoArmazenagem });
         }
     });
 
@@ -89,6 +92,8 @@ io.on("connection", (socket) => {
             socket.emit("getNoShow", { indicadorNoShow });
         } else if(data.operation == "curva-abc") {
             socket.emit("getCurvaABC", { indicadorCurvaABCQuadrimestre, indicadorCurvaABCBimestre, indicadorCurvaABCMes });
+        } else if(data.operation == "medicao") {
+            socket.emit("getMedicao", { indicadorRecebimento, indicadorExpedicao, medicaoArmazenagem });
         }
     });
     
@@ -145,6 +150,11 @@ io.on("connection", (socket) => {
         indicadorCurvaABCMes = data.indicadorCurvaABCMes;
     });
 
+    // Sockets Curva-ABC
+    socket.on("getMedicaoArmazenagem", (data) => {
+        medicaoArmazenagem = data.medicaoArmazenagem;
+    });
+
     io.emit("getData");
 });
 
@@ -196,6 +206,15 @@ app.get("/recebimento", async (req, res) => {
 
 app.get("/indicadores", async (req, res) => {
     try {
+        res.render("dashboard_menu", { frontendUrl, backendUrl });
+    } catch (error) {
+        console.error("Erro na rota:", error);
+        res.status(500).send("Erro ao executar a rota");
+    }
+});
+
+app.get("/indicadores/movimentacao", async (req, res) => {
+    try {
         res.render("indicador", { frontendUrl, backendUrl });
     } catch (error) {
         console.error("Erro na rota:", error);
@@ -233,6 +252,15 @@ app.get("/indicadores/no-show", async (req, res) => {
 app.get("/indicadores/curva-abc", async (req, res) => {
     try {
         res.render("curva_abc", { frontendUrl, backendUrl });
+    } catch (error) {
+        console.error("Erro na rota:", error);
+        res.status(500).send("Erro ao executar a rota");
+    }
+});
+
+app.get("/indicadores/medicao", async (req, res) => {
+    try {
+        res.render("medicao", { frontendUrl, backendUrl });
     } catch (error) {
         console.error("Erro na rota:", error);
         res.status(500).send("Erro ao executar a rota");
