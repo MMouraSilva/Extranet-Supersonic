@@ -1,0 +1,77 @@
+<%- include('partials/header.ejs') %>
+
+    <body class="hold-transition sidebar-mini layout-fixed">
+        <div class="containerPage d-flex justify-content-center">
+            <div class="navDiv">
+                <%- include('partials/navbar.ejs') %>
+            </div>
+            <div class="wrapper">
+
+                <div class="card graphCard">
+                    <div class="card-header">
+                        <h3 class="card-title font-weight-bold">
+                            <i class="fas fa-chart-pie mr-1"></i>
+                            Curva ABC
+                        </h3>
+      
+                        <div class="card-tools d-flex align-items-center justify-content-end">
+                            <ul class="nav nav-pills ml-auto d-flex align-items-center justify-content-end">
+                                <li class="nav-item">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <button type="button"
+                                                class="btn btn-default float-right font-weight-bold bg-warning text-white"
+                                                id="daterange-btn">
+                                                <i class="far fa-calendar-alt"></i> Date range picker
+                                                <i class="fas fa-caret-down"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link font-weight-bold bg-danger text-white"
+                                        href="/indicadores">
+                                        Voltar
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+
+                    <div class="card-body">
+                      <div class="chart">
+                        <canvas class="chart" id="curva-abc-chart"></canvas>
+                      </div>
+                    </div>
+
+                    <!-- /.card-body -->
+                  </div>
+                  <!-- /.card -->
+            </div>
+        </div>
+    </body>
+    <%- include('partials/footer.ejs') %>
+        <script>
+            frontendUrl = "<%= frontendUrl %>";
+            backendUrl = "<%= backendUrl %>";
+        </script>
+        <!-- ChartJS -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.0/dist/chart.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+        <!-- InputMask -->
+        <script src="/plugins/moment/moment.min.js"></script>
+        <!-- date-range-picker -->
+        <script src="/plugins/daterangepicker/daterangepicker.js"></script>
+        <script src="/js/curva_abc.js"></script>
+        <script>
+            window.onload = function () {
+                var title = document.getElementById("title");
+                title.innerHTML = "CURVA ABC";
+
+                socket.emit("requireDashboardData", { operation: "curva-abc" });
+            };
+        </script>
+
+        </html>
