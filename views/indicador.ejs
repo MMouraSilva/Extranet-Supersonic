@@ -32,22 +32,6 @@
                                     <!-- /.form group -->
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link font-weight-bold active" href="#recebimento-chart-tab"
-                                        data-toggle="tab">
-                                        Recebimento/Dia
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link font-weight-bold" href="#separacao-chart-tab" data-toggle="tab">
-                                        Separação/Dia
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link font-weight-bold" href="#expedicao-chart-tab" data-toggle="tab">
-                                        Expedição/Dia
-                                    </a>
-                                </li>
-                                <li class="nav-item">
                                     <a class="nav-link font-weight-bold bg-danger text-white ml-2"
                                         href="/indicadores">
                                         Voltar
@@ -59,7 +43,7 @@
                     <!-- /.card-header -->
                     <div class="card-body graph">
                         <div class="tab-content p-0">
-                            <div class="chart tab-pane active" id="recebimento-chart-tab">
+                            <div class="chart active" id="recebimento-chart-tab">
                                 <div class="card-body">
                                     <canvas class="chart" id="recebimento-chart"></canvas>
                                 </div>
@@ -67,81 +51,19 @@
                                 <div class="card-footer bg-transparent">
                                     <div class="row">
                                         <div class="col-4 text-center">
-                                            <input type="text" class="knob-recebimento knob" id="knobBandaRecebimento">
+                                            <input type="text" class="knob-recebimento knob" id="knobBandaRecebimento" readonly>
 
                                             <div class="text-white">Banda</div>
                                         </div>
                                         <!-- ./col -->
                                         <div class="col-4 text-center">
-                                            <input type="text" class="knob-recebimento knob" id="knobCoximRecebimento">
+                                            <input type="text" class="knob-recebimento knob" id="knobCoximRecebimento" readonly>
 
                                             <div class="text-white">Coxim</div>
                                         </div>
                                         <!-- ./col -->
                                         <div class="col-4 text-center">
-                                            <input type="text" class="knob-recebimento knob" id="knobColaRecebimento">
-
-                                            <div class="text-white">Cola</div>
-                                        </div>
-                                        <!-- ./col -->
-                                    </div>
-                                    <!-- /.row -->
-                                </div>
-                                <!-- /.card-footer -->
-                            </div>
-
-                            <div class="chart tab-pane active" id="separacao-chart-tab">
-                                <div class="card-body">
-                                    <canvas class="chart" id="separacao-chart"></canvas>
-                                </div>
-                                <!-- /.card-body -->
-                                <div class="card-footer bg-transparent">
-                                    <div class="row">
-                                        <div class="col-4 text-center">
-                                            <input type="text" class="knob-separacao knob" id="knobBandaSeparacao">
-
-                                            <div class="text-white">Banda</div>
-                                        </div>
-                                        <!-- ./col -->
-                                        <div class="col-4 text-center knobDiv">
-                                            <input type="text" class="knob-separacao knob" id="knobCoximSeparacao">
-
-                                            <div class="text-white">Coxim</div>
-                                        </div>
-                                        <!-- ./col -->
-                                        <div class="col-4 text-center">
-                                            <input type="text" class="knob-separacao knob" id="knobColaSeparacao">
-
-                                            <div class="text-white">Cola</div>
-                                        </div>
-                                        <!-- ./col -->
-                                    </div>
-                                    <!-- /.row -->
-                                </div>
-                                <!-- /.card-footer -->
-                            </div>
-
-                            <div class="chart tab-pane active" id="expedicao-chart-tab">
-                                <div class="card-body">
-                                    <canvas class="chart" id="expedicao-chart"></canvas>
-                                </div>
-                                <!-- /.card-body -->
-                                <div class="card-footer bg-transparent">
-                                    <div class="row">
-                                        <div class="col-4 text-center">
-                                            <input type="text" class="knob-expedicao knob" id="knobBandaExpedicao">
-
-                                            <div class="text-white">Banda</div>
-                                        </div>
-                                        <!-- ./col -->
-                                        <div class="col-4 text-center">
-                                            <input type="text" class="knob-expedicao knob" id="knobCoximExpedicao">
-
-                                            <div class="text-white">Coxim</div>
-                                        </div>
-                                        <!-- ./col -->
-                                        <div class="col-4 text-center">
-                                            <input type="text" class="knob-expedicao knob" id="knobColaExpedicao">
+                                            <input type="text" class="knob-recebimento knob" id="knobColaRecebimento" readonly>
 
                                             <div class="text-white">Cola</div>
                                         </div>

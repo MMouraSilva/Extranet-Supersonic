@@ -6,9 +6,7 @@ socket.on("disconnect", () => {
 });
 
 socket.on("getIndicador", (data) => {
-    buildChartLine(data.indicadorRecebimento, 'recebimento', false, data.indicadorRecebimentoTipoProd);
-    buildChartLine(data.indicadorSeparacao, 'separacao', false, data.indicadorSeparacaoTipoProd);
-    buildChartLine(data.indicadorExpedicao, 'expedicao', false, data.indicadorExpedicaoTipoProd);
+    buildChartLine(data, false);
 });
 
 socket.on("displayTimer", (data) => {
@@ -23,42 +21,49 @@ socket.on("reloadData", () => {
 });
 
 socket.on("getReloadedIndicador", (data) => {
-    buildChartLine(data.indicadorRecebimento, 'recebimento', true, data.indicadorRecebimentoTipoProd);
-    buildChartLine(data.indicadorSeparacao, 'separacao', true, data.indicadorSeparacaoTipoProd);
-    buildChartLine(data.indicadorExpedicao, 'expedicao', true, data.indicadorExpedicaoTipoProd);
+    buildChartLine(data, true);
 });
 
-function buildGraph(labels, data, avg, chart, isReload, knobData) {
+function buildChartLine(data, isReload) {
+    var graphLabels = [];
+    var graphDataRecebimento = [];
+    var graphDataExpedicao = [];
+    var graphDataSeparacao = [];
+    var startDateFilter = new Date($('#daterange-btn').data('daterangepicker').startDate.format('YYYY/MM/DD'));
+    var endDateFilter = new Date($('#daterange-btn').data('daterangepicker').endDate.format('YYYY/MM/DD'));
+
+    for(var dateToLabel = new Date(startDateFilter); dateToLabel <= endDateFilter; dateToLabel.setDate(dateToLabel.getDate() + 1)) {
+        var dateLabel = getDateLabel(dateToLabel);
+        graphLabels.push(dateLabel);
+
+        const filter = getDateFilter(dateToLabel);
+
+        const recebimento = data.indicadorRecebimento.find(indicador => {
+            return indicador.DATE_FILTER == filter; 
+        });
+        graphDataRecebimento.push(recebimento ? recebimento.TOTAL_DIA : 0);
+
+        const expedicao = data.indicadorExpedicao.find(indicador => {
+            return indicador.DATE_FILTER == filter; 
+        });
+        graphDataExpedicao.push(expedicao ? expedicao.TOTAL_DIA : 0);
+
+        const separacao = data.indicadorSeparacao.find(indicador => {
+            return indicador.DATE_FILTER == filter; 
+        });
+        graphDataSeparacao.push(separacao ? separacao.TOTAL_DIA : 0);
+        
+    }
+    
+    buildGraph(graphLabels, graphDataRecebimento, graphDataExpedicao, graphDataSeparacao, data, isReload);
+}
+
+function buildGraph(labels, dataRecebimento, dataExpedicao, dataSeparacao, data, isReload) {
     $(function () {
-        var wasActive;
 
-        if(isReload) {
-            var tabName = chart + "-chart-tab";
-            var chartTab = document.getElementById(tabName);
-            if(!chartTab.classList.contains("active")) {
-                chartTab.classList.add("active");
-                wasActive = false;
-            } else {
-                wasActive = true;
-            }
-        }
+        buildDonutGraph(data, isReload);
 
-        var label, avgLabel;
-
-        if(chart == "recebimento") {
-            label = "Recebidos";
-            avgLabel = "Recebimento";
-        } else if(chart == "separacao") {
-            label = "Separados";
-            avgLabel = "Separação";
-        } else if(chart == "expedicao") {
-            label = "Expedidos";
-            avgLabel = "Expedição";
-        }
-
-        buildDonutGraph(knobData, chart, isReload);
-
-        var knob = ".knob-" + chart;
+        var knob = ".knob-recebimento";
         
         /* jQueryKnob */
         $(knob).knob({
@@ -83,39 +88,52 @@ function buildGraph(labels, data, avg, chart, isReload, knobData) {
 
         /* Chart.js Charts */
 
-        var chartName = "#" + chart + "-chart";
+        var chartName = "#recebimento-chart";
         
-        // Sales graph chart
-        var graphChartCanvas = $(chartName).get(0).getContext('2d')
+        var graphChartCanvas = $(chartName).get(0).getContext('2d');
         
         var graphChartData = {
             labels,
             datasets: [
                 {
-                    label: 'Produtos ' + label,
+                    label: "Produtos Recebimento",
                     fill: false,
                     borderWidth: 3,
                     lineTension: 0,
                     spanGaps: true,
-                    borderColor: '#fff',
+                    borderColor: "#B4CDED",
                     pointRadius: 3,
                     pointHoverRadius: 7,
-                    pointColor: '#fff',
-                    pointBackgroundColor: '#fff',
-                    data
+                    pointColor: "#B4CDED",
+                    pointBackgroundColor: "#B4CDED",
+                    data: dataRecebimento
                 },
                 {
-                    label: 'Média ' + avgLabel,
+                    label: "Produtos Expedição",
                     fill: false,
                     borderWidth: 3,
                     lineTension: 0,
                     spanGaps: true,
-                    borderColor: '#068D9D',
-                    pointRadius: 1,
+                    borderColor: "#E05263",
+                    pointRadius: 3,
                     pointHoverRadius: 7,
-                    pointBackgroundColor: '#068D9D',
-                    data: avg
-                }
+                    pointColor: "#E05263",
+                    pointBackgroundColor: "#E05263",
+                    data: dataExpedicao
+                },
+                {
+                    label: "Produtos Separação",
+                    fill: false,
+                    borderWidth: 3,
+                    lineTension: 0,
+                    spanGaps: true,
+                    borderColor: "#26C485",
+                    pointRadius: 3,
+                    pointHoverRadius: 7,
+                    pointColor: "#26C485",
+                    pointBackgroundColor: "#26C485",
+                    data: dataSeparacao
+                },
             ]
         }
         
@@ -154,89 +172,58 @@ function buildGraph(labels, data, avg, chart, isReload, knobData) {
             }
         }
         
-        if(chart == "recebimento") {
-            if(recebimentoGraphChart) {
-                recebimentoGraphChart.destroy();
-            }
-
-            recebimentoGraphChart = new Chart(graphChartCanvas, {
-                type: 'line',
-                data: graphChartData,
-                options: graphChartOptions
-            });
-        } else if(chart == "separacao") {
-            if(separacaoGraphChart) {
-                separacaoGraphChart.destroy();
-            }
-
-            separacaoGraphChart = new Chart(graphChartCanvas, {
-                type: 'line',
-                data: graphChartData,
-                options: graphChartOptions
-            });
-        } else if(chart == "expedicao") {
-            if(expedicaoGraphChart) {
-                expedicaoGraphChart.destroy();
-            }
-
-            expedicaoGraphChart = new Chart(graphChartCanvas, {
-                type: 'line',
-                data: graphChartData,
-                options: graphChartOptions
-            });
+        if(recebimentoGraphChart) {
+            recebimentoGraphChart.destroy();
         }
 
-        if((chart == "separacao" || chart == "expedicao") && !isReload) {
-            var tabName = chart + "-chart-tab";
-            var chartTab = document.getElementById(tabName);
-            chartTab.classList.remove("active");
-        }
-
-        if(!wasActive && isReload) {
-            var tabName = chart + "-chart-tab";
-            var chartTab = document.getElementById(tabName);
-            chartTab.classList.remove("active");
-        }
+        recebimentoGraphChart = new Chart(graphChartCanvas, {
+            type: 'line',
+            data: graphChartData,
+            options: graphChartOptions
+        });
     })
 }
 
-function buildChartLine (indicadores, chart, isReload, knobData) {
-    var graphLabels = [];
-    var graphData = [];
-    var graphAvg = [];
-    var avg = 0;
-    var startDateFilter = $('#daterange-btn').data('daterangepicker').startDate.format('YYYY-MM-DD');
-    var endDateFilter = $('#daterange-btn').data('daterangepicker').endDate.format('YYYY-MM-DD');
-    var qtdDias = 0;
-    
-    indicadores.forEach(indicador => {
-        if(indicador.DATE_FILTER >= startDateFilter && indicador.DATE_FILTER <= endDateFilter) {
-            graphLabels.push(indicador.DATA_REF);
-            graphData.push(indicador.TOTAL_DIA);
-            avg += parseInt(indicador.TOTAL_DIA);
-            qtdDias++;
-        }
-    });
-    
-    avg = parseInt(avg / qtdDias);
-    
-    indicadores.forEach(indicador => {
-        if(indicador.DATE_FILTER >= startDateFilter && indicador.DATE_FILTER <= endDateFilter) {
-            graphAvg.push(avg);
-        }
-    });
-    
-    buildGraph(graphLabels, graphData, graphAvg, chart, isReload, knobData);
-}
-
-function buildDonutGraph(dados, operation, isReload) {
+function buildDonutGraph(data, isReload) {
     var totalBanda = 0;
     var totalCoxim = 0;
     var totalCola = 0;
     var startDateFilter = $('#daterange-btn').data('daterangepicker').startDate.format('YYYY-MM-DD');
     var endDateFilter = $('#daterange-btn').data('daterangepicker').endDate.format('YYYY-MM-DD');
 
-    dados.forEach(dado => {
+    data.indicadorRecebimentoTipoProd.forEach(dado => {
+        if(dado.DATA_REF >= startDateFilter && dado.DATA_REF <= endDateFilter) {
+            if(dado.TIPPRO == "BANDA") {
+                totalBanda += parseInt(dado.TOTAL);
+            }
+
+            if(dado.TIPPRO == "COXIM") {
+                totalCoxim += parseInt(dado.TOTAL);
+            }
+
+            if(dado.TIPPRO == "COLA") {
+                totalCola += parseInt(dado.TOTAL);
+            }
+        }
+    });
+
+    data.indicadorExpedicaoTipoProd.forEach(dado => {
+        if(dado.DATA_REF >= startDateFilter && dado.DATA_REF <= endDateFilter) {
+            if(dado.TIPPRO == "BANDA") {
+                totalBanda += parseInt(dado.TOTAL);
+            }
+
+            if(dado.TIPPRO == "COXIM") {
+                totalCoxim += parseInt(dado.TOTAL);
+            }
+
+            if(dado.TIPPRO == "COLA") {
+                totalCola += parseInt(dado.TOTAL);
+            }
+        }
+    });
+
+    data.indicadorSeparacaoTipoProd.forEach(dado => {
         if(dado.DATA_REF >= startDateFilter && dado.DATA_REF <= endDateFilter) {
             if(dado.TIPPRO == "BANDA") {
                 totalBanda += parseInt(dado.TOTAL);
@@ -260,21 +247,9 @@ function buildDonutGraph(dados, operation, isReload) {
 
     var knobBandaId, knobCoximId, knobColaId;
 
-    if(operation == "recebimento") {
-        knobBandaId = "knobBandaRecebimento";
-        knobCoximId = "knobCoximRecebimento";
-        knobColaId = "knobColaRecebimento";
-    } else if(operation == "separacao") {
-        knobBandaId = "knobBandaSeparacao";
-        knobCoximId = "knobCoximSeparacao";
-        knobColaId = "knobColaSeparacao";
-    } else if(operation == "expedicao") {
-        knobBandaId = "knobBandaExpedicao";
-        knobCoximId = "knobCoximExpedicao";
-        knobColaId = "knobColaExpedicao";
-    }
-
-
+    knobBandaId = "knobBandaRecebimento";
+    knobCoximId = "knobCoximRecebimento";
+    knobColaId = "knobColaRecebimento";
 
     if(isReload) {
         var knobBanda = "input." + knobBandaId;
@@ -289,6 +264,22 @@ function buildDonutGraph(dados, operation, isReload) {
         document.getElementById(knobCoximId).value=Math.round(percentCoxim);
         document.getElementById(knobColaId).value=Math.round(percentCola);
     }
+}
+
+function getDateLabel(date) {
+    var day = String(date.getDate()).padStart(2, "0");
+    var month = String(date.getMonth() + 1).padStart(2, "0");
+    var year = date.getFullYear();
+
+    return day + "/" + month + "/" + year;
+}
+
+function getDateFilter(date) {
+    var day = String(date.getDate()).padStart(2, "0");
+    var month = String(date.getMonth() + 1).padStart(2, "0");
+    var year = date.getFullYear();
+
+    return year + "-" + month + "-" + day;
 }
 
 var start = moment().subtract(29, 'days');
