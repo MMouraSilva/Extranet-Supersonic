@@ -63,7 +63,7 @@ body {
     height: 750px;
 }
 
-.tab-content.medicao {
+.heightAuto {
     height: auto;
 }
 
@@ -159,4 +159,9 @@ tfoot {
 
 .btn-blue {
     background-color: #17a2b8;
+}
+
+.bg-tableHead {
+    background-color: #27CFC7;
+    color: #fff;
 }

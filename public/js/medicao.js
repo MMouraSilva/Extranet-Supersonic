@@ -210,8 +210,6 @@ function cleanTable() {
     document.getElementById("totalWithTax").innerHTML = "TOTAL COM IMPOSTOS: ";
 }
 
-
-
 function filterData(data, month, year) {
     let lastDayDate = new Date(year, month, 0);
     let lastDay = lastDayDate.getDate()

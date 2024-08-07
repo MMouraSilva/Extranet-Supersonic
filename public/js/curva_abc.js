@@ -30,8 +30,17 @@ socket.on("reloadData", () => {
 
 function buildGraph() {
     clearChart();
-    getChartData(indicadorCurvaABCQuadrimestre);
+    cleanTable();
+
+    const startDate = new Date($('#daterange-btn').data('daterangepicker').startDate.format('YYYY/MM/DD'));
+    const endDate = new Date($('#daterange-btn').data('daterangepicker').endDate.format('YYYY/MM/DD'));
+    const monthDiffSelector = monthDiff(startDate, endDate);
+
+    const graphData = monthDiffSelector == 4 ? indicadorCurvaABCQuadrimestre : monthDiffSelector == 2 ? indicadorCurvaABCBimestre : monthDiffSelector == 1 ? indicadorCurvaABCMes : 0;
+
+    getChartData(graphData);
     buildAreaLineChart();
+    buildTable(graphData);
 }
 
 function getChartData(data) {
@@ -166,6 +175,52 @@ function buildAreaLineChart() {
     });
 }
 
+function buildTable(data) {
+    data.forEach(row => {
+        addRowToTable(row);
+    });
+}
+
+function addRowToTable(rowData) {
+    if (rowData !== undefined) {
+        const newRow = document.createElement("tr");
+
+        const skuTd = document.createElement("td");
+        const qtdVendidaTd = document.createElement("td");
+        const representatividadeQtdVendaTd = document.createElement("td");
+        const representatividadeAcumuladaTd = document.createElement("td");
+        const representatividadeSkuTd = document.createElement("td");
+        const classificacaoTd = document.createElement("td");
+
+        const sku = document.createTextNode(rowData.REFERE);
+        const qtdVendida = document.createTextNode(rowData.QUANTI_VENDIDA);
+        const representatividadeQtdVenda = document.createTextNode(Number((rowData.REPRESENTATIVIDADE_PRODUTO / 100)).toLocaleString(undefined, { style: "percent", minimumFractionDigits: 2 }));
+        const representatividadeAcumulada = document.createTextNode(Number((rowData.REPRESENTATIVIDADE_ACUMULADA / 100)).toLocaleString(undefined, { style: "percent", minimumFractionDigits: 2 }));
+        const representatividadeSku = document.createTextNode(Number((rowData.PORCENTAGEM_SKUS / 100)).toLocaleString(undefined, { style: "percent", minimumFractionDigits: 2 }));
+        const classificacao = document.createTextNode(rowData.CLASSIFICACAO_ABC);
+
+        skuTd.appendChild(sku);
+        newRow.appendChild(skuTd);
+
+        qtdVendidaTd.appendChild(qtdVendida);
+        newRow.appendChild(qtdVendidaTd);
+
+        representatividadeQtdVendaTd.appendChild(representatividadeQtdVenda);
+        newRow.appendChild(representatividadeQtdVendaTd);
+
+        representatividadeAcumuladaTd.appendChild(representatividadeAcumulada);
+        newRow.appendChild(representatividadeAcumuladaTd);
+
+        representatividadeSkuTd.appendChild(representatividadeSku);
+        newRow.appendChild(representatividadeSkuTd);
+
+        classificacaoTd.appendChild(classificacao);
+        newRow.appendChild(classificacaoTd);
+
+        var tbody = document.getElementById("tableBody");
+        tbody.appendChild(newRow);
+    }
+}
 
 function clearChart() {
     if(curvaABCChart) {
@@ -173,6 +228,25 @@ function clearChart() {
         labels = [0];
         datasetClassA = [0], datasetClassB = [0], datasetClassC = [0];
     }
+}
+
+function cleanTable() {
+    const table = document.getElementById("table");
+    let tBody = document.getElementById("tableBody");
+    tBody.remove();
+    tBody = document.createElement("tbody");
+    tBody.setAttribute("id", "tableBody");
+    table.appendChild(tBody);
+}
+
+function monthDiff(startDate, endDate) {
+    let months;
+
+    months = (endDate.getFullYear() - startDate.getFullYear()) * 12;
+    months -= startDate.getMonth();
+    months += endDate.getMonth();
+
+    return months <= 0 ? 0 : months;
 }
 
 var start = moment().subtract(29, "days");
@@ -187,48 +261,13 @@ function cb(start, end) {
 $("#daterange-btn").daterangepicker(
     {
         ranges: {
-            "Hoje": [moment(), moment()],
-            "Ontem": [moment().subtract(1, "days"), moment().subtract(1, "days")],
-            "Últimos 7 Dias": [moment().subtract(6, "days"), moment()],
-            "Últimos 30 Dias": [moment().subtract(29, "days"), moment()],
-            "Este Mês": [moment().startOf("month"), moment().endOf("month")],
-            "Último Mês": [moment().subtract(1, "month").startOf("month"), moment().subtract(1, "month").endOf("month")]
+            "Quadrimestre": [moment().subtract(4, "month"), moment()],
+            "Bimestre": [moment().subtract(2, "month"), moment()],
+            "Mês": [moment().subtract(1, "month"), moment()],
         },
-        startDate: moment().subtract(29, "days"),
+        startDate: moment().subtract(4, "month"),
         endDate: moment(),
-        locale: {
-            "format": "DD/MM/YYYY",
-            "separator": " - ",
-            "applyLabel": "Aplicar",
-            "cancelLabel": "Cancelar",
-            "fromLabel": "De",
-            "toLabel": "Até",
-            "customRangeLabel": "Custom",
-            "daysOfWeek": [
-                "Dom",
-                "Seg",
-                "Ter",
-                "Qua",
-                "Qui",
-                "Sex",
-                "Sáb"
-            ],
-            "monthNames": [
-                "Janeiro",
-                "Fevereiro",
-                "Março",
-                "Abril",
-                "Maio",
-                "Junho",
-                "Julho",
-                "Agosto",
-                "Setembro",
-                "Outubro",
-                "Novembro",
-                "Dezembro"
-            ],
-            "firstDay": 0
-        }
+        showCustomRangeLabel: false,
     }, cb
 );
 
