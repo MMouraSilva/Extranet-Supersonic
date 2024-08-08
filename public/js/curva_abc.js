@@ -117,25 +117,25 @@ function buildAreaLineChart() {
                             return value + "%";
                         }
                     },
-                    // title: {
-                    //     display: true,
-                    //     text: "Representatividade de Venda Acumulada",
-                    //     font: {
-                    //         size: 16
-                    //     }
-                    // }
+                    title: {
+                        display: true,
+                        text: "Representatividade de venda acumulada",
+                        font: {
+                            size: 16
+                        }
+                    }
                 },
                 xAxes: {
                     grid: {
                         display: false
                     },
-                    // title: {
-                    //     display: true,
-                    //     text: "QTD. de SKU's",
-                    //     font: {
-                    //         size: 16
-                    //     }
-                    // }
+                    title: {
+                        display: true,
+                        text: "QTD. de SKU's",
+                        font: {
+                            size: 16
+                        }
+                    }
                 }
             },
             interaction: {
@@ -158,7 +158,7 @@ function buildAreaLineChart() {
                     const percent = text == "A" ? "20%" : text == "B" ? "30%" : text == "C" ? "50%" : null;
     
                     const width = chart.width;
-                    const positionX = text == "A" ? width * 0.13 : text == "B" ? width * 0.36 : text == "C" ? width * 0.75 : null;
+                    const positionX = text == "A" ? width * 0.15 : text == "B" ? width * 0.39 : text == "C" ? width * 0.76 : null;
     
                     
                     ctx.fillStyle = "white";
@@ -166,7 +166,7 @@ function buildAreaLineChart() {
                     ctx.textAlign = "center";
                     ctx.textBaseline = "middle";
                     ctx.fillText(text, positionX, 340);
-                    ctx.fillText(percent, positionX, 420);
+                    ctx.fillText(percent, positionX, 400);
                 });
     
                 ctx.restore();
