@@ -1,33 +1,63 @@
 require("dotenv").config();
-const apiAccessToken = process.env.API_ACCESS_TOKEN;
-const axios = require("axios");
-const qualpParams = require("../etc/json/qualp-params.json");
+const ErrorHandler = require("./ErrorHandler");
 
 class QualpAPI {
-    constructor(source, destination) {
-        this.source = source;
-        this.destination = destination;
-        this.route = false;
+    #source;
+    #destination;
+    #route;
+    #apiAccessToken;
+    #axios;
+    #qualpParams;
+    #errorHandler;
 
-        qualpParams.locations.push(source, destination);
+    constructor() {
+        this.#apiAccessToken = process.env.API_ACCESS_TOKEN;
+        this.#axios = require("axios");
+        this.#qualpParams = require("../etc/json/qualp-params.json");
+        this.#errorHandler = new ErrorHandler();
     }
 
     async GetRoute() {
-        await axios.get("https://api.qualp.com.br/rotas/v4", {
+        await this.#axios.get("https://api.qualp.com.br/rotas/v4", {
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
-                'Access-Token': apiAccessToken
+                'Access-Token': this.#apiAccessToken
             },
-            params: { json: JSON.stringify(qualpParams) }
+            params: { json: JSON.stringify(this.#qualpParams) }
         }).then(res => {
             this.route = res ? res.data : false;
         }).catch(error => {
-            console.error(error);
+            this.#errorHandler.HandleError(error);
         });
 
         return this.route;
     }
+
+    SetParams(source, destination) {
+        this.#qualpParams.locations.push(source, destination);
+    }
+
+    get source() {
+        return this.#source;
+    };
+    set source(newValue) {
+        this.#source = newValue;
+    };
+
+    get destination() {
+        return this.#destination;
+    };
+    set destination(newValue) {
+        this.#destination = newValue;
+    };
+
+    get route() {
+        return this.#route;
+    };
+    set route(newValue) {
+        this.#route = newValue;
+    };
 }
 
 module.exports = QualpAPI;

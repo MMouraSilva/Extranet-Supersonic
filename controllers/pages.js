@@ -18,7 +18,7 @@ router.get("/pages", userAccess.UserAuth, async (req, res) => {
 
         const pages = await Page.GetPages();
 
-        res.render("pages/index", { frontendUrl, backendUrl, user: req.session.user, pages, updateStatus, createStatus });
+        res.render("pages/index", { frontendUrl, backendUrl, user: req.locals.user, pages, updateStatus, createStatus });
     } catch(error) {
         console.log(error);
     }
@@ -35,7 +35,7 @@ router.get("/pages/edit/:id", userAccess.UserAuth, async (req, res) => {
         const pageToEdit = await page.GetPageById();
         const menuGroup = await Page.GetMenuGroup();
 
-        res.render("pages/form", { pageToEdit, operation: "edit", user: req.session.user, updateStatus, menuGroup });
+        res.render("pages/form", { pageToEdit, operation: "edit", user: req.locals.user, updateStatus, menuGroup });
     } else {
         res.redirect("/pages");
     }
@@ -88,7 +88,7 @@ router.get("/pages/create", userAccess.UserAuth, async (req, res) => {
 
     const menuGroup = await Page.GetMenuGroup();
 
-    res.render("pages/form", { operation: "create", user: req.session.user, createStatus, menuGroup });
+    res.render("pages/form", { operation: "create", user: req.locals.user, createStatus, menuGroup });
 });
 
 router.post("/pages/create", async (req, res) => {

@@ -20,7 +20,7 @@ class UserInterfaceController {
         const users = await this.user.GetUsers();
         const tableUsers = this.#GetUsersFromFirebaseObject(users);
         
-        let user = req.session.user;
+        let user = req.locals.user;
 
         res.render("users/index", { frontendUrl: this.frontendUrl, backendUrl: this.backendUrl, user, users: tableUsers, updateStatus: this.updateStatus, createStatus: this.createStatus });
     }
@@ -30,7 +30,7 @@ class UserInterfaceController {
         const profiles = await this.user.profile.GetProfiles();
         const arrProfiles = this.#GetProfilesFromFirebaseObject(profiles);
     
-        res.render("users/form", { operation: "create", user: req.session.user, createStatus: this.createStatus, profiles: arrProfiles });
+        res.render("users/form", { operation: "create", user: req.locals.user, createStatus: this.createStatus, profiles: arrProfiles });
     }
 
     RenderUpdateForm = async (req, res) => {
@@ -39,7 +39,7 @@ class UserInterfaceController {
         
         if(id) {
             const { userToEdit, userProfiles, arrProfiles } = await this.#GetDataToRenderUpdateForm(id);
-            res.render("users/form", { operation: "edit", user: req.session.user, updateStatus: this.updateStatus, profiles: arrProfiles, userToEdit, userProfiles });
+            res.render("users/form", { operation: "edit", user: req.locals.user, updateStatus: this.updateStatus, profiles: arrProfiles, userToEdit, userProfiles });
         } else res.redirect("/users");
     }
 
@@ -164,6 +164,7 @@ class UserController {
 
     HandleUserLogout = (req, res) => {
         req.session.user = undefined;
+        req.locals = undefined
         res.redirect("/");
     }
 
@@ -180,6 +181,7 @@ class UserController {
         req.session.user = {
             id: this.user.dataModel.id,
             name: this.user.dataModel.name,
+            login: this.user.dataModel.login
         }
         res.redirect("/");
     }

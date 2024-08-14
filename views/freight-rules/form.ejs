@@ -394,12 +394,12 @@
                                     
                                 <div class="d-flex justify-content-end col-12">
                                     <div class="col-4 col-sm-6 col-md-6 col-lg-4">
-                                        <button type="button" id="cancelButton" tabindex="20"
-                                        class="btn btn-block bg-gradient btn-danger btn-lg col-12 text-white font-weight-bold">Cancelar</button>
-                                    </div>
-                                    <div class="col-4 col-sm-6 col-md-6 col-lg-4">
                                         <button type="submit"tabindex="19"
                                         class="btn btn-block bg-gradient btn-login btn-lg col-12 text-white font-weight-bold">Salvar</button>
+                                    </div>
+                                    <div class="col-4 col-sm-6 col-md-6 col-lg-4">
+                                        <button type="button" id="cancelButton" tabindex="20"
+                                        class="btn btn-block bg-gradient btn-danger btn-lg col-12 text-white font-weight-bold">Cancelar</button>
                                     </div>
                                 </div>
                             </form>
@@ -412,9 +412,9 @@
     <%- include('../partials/footer.ejs') %>
     <script>
         $(document).ready(function () {
-            selectStateAndCity("estado-origem", "cidade-origem");
-            selectStateAndCity("estado-destino", "cidade-destino");
-            selectStateAndCity("estado-origem-regiao", "cidade-origem-regiao");
+            selectStateAndCity("estado-origem", "cidade-origem", "rules");
+            selectStateAndCity("estado-destino", "cidade-destino", "rules");
+            selectStateAndCity("estado-origem-regiao", "cidade-origem-regiao", "rules");
         });
 
         window.onbeforeunload = function() {

@@ -16,31 +16,17 @@ class QuotationInterfaceController {
     //     const errorStatus = this.#CheckForErrorsOnSession(req);
     //     const freightRules = await this.freightRules.GetFreightRules();
 
-    //     res.render("freight-rules/index", { frontendUrl: this.frontendUrl, backendUrl: this.backendUrl, user: req.session.user, freightRules, errorStatus });
+    //     res.render("freight-rules/index", { frontendUrl: this.frontendUrl, backendUrl: this.backendUrl, user: req.locals.user, freightRules, errorStatus });
     // }
 
-    RenderCreateForm(req, res) {
-        const errorStatus = this.#CheckForErrorsOnSession(req);
-
-        res.render("quotation/form", { frontendUrl: this.frontendUrl, backendUrl: this.backendUrl, user: req.session.user, errorStatus });
+    RenderQuotationForm = async (req, res) => {
+        res.render("quotation/form", { frontendUrl: this.frontendUrl, backendUrl: this.backendUrl, user: req.locals.user });
     }
 
-    // async RenderUpdateForm(req, res) {
-    //     const errorStatus = this.#CheckForErrorsOnSession(req);
-    //     const freightRule = await this.freightRules.GetFreightRuleById(req.params.id);
-
-    //     res.render("freight-rules/form", { operation: "edit", frontendUrl: this.frontendUrl, backendUrl: this.backendUrl, user: req.session.user, freightRule, errorStatus });
-    // }
-
-    #CheckForErrorsOnSession(req) {
-        const createStatus = req.session.QuotationErrorStatus;
-        this.#ClearErrorsOnSession(req);
-
-        return createStatus;
-    }
-
-    #ClearErrorsOnSession(req) {
-        req.session.QuotationErrorStatus = undefined;
+    RenderQuotation = async (req, res) => {
+        const quotation = await this.quotation.GetQuotationById(req.params.id);
+        
+        res.render("quotation/doc", { frontendUrl: this.frontendUrl, backendUrl: this.backendUrl, user: req.locals.user, quotation });
     }
 
     get backendUrl() {
@@ -52,55 +38,49 @@ class QuotationInterfaceController {
     }
 }
 
-// class FreightRulesController {
-//     constructor() {
-//         this.freightRules = new FreightRules();
-//         this.errorHandler = new ErrorHandler();
-//     }
+class QuotationController {
+    #quotation;
+    #errorHandler;
 
-//     async HandleCreateRequest(req, res) {
-//         this.freightRules.dataModel.SetFreightRule(req.body);
-//         this.#HandleCreateResponse(req, res, await this.freightRules.CreateFreightRule());
-//     }
+    constructor() {
+        this.#quotation = new Quotation();
+        this.#errorHandler = new ErrorHandler();
+    }
 
-//     async HandleUpdateRequest(req, res) {
-//         const id = req.body.id;
-//         this.freightRules.dataModel.SetFreightRule(req.body);
-//         this.#HandleUpdateResponse(req, res, await this.freightRules.UpdateFreightRule(id));
-//     }
+    HandleNewQuotation = async (req, res) => {
+        const { ruleNotFound, hasSucceed, error, docRef } = await this.#quotation.GenerateQuotation(req.body);
+        const statusCode = ruleNotFound ? 404 : hasSucceed ? 200 : 500;
+        const message = hasSucceed ? "quotation-creation-success" : error;
+        const responseData = { statusCode, data: { message , docRef } };
 
-//     async HandleDeleteRequest(req, res) {
-//         const id = req.body.id;
-//         this.#RedirectResponse(req, res, await this.freightRules.DeleteFreightRule(id));
-//     }
+        this.#Response(res, responseData);
+    }
 
-//     #HandleCreateResponse(req, res, createResponse) {
-//         if(!createResponse.isFreightRuleValid) {
-//             this.#RedirectNotValidCreation(req, res);
-//         } else this.#RedirectResponse(req, res, createResponse);
-//     }
+    // async HandleCreateRequest(req, res) {
+    //     this.freightRules.dataModel.SetFreightRule(req.body);
+    //     this.#HandleCreateResponse(req, res, await this.freightRules.CreateFreightRule());
+    // }
 
-//     #HandleUpdateResponse(req, res, updateResponse) {
-//         if(!updateResponse.isFreightRuleValid) {
-//             this.#RedirectNotValidUpdate(req, res);
-//         } else this.#RedirectResponse(req, res, createResponse);
-//     }
+    // #HandleCreateResponse(req, res, createResponse) {
+    //     if(!createResponse.isFreightRuleValid) {
+    //         this.#RedirectNotValidCreation(req, res);
+    //     } else this.#RedirectResponse(req, res, createResponse);
+    // }
 
-//     #RedirectNotValidCreation(req, res) {
-//         req.session.FreightRulesErrorStatus = { completed: false };
-//         res.redirect("/freight-rules/create");
-//     }
+    // #RedirectNotValidCreation(req, res) {
+    //     req.session.FreightRulesErrorStatus = { completed: false };
+    //     res.redirect("/freight-rules/create");
+    // }
 
-//     #RedirectNotValidUpdate(req, res) {
-//         req.session.FreightRulesErrorStatus = { completed: false };
-//         res.redirect("/freight-rules/edit/" + req.body.id);
-//     }
+    // #RedirectResponse(req, res, operationResponse) {
+    //     if(!operationResponse.hasSucceed) this.errorHandler.HandleError(operationResponse.error);
+    //     req.session.FreightRulesErrorStatus = { completed: operationResponse.hasSucceed, operation: operationResponse.operation };
+    //     res.redirect("/freight-rules");
+    // }
 
-//     #RedirectResponse(req, res, operationResponse) {
-//         if(!operationResponse.hasSucceed) this.errorHandler.HandleError(operationResponse.error);
-//         req.session.FreightRulesErrorStatus = { completed: operationResponse.hasSucceed, operation: operationResponse.operation };
-//         res.redirect("/freight-rules");
-//     }
-// }
+    #Response(res, responseData) {
+        res.status(responseData.statusCode).send(responseData.data);
+    }
+}
 
-module.exports = { QuotationInterfaceController };
+module.exports = { QuotationInterfaceController, QuotationController };

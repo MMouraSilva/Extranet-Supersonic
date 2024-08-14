@@ -1,4 +1,4 @@
-function selectStateAndCity(stateSelectId, citySelectId) {
+function selectStateAndCity(stateSelectId, citySelectId, operation) {
     $.getJSON('/plugins/combo-dinamico/estados_cidades.json', function (data) {
 
         var items = [];
@@ -11,7 +11,7 @@ function selectStateAndCity(stateSelectId, citySelectId) {
 
         $("#" + stateSelectId).change(function () {
 
-            var options_cidades = '';
+            var options_cidades = "";
             var str = "";
 
             $("#" + stateSelectId + " option:selected").each(function () {
@@ -21,7 +21,9 @@ function selectStateAndCity(stateSelectId, citySelectId) {
             $.each(data, function (key, val) {
                 if (val.nome == str) {
                     $.each(val.cidades, function (key_city, val_city) {
-                        options_cidades += '<option value="' + val_city + '">' + val_city + '</option>';
+                        if((val_city != "Qualquer Cidade" && operation == "quotation") || operation == "rules") {
+                            options_cidades += '<option value="' + val_city + '">' + val_city + '</option>';
+                        }
                     });
                 }
             });

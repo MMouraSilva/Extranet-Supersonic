@@ -198,7 +198,7 @@ app.get("/recebimento", userAccess.UserAuth, async (req, res) => {
 });
 
 app.get("/", userAccess.UserAuth, async (req, res) => {
-    res.render("index", { user: req.session.user });
+    res.render("index", { user: req.locals.user });
 });
         
 http.listen(80, () => {

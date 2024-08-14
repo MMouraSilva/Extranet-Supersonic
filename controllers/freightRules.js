@@ -16,20 +16,20 @@ class FreightRulesInterfaceController {
         const errorStatus = this.#CheckForErrorsOnSession(req);
         const freightRules = await this.freightRules.GetFreightRules();
 
-        res.render("freight-rules/index", { frontendUrl: this.frontendUrl, backendUrl: this.backendUrl, user: req.session.user, freightRules, errorStatus });
+        res.render("freight-rules/index", { frontendUrl: this.frontendUrl, backendUrl: this.backendUrl, user: req.locals.user, freightRules, errorStatus });
     }
 
     RenderCreateForm = (req, res) => {
         const errorStatus = this.#CheckForErrorsOnSession(req);
 
-        res.render("freight-rules/form", { operation: "create", frontendUrl: this.frontendUrl, backendUrl: this.backendUrl, user: req.session.user, errorStatus });
+        res.render("freight-rules/form", { operation: "create", frontendUrl: this.frontendUrl, backendUrl: this.backendUrl, user: req.locals.user, errorStatus });
     }
 
     RenderUpdateForm = async (req, res) => {
         const errorStatus = this.#CheckForErrorsOnSession(req);
         const freightRule = await this.freightRules.GetFreightRuleById(req.params.id);
 
-        res.render("freight-rules/form", { operation: "edit", frontendUrl: this.frontendUrl, backendUrl: this.backendUrl, user: req.session.user, freightRule, errorStatus });
+        res.render("freight-rules/form", { operation: "edit", frontendUrl: this.frontendUrl, backendUrl: this.backendUrl, user: req.locals.user, freightRule, errorStatus });
     }
 
     #CheckForErrorsOnSession(req) {

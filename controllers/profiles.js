@@ -18,7 +18,7 @@ router.get("/profiles", userAccess.UserAuth, async (req, res) => {
 
         const profiles = await (new Profile()).GetProfiles();
 
-        res.render("profiles/index", { frontendUrl, backendUrl, user: req.session.user, profiles, updateStatus, createStatus });
+        res.render("profiles/index", { frontendUrl, backendUrl, user: req.locals.user, profiles, updateStatus, createStatus });
     } catch(error) {
         console.log(error);
     }
@@ -38,7 +38,7 @@ router.get("/profiles/edit/:id", userAccess.UserAuth, async (req, res) => {
         
         const pages = await profile.GetPages();
 
-        res.render("profiles/form", { profileToEdit, operation: "edit", user: req.session.user, updateStatus, pages, permissions });
+        res.render("profiles/form", { profileToEdit, operation: "edit", user: req.locals.user, updateStatus, pages, permissions });
     } else {
         res.redirect("/profiles");
     }
@@ -71,7 +71,7 @@ router.get("/profiles/create", userAccess.UserAuth, async (req, res) => {
 
     const pages = await (new Profile()).GetPages();
 
-    res.render("profiles/form", { operation: "create", user: req.session.user, createStatus, pages });
+    res.render("profiles/form", { operation: "create", user: req.locals.user, createStatus, pages });
 });
 
 router.post("/profiles/create", async (req, res) => {

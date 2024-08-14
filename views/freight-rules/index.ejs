@@ -123,7 +123,7 @@
                                                     : "Sem restrição"
                                                 %>
                                             </td>
-                                            <td><%= freightRule.data().pricePerDistance %></td>
+                                            <td><%= "R$ " + freightRule.data().pricePerDistance %></td>
                                             <td><%= freightRule.data().numberOfAxles %></td>
                                             <td><%= freightRule.data().useInContrariwise? "Sim" : "Não" %></td>
                                             <td><%= freightRule.data().createdAt ? moment(freightRule.data().createdAt.toDate()).format("DD/MM/YYYY HH:mm") : freightRule.data().createdAt %></td>

@@ -1,23 +1,23 @@
 const express = require("express");
 const router = express.Router();
-const userAccess = require("../middlewares/userAccess");
+const Middleware = require("../middlewares/userAccess");
 const { QuotationInterfaceController } = require("../controllers/quotation");
 const { QuotationController } = require("../controllers/quotation");
 
 const quotationInterfaceController  = new QuotationInterfaceController();
-const quotationController = new QuotationController()
+const quotationController = new QuotationController();
+const userAccess = new Middleware();
 
-// router.get("/quotation", userAccess, freightRulesInterfaceController.RenderIndexPage.bind(freightRulesInterfaceController));
+router.get("/quotation", userAccess.UserAuth, (req, res) => res.redirect("/quotation/new"));
 
-router.get("/quotation/new", userAccess, quotationInterfaceController.RenderNewQuotationForm.bind(quotationInterfaceController));
+router.get("/quotation/new", userAccess.UserAuth, quotationInterfaceController.RenderQuotationForm);
 
-// router.post("/quotation/new", freightRulesController.HandleCreateRequest.bind(freightRulesController));
+router.post("/quotation/new", userAccess.UserAuth, quotationController.HandleNewQuotation);
 
-// router.get("/quotation/edit/:id", userAccess, freightRulesInterfaceController.RenderUpdateForm.bind(freightRulesInterfaceController));
+router.get("/quotation/:id", userAccess.UserAuth, quotationInterfaceController.RenderQuotation);
 
 // router.post("/quotation/edit", freightRulesController.HandleUpdateRequest.bind(freightRulesController));
 
 // router.post("/quotation/delete", freightRulesController.HandleDeleteRequest.bind(freightRulesController));
-
 
 module.exports = router;

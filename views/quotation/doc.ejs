@@ -1,0 +1,205 @@
+<%- include('../partials/header.ejs') %>
+
+	<body class="hold-transition sidebar-mini layout-fixed sidebar-collapse justify-content-center">
+		<%- include('../partials/navbar2.ejs') %>
+			<div class="wrapper user">
+				<%- include('../partials/sidebar.ejs') %>
+                <br>
+                <div class="containerPage d-flex justify-content-center noPrint">
+                        <div class="card quotation-doc">
+                            <!-- /.card-header -->
+                            <div class="card-body">
+                                <div class="p-0">
+                                    <div class="row align-items-center">
+                                        <img src="/img/logo SS.png" class="position-absolute" alt="SuperSonicLogo" height="80" width="160">
+                                        <div class="d-flex w-100 justify-content-center">
+                                            <h1>COTAÇÃO DE FRETE</h1>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <table class="table table-hover text-center" id="table">
+                                        <thead class="bg-yellow">
+                                        </thead>
+                                        <tbody id="tableBody">
+                                            <tr>
+                                                <th scope="col" class="border-right bg-yellow">Origem:</th>
+                                                <th scope="col" class="text-left bg-yellow" colspan="5"><%= quotation.origin %></th>
+                                            </tr>
+                                            <tr>
+                                                <th scope="col" class="border-right bg-yellow">Destino:</th>
+                                                <th scope="col" class="text-left bg-yellow" colspan="5"><%= quotation.destination %></th>
+                                            </tr>
+                                            <tr><th></th></tr>
+                                            <tr>
+                                                <th scope="col" class="bg-yellow">Valor NF:</th>
+                                                <th scope="col" class="border-right"><%= quotation.cargoPrice.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                                <th scope="col" class="bg-yellow">Peso:</th>
+                                                <th scope="col" class="border-right"><%= quotation.cargoWeight %> kg</th>
+                                                <th scope="col" class="bg-yellow">Modal:</th>
+                                                <th scope="col" class="border-right border-bottom">Lotação</th>
+                                            </tr>
+                                            <tr>
+                                                <th scope="col" class="bg-yellow">Número de Eixos:</th>
+                                                <th scope="col" class="border-right border-bottom"><%= quotation.numberOfAxles %></th>
+                                                <th scope="col" class="bg-yellow">Distância:</th>
+                                                <th scope="col" class="border-right border-bottom"><%= quotation.routeDistance %> km</th>
+                                                <th scope="col" class="bg-yellow">Código da Cotação:</th>
+                                                <th scope="col" class="border-right border-bottom"><%= quotation.quotationCode %></th>
+                                            </tr>
+                                            <tr><th></th></tr>
+                                            <tr>
+                                                <th scope="col" class="bg-yellow">Carreteiro:</th>
+                                                <th scope="col" class="border-right"><%= quotation.truckerValue.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                            </tr>
+                                            <tr>
+                                                <th scope="col" class="bg-yellow">Excesso de Peso:</th>
+                                                <th scope="col" class="border-right"><%= quotation.overweightValue.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                            </tr>
+                                            <tr>
+                                                <th scope="col" class="bg-yellow">Seguro Rodoviário:</th>
+                                                <th scope="col" class="border-right"><%= quotation.insuranceValue.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                            </tr>
+                                            <tr>
+                                                <th scope="col" class="bg-yellow">Pedágio:</th>
+                                                <th scope="col" class="border-right"><%= quotation.tollsValue.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                            </tr>
+                                            <tr>
+                                                <th scope="col" class="bg-yellow">Custo Carreta:</th>
+                                                <th scope="col" class="border-right"><%= quotation.cartageValue.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                            </tr>
+                                            <tr>
+                                                <th scope="col" class="bg-yellow">Balsa:</th>
+                                                <th scope="col" class="border-right"><%= quotation.ferryValue.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                            </tr>
+                                            <tr>
+                                                <th scope="col" class="bg-yellow">Puxada:</th>
+                                                <th scope="col" class="border-right"><%= quotation.pullValue.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                            </tr>
+                                            <tr>
+                                                <th scope="col" class="bg-yellow">Seguro Flúvial:</th>
+                                                <th scope="col" class="border-right"><%= quotation.marineInsurance.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                            </tr>
+                                            <% var costNet = (quotation.truckerValue + quotation.overweightValue + quotation.insuranceValue +
+                                            quotation.tollsValue + quotation.cartageValue + quotation.ferryValue +
+                                            quotation.pullValue + quotation.marineInsurance) %>
+
+                                            <tr>
+                                                <th scope="col" class="bg-yellow">Custo NET:</th>
+                                                <th scope="col" class="border-right">
+                                                    <%= costNet.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %>
+                                                </th>
+                                            </tr>
+                                            <tr>
+                                                <th scope="col" class="bg-yellow border-bottom">Mark-up:</th>
+                                                <th scope="col" class="border-right border-bottom">1,40</th>
+                                                <th scope="col" class="border-right border-bottom">1,45</th>
+                                                <th scope="col" class="border-right border-bottom">1,50</th>
+                                                <th scope="col" class="border-right border-bottom">1,55</th>
+                                                <th scope="col" class="border-right border-bottom">1,60</th>
+                                            </tr>
+
+                                            <% 
+                                                var IcmsTax = quotation.IcmsTax / 100;
+
+                                                var markupWithoutTaxI = costNet * 0.40;
+                                                var markupWithoutTaxII = costNet * 0.45;
+                                                var markupWithoutTaxIII = costNet * 0.50;
+                                                var markupWithoutTaxIV = costNet * 0.55;
+                                                var markupWithoutTaxV = costNet * 0.60;
+
+                                                var markupWithTaxI = (markupWithoutTaxI + 0.03 * markupWithoutTaxI) / (1 - IcmsTax);
+                                                var markupWithTaxII = (markupWithoutTaxII + 0.03 * markupWithoutTaxII) / (1 - IcmsTax);
+                                                var markupWithTaxIII = (markupWithoutTaxIII + 0.03 * markupWithoutTaxIII) / (1 - IcmsTax);
+                                                var markupWithTaxIV = (markupWithoutTaxIV + 0.03 * markupWithoutTaxIV) / (1 - IcmsTax);
+                                                var markupWithTaxV = (markupWithoutTaxV + 0.03 * markupWithoutTaxV) / (1 - IcmsTax);
+
+                                                var markupValueI = markupWithTaxI + (markupWithTaxI - markupWithoutTaxI) * 0.40;
+                                                var markupValueII = markupWithTaxII + (markupWithTaxII - markupWithoutTaxII) * 0.45;
+                                                var markupValueIII = markupWithTaxIII + (markupWithTaxIII - markupWithoutTaxIII) * 0.50;
+                                                var markupValueIV = markupWithTaxIV + (markupWithTaxIV - markupWithoutTaxIV) * 0.55;
+                                                var markupValueV = markupWithTaxV + (markupWithTaxV - markupWithoutTaxV) * 0.60;
+
+                                                var totalCostI = costNet + markupValueI;
+                                                var totalCostII = costNet + markupValueII;
+                                                var totalCostIII = costNet + markupValueIII;
+                                                var totalCostIV = costNet + markupValueIV;
+                                                var totalCostV = costNet + markupValueV;
+
+                                                var pisCofinsI = totalCostI / 0.97 - totalCostI;
+                                                var pisCofinsII = totalCostII / 0.97 - totalCostII;
+                                                var pisCofinsIII = totalCostIII / 0.97 - totalCostIII;
+                                                var pisCofinsIV = totalCostIV / 0.97 - totalCostIV;
+                                                var pisCofinsV = totalCostV / 0.97 - totalCostV;
+
+                                                var icmsValueI = (totalCostI + pisCofinsI) / (1 - IcmsTax) - (totalCostI + pisCofinsI);
+                                                var icmsValueII = (totalCostII + pisCofinsII) / (1 - IcmsTax) - (totalCostII + pisCofinsII);
+                                                var icmsValueIII = (totalCostIII + pisCofinsIII) / (1 - IcmsTax) - (totalCostIII + pisCofinsIII);
+                                                var icmsValueIV = (totalCostIV + pisCofinsIV) / (1 - IcmsTax) - (totalCostIV + pisCofinsIV);
+                                                var icmsValueV = (totalCostV + pisCofinsV) / (1 - IcmsTax) - (totalCostV + pisCofinsV);
+
+                                                var invoicingI = (totalCostI + pisCofinsI) + icmsValueI;
+                                                var invoicingII = (totalCostII + pisCofinsII) + icmsValueII;
+                                                var invoicingIII = (totalCostIII + pisCofinsIII) + icmsValueIII;
+                                                var invoicingIV = (totalCostIV + pisCofinsIV) + icmsValueIV;
+                                                var invoicingV = (totalCostV + pisCofinsV) + icmsValueV;
+
+                                                var costI = costNet + pisCofinsI + icmsValueI;
+                                                var costII = costNet + pisCofinsII + icmsValueII;
+                                                var costIII = costNet + pisCofinsIII + icmsValueIII;
+                                                var costIV = costNet + pisCofinsIV + icmsValueIV;
+                                                var costV = costNet + pisCofinsV + icmsValueV;
+                                            %>
+                                            <tr><th></th></tr>
+                                            <tr><th scope="col" colspan="6" class="bg-black border-left border-right">CUSTO</th></tr>
+                                            <tr>
+                                                <th scope="col" class="bg-yellow">Valor Markup:</th>
+                                                <th scope="col" class="border-right"><%= markupValueI.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                                <th scope="col" class="border-right"><%= markupValueII.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                                <th scope="col" class="border-right"><%= markupValueIII.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                                <th scope="col" class="border-right"><%= markupValueIV.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                                <th scope="col" class="border-right"><%= markupValueV.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                            </tr>
+                                            <tr>
+                                                <th scope="col" class="bg-yellow">PIS / COFINS:</th>
+                                                <th scope="col" class="border-right"><%= pisCofinsI.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                                <th scope="col" class="border-right"><%= pisCofinsII.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                                <th scope="col" class="border-right"><%= pisCofinsIII.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                                <th scope="col" class="border-right"><%= pisCofinsIV.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                                <th scope="col" class="border-right"><%= pisCofinsV.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                            </tr>
+                                            <tr>
+                                                <th scope="col" class="bg-yellow">ICMS:</th>
+                                                <th scope="col" class="border-right"><%= icmsValueI.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                                <th scope="col" class="border-right"><%= icmsValueII.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                                <th scope="col" class="border-right"><%= icmsValueIII.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                                <th scope="col" class="border-right"><%= icmsValueIV.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                                <th scope="col" class="border-right"><%= icmsValueV.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                            </tr>
+                                            <tr>
+                                                <th scope="col" class="bg-yellow">Custo:</th>
+                                                <th scope="col" class="border-right border-bottom"><%= costI.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                                <th scope="col" class="border-right border-bottom"><%= costII.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                                <th scope="col" class="border-right border-bottom"><%= costIII.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                                <th scope="col" class="border-right border-bottom"><%= costIV.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                                <th scope="col" class="border-right border-bottom"><%= costV.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                            </tr>
+
+                                            <tr>
+                                                <th scope="col" class="bg-black border">Faturamento:</th>
+                                                <th scope="col" class="border-right border-bottom"><%= invoicingI.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                                <th scope="col" class="border-right border-bottom"><%= invoicingII.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                                <th scope="col" class="border-right border-bottom"><%= invoicingIII.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                                <th scope="col" class="border-right border-bottom"><%= invoicingIV.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                                <th scope="col" class="border-right border-bottom"><%= invoicingV.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+                        <!-- /.card -->
+                    </div>
+			</div>
+	</body>
+	<%- include('../partials/footer.ejs') %>

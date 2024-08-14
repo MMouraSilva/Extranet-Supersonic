@@ -47,16 +47,25 @@ class Middleware {
         if(cachedPermissons) this.userPermissions = cachedPermissons;
         else await this.#SetUserPermissions(req);
 
-        // Implementar Cache e armazenar this.profilePermissions
-        // Executar a linha acima apenas se os valores não existirem no Cache
+        const cachedUserPermissons = await JSON.parse(await this.#client.get("permissions: " + idUser));
 
         if(this.userPermissions.includes(routePath) || routePath == "/") {
-            const userPermissions = req.session.user.permissions ? req.session.user.permissions : await this.#usersProfiles.GetUserPermissionsByUserId(idUser);
-            req.session.user.permissions = userPermissions;
+            const userPermissions = cachedUserPermissons ? cachedUserPermissons : await this.#GetPermissionsByUserId(idUser);
+            
+            const session = JSON.stringify(req.session);
+            req.locals = JSON.parse(session);
+            req.locals.user.permissions = userPermissions;
             next();
         } else {
             res.redirect("/");
         }
+    }
+
+    async #GetPermissionsByUserId(id) {
+        const userPermissions = await this.#usersProfiles.GetUserPermissionsByUserId(id);
+        await this.#client.setEx("permissions: " + id, 600, JSON.stringify(userPermissions));
+
+        return userPermissions;
     }
 
     #GetRoutePath(req) {
