@@ -201,6 +201,6 @@ app.get("/", userAccess.UserAuth, async (req, res) => {
     res.render("index", { user: req.locals.user });
 });
         
-http.listen(80, () => {
+http.listen(8000, () => {
     console.log("App rodando!");
 });
