@@ -259,6 +259,10 @@ body {
     border: none;
 }
 
+.card-header.quotation-card-header img {
+    height: 10rem;
+}
+
 .form-group.login-group {
     margin-bottom: 0rem;
 }
@@ -275,6 +279,22 @@ body {
     font-size: 1rem;
     margin: 0;
     height: 3.5rem;
+}
+
+.quotation-search-bar {
+    padding: 1rem;
+    border: 1px solid rgb(213, 214, 219);
+    border-radius: 1.5rem;
+    color: rgb(73, 80, 87);
+    font-size: 1rem;
+    margin: 0;
+    height: 3.5rem;
+    border-left: 0px;
+}
+
+.search-bar-prepend {
+    border-radius: 1.5rem;
+    border-right: 0px;
 }
 
 .select2-container .select2-selection--single {

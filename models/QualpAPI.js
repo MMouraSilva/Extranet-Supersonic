@@ -35,6 +35,7 @@ class QualpAPI {
     }
 
     SetParams(source, destination) {
+        this.#qualpParams.locations = [];
         this.#qualpParams.locations.push(source, destination);
     }
 

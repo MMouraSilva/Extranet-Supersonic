@@ -8,7 +8,7 @@ const quotationInterfaceController  = new QuotationInterfaceController();
 const quotationController = new QuotationController();
 const userAccess = new Middleware();
 
-router.get("/quotation", userAccess.UserAuth, (req, res) => res.redirect("/quotation/new"));
+router.get("/quotation", userAccess.UserAuth, quotationInterfaceController.RenderIndexPage);
 
 router.get("/quotation/new", userAccess.UserAuth, quotationInterfaceController.RenderQuotationForm);
 

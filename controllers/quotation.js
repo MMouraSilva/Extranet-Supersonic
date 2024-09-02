@@ -12,19 +12,16 @@ class QuotationInterfaceController {
         this.#frontendUrl = process.env.APP_HOST;
     }
 
-    // async RenderIndexPage(req, res) {
-    //     const errorStatus = this.#CheckForErrorsOnSession(req);
-    //     const freightRules = await this.freightRules.GetFreightRules();
-
-    //     res.render("freight-rules/index", { frontendUrl: this.frontendUrl, backendUrl: this.backendUrl, user: req.locals.user, freightRules, errorStatus });
-    // }
+    RenderIndexPage = async (req, res) => {
+        res.render("quotation/index", { frontendUrl: this.frontendUrl, backendUrl: this.backendUrl, user: req.locals.user });
+    }
 
     RenderQuotationForm = async (req, res) => {
         res.render("quotation/form", { frontendUrl: this.frontendUrl, backendUrl: this.backendUrl, user: req.locals.user });
     }
 
     RenderQuotation = async (req, res) => {
-        const quotation = await this.quotation.GetQuotationById(req.params.id);
+        const quotation = await this.quotation.GetQuotationByCode(req.params.id);
         
         res.render("quotation/doc", { frontendUrl: this.frontendUrl, backendUrl: this.backendUrl, user: req.locals.user, quotation });
     }

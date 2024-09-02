@@ -41,11 +41,24 @@ class Quotation {
         return { ruleNotFound: !this.freightRule, hasSucceed, error, docRef: docRef.id };
     }
 
-    async GetQuotationById(id) {
-        const { doc, error } = await this.#firebase.FirebaseGetDocById(id);
+    async GetQuotationByCode(quotationCode) {
+        this.#firebase.field = "quotationCode";
+        const { doc, error } = await this.#firebase.FirebaseGetUniqueDocByField(quotationCode);
         if(error) this.#errorHandler.HandleError(error);
 
-        return doc;
+        let docData = this.#PushToArray(doc);
+
+        return docData;
+    }
+
+    async #PushToArray(doc) {
+        var quotation = [];
+
+        doc.docs.map(doc => {
+            quotation = doc.data();
+        });
+
+        return quotation;
     }
 
     async #SetRoute(data) {
