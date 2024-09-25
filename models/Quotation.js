@@ -14,6 +14,7 @@ class Quotation {
     #freightRules;
     #freightRule;
     #matrizICMS;
+    #refBaseColeta;
 
     constructor() {
         this.#dataModel = new QuotationDataModel();
@@ -26,19 +27,16 @@ class Quotation {
         this.#client = require("../config/redisClient");
         this.#freightRules = new FreightRules();
         this.#matrizICMS = require("../public/js/matrizICMS");
+        this.#refBaseColeta = require("../public/js/ref_base_coleta");
     }
 
     async GenerateQuotation(data) {
         await this.#SetRoute(data);
-        await this.#SetFreightRuleValues();
-        if(this.freightRule) {
-            this.#SetTollsValue();
-            this.#CalculateQuotation();
-        }
-        const { hasSucceed, error, docRef } = this.freightRule ?
-            await this.#firebase.FirebaseAddDoc(this.#GetQuotationData()) : { hasSucceed: false, error: "rule-not-found", docRef: "" };
+        this.freightRule = await this.#SetFreightRuleValues(this.#GetQuotationData());
+        if(this.freightRule) await this.#SetQuotationCalculations();
+        const { hasSucceed, error, quotationCode } = await this.#SaveQuotationOnDatabase();
 
-        return { ruleNotFound: !this.freightRule, hasSucceed, error, docRef: docRef.id };
+        return { ruleNotFound: !this.freightRule, hasSucceed, error, quotationCode };
     }
 
     async GetQuotationByCode(quotationCode) {
@@ -49,6 +47,14 @@ class Quotation {
         let docData = this.#PushToArray(doc);
 
         return docData;
+    }
+
+    async #SaveQuotationOnDatabase() {
+        const quotationData = this.#GetQuotationData();
+        const { hasSucceed, error } = this.freightRule ? 
+            await this.#firebase.FirebaseAddDoc(quotationData) : { hasSucceed: false, error: "rule-not-found" };
+
+        return { hasSucceed, error, quotationCode: quotationData.quotationCode };
     }
 
     async #PushToArray(doc) {
@@ -63,7 +69,7 @@ class Quotation {
 
     async #SetRoute(data) {
         this.#SetQuotationData(data);
-        await this.#GetRoute();
+        this.#dataModel.route = await this.#GetRoute(this.#dataModel.origin, this.#dataModel.destination);
         this.#SetRouteDistance();
     }
 
@@ -71,25 +77,40 @@ class Quotation {
         this.#dataModel.routeDistance = this.#dataModel.route.distancia.valor;
     }
 
+    async #SetQuotationCalculations() {
+        this.#dataModel.pricePerDistance = this.freightRule.pricePerDistance;
+        this.#SetTollsValue();
+        this.#CalculateQuotation();
+        await this.#SetCollectValue();
+        await this.#SetDeliveryValue();
+    }
+
     #SetTollsValue() {
         this.#SetNumberOfAxles(this.freightRule);
-        this.#dataModel.tollsValue = this.#CaculateTollsValue();
+        this.#dataModel.tollsValue = this.#CaculateTollsValue(this.#dataModel.route);
     }
 
-    async #SetFreightRuleValues() {
-        const freightRule = await this.#ChooseFreightRule();
+    async #SetFreightRuleValues(data) {
+        const freightRule = await this.#ChooseFreightRule(data);
         const rule = freightRule ? this.#PushRuleToArray(freightRule) : false;
-        this.#dataModel.pricePerDistance = rule.pricePerDistance;
-        this.#SetFreightRule(rule);
+        
+        return rule;
     }
 
-    #SetFreightRule(rule) {
-        this.freightRule = rule;
+    async #SetCollectValue() {
+        this.#dataModel.collectValue = await this.#CalculateCollectValue();
     }
 
-    async #ChooseFreightRule() {
+    async #SetDeliveryValue() {
+        this.#dataModel.deliveryValue =
+            this.#dataModel.destinationState == "São Paulo" || this.#dataModel.destinationState == "Pará"
+            || this.#dataModel.destinationCity == "Manaus" ?
+                await this.#CalculateDeliveryValue() : 0;
+    }
+
+    async #ChooseFreightRule(quotationData) {
         let originToRegionRule, distanceRangeRule;
-        const quotationData = this.#GetQuotationData();
+
         const originToDestinationRule = await this.#freightRules.GetOriginToDestinationRule(quotationData);
         if(!originToDestinationRule._size) {
             originToRegionRule = await this.#freightRules.GetOriginToRegionRule(quotationData);
@@ -101,34 +122,43 @@ class Quotation {
     }
 
 
-    async #GetRoute() {
-        const cacheKey = "route:" + this.#dataModel.origin + "_X_" + this.#dataModel.destination;
+    async #GetRoute(routeOrigin, routeDestination) {
+        const origin = routeOrigin == "Manaus - AM" ? "Belém - PA" : routeOrigin;
+        const destination = routeDestination == "Manaus - AM" ? "Belém - PA" : routeDestination;
+
+        const cacheKey = "route:" + origin + "_X_" + destination;
         const cachedRoute = await JSON.parse(await this.#client.get(cacheKey));
 
-        if(cachedRoute) this.#dataModel.route = cachedRoute;
-        else await this.#GetRouteFromAPI();
+        return cachedRoute ? cachedRoute : await this.#GetRouteFromAPI(routeOrigin, routeDestination);
     }
 
-    async #GetRouteFromAPI() {
-        this.#SetQualpParams();
-        this.#dataModel.route = await this.#qualp.GetRoute();
-        await this.#SaveRouteOnCache();
+    async #GetRouteFromAPI(origin, destination) {
+        this.#SetQualpParams(origin, destination);
+        const route = await this.#qualp.GetRoute();
+        await this.#SaveRouteOnCache(route, origin, destination);
+
+        return route;
     }
 
-    async #SaveRouteOnCache() {
-        const cacheKey = "route:" + this.#dataModel.origin + "_X_" + this.#dataModel.destination;
-        await this.#client.setEx(cacheKey, this.#GetSecondsToNextMonth(), JSON.stringify(this.#dataModel.route));
+    async #SaveRouteOnCache(route, routeOrigin, routeDestination) {
+        const origin = routeOrigin == "Manaus - AM" ? "Belém - PA" : routeOrigin;
+        const destination = routeDestination == "Manaus - AM" ? "Belém - PA" : routeDestination;
+
+        const cacheKey = "route:" + origin + "_X_" + destination;
+        await this.#client.setEx(cacheKey, this.#GetSecondsToNextMonth(), JSON.stringify(route));
     }
 
-    #SetQualpParams() {
-        this.#qualp.SetParams(this.#dataModel.origin, this.#dataModel.destination);
+    #SetQualpParams(routeOrigin, routeDestination) {
+        const origin = routeOrigin == "Manaus - AM" ? "Belém - PA" : routeOrigin;
+        const destination = routeDestination == "Manaus - AM" ? "Belém - PA" : routeDestination;
+        this.#qualp.SetParams(origin, destination);
     }
 
-    #CaculateTollsValue() {
+    #CaculateTollsValue(route) {
         var tollsValue = 0;
 
-        for(var i = 0; i < this.#dataModel.route.pedagios.length; i++) {
-            tollsValue += this.#dataModel.route.pedagios[i].tarifa[JSON.stringify(this.#dataModel.numberOfAxles)];
+        for(var i = 0; i < route.pedagios.length; i++) {
+            tollsValue += route.pedagios[i].tarifa[JSON.stringify(this.#dataModel.numberOfAxles)];
         }
 
         return tollsValue ? parseFloat(tollsValue.toFixed(2)) : 0;
@@ -188,6 +218,8 @@ class Quotation {
             ferryValue: this.#dataModel.ferryValue,
             pullValue: this.#dataModel.pullValue,
             marineInsurance: this.#dataModel.marineInsurance,
+            collectValue: this.#dataModel.collectValue,
+            deliveryValue: this.#dataModel.deliveryValue,
             quotationCode: this.#CreateQuotationCode(),
             IcmsTax: this.#matrizICMS[this.#dataModel.originStateUfCode][this.#dataModel.destinationStateUfCode]
         }
@@ -250,6 +282,63 @@ class Quotation {
         return diffInSeconds;
     }
 
+    async #CalculateCollectValue() {
+        const collectData = await this.#GetCollectData();
+        const freightRule = await this.#SetFreightRuleValues(collectData);
+        const collectValue = collectData.routeDistance * freightRule.pricePerDistance + 0.8 * 2 * collectData.routeDistance + collectData.tolls;
+
+        return collectValue;
+    }
+
+    async #CalculateDeliveryValue() {
+        const deliveryData = await this.#GetDeliveryData();
+        const freightRule = await this.#SetFreightRuleValues(deliveryData);
+        const deliveryValue = deliveryData.routeDistance * freightRule.pricePerDistance;
+
+        return deliveryValue;
+    }
+
+    async #GetCollectData() {
+        const collectionBase = this.#refBaseColeta[this.#dataModel.originState];
+        const route = await this.#GetRoute(collectionBase.base, this.#dataModel.origin);
+
+        const data = {
+            originState: collectionBase.state,
+            originCity: collectionBase.city,
+            destinationState: this.#dataModel.originState,
+            destinationCity: this.#dataModel.originCity,
+            cargoWeight: this.#dataModel.cargoWeight,
+            origin: collectionBase.base,
+            destination: this.#dataModel.origin,
+            originRegion: collectionBase.region,
+            destinationRegion: this.#dataModel.originRegion,
+            routeDistance: route.distancia.valor,
+            tolls: this.#CaculateTollsValue(route)
+        }
+
+        return data;
+    }
+
+    async #GetDeliveryData() {
+        const deliveryBase = this.#refBaseColeta[this.#dataModel.destinationState];
+        const route = await this.#GetRoute(deliveryBase.base, this.#dataModel.destination);
+
+        const data = {
+            originState: deliveryBase.state,
+            originCity: deliveryBase.city,
+            destinationState: this.#dataModel.destinationState,
+            destinationCity: this.#dataModel.destinationCity,
+            cargoWeight: this.#dataModel.cargoWeight,
+            origin: deliveryBase.base,
+            destination: this.#dataModel.destination,
+            originRegion: deliveryBase.region,
+            destinationRegion: this.#dataModel.destinationRegion,
+            routeDistance: route.distancia.valor,
+        }
+
+        return data;
+    }
+
     #CreateQuotationCode() {
         const date = new Date();
         const day = String(date.getDate()).padStart(2, "0");
@@ -301,6 +390,8 @@ class QuotationDataModel {
     #pullValue;
     #marineInsurance;
     #IcmsTax;
+    #collectValue;
+    #deliveryValue;
 
     get user() {
         return this.#user;
@@ -510,6 +601,20 @@ class QuotationDataModel {
     }
     set IcmsTax(newValue) {
         this.#IcmsTax = newValue;
+    }
+
+    get collectValue() {
+        return this.#collectValue;
+    }
+    set collectValue(newValue) {
+        this.#collectValue = newValue;
+    }
+
+    get deliveryValue() {
+        return this.#deliveryValue;
+    }
+    set deliveryValue(newValue) {
+        this.#deliveryValue = newValue;
     }
 }
 

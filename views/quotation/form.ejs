@@ -180,7 +180,7 @@
 							url: actionUrl,
 							data: $(form).serialize(),
 							success: function (data) {
-								window.location.href = "/quotation/" + data.docRef;
+								window.location.href = "/quotation/" + data.quotationCode;
 							},
 							error: function (jqXHR, textStatus, error) {
 								$("." + jqXHR.responseJSON.message).show();

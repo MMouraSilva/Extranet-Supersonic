@@ -79,9 +79,17 @@
                                                 <th scope="col" class="bg-yellow">Seguro Flúvial:</th>
                                                 <th scope="col" class="border-right"><%= quotation.marineInsurance.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
                                             </tr>
+                                            <tr>
+                                                <th scope="col" class="bg-yellow">Coleta:</th>
+                                                <th scope="col" class="border-right"><%= quotation.collectValue.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                            </tr>
+                                            <tr>
+                                                <th scope="col" class="bg-yellow">Entrega:</th>
+                                                <th scope="col" class="border-right"><%= quotation.deliveryValue.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></th>
+                                            </tr>
                                             <% var costNet = (quotation.truckerValue + quotation.overweightValue + quotation.insuranceValue +
                                             quotation.tollsValue + quotation.cartageValue + quotation.ferryValue +
-                                            quotation.pullValue + quotation.marineInsurance) %>
+                                            quotation.pullValue + quotation.marineInsurance + quotation.collectValue + quotation.deliveryValue) %>
 
                                             <tr>
                                                 <th scope="col" class="bg-yellow">Custo NET:</th>

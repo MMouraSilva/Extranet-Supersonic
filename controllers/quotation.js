@@ -45,10 +45,10 @@ class QuotationController {
     }
 
     HandleNewQuotation = async (req, res) => {
-        const { ruleNotFound, hasSucceed, error, docRef } = await this.#quotation.GenerateQuotation(req.body);
+        const { ruleNotFound, hasSucceed, error, quotationCode } = await this.#quotation.GenerateQuotation(req.body);
         const statusCode = ruleNotFound ? 404 : hasSucceed ? 200 : 500;
         const message = hasSucceed ? "quotation-creation-success" : error;
-        const responseData = { statusCode, data: { message , docRef } };
+        const responseData = { statusCode, data: { message , quotationCode } };
 
         this.#Response(res, responseData);
     }
