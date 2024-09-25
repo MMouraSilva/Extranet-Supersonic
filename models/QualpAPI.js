@@ -13,7 +13,7 @@ class QualpAPI {
     constructor() {
         this.#apiAccessToken = process.env.API_ACCESS_TOKEN;
         this.#axios = require("axios");
-        this.#qualpParams = require("/etc/json/qualp-params.json");
+        this.#qualpParams = require("../etc/json/qualp-params.json");
         this.#errorHandler = new ErrorHandler();
     }
 
