@@ -179,14 +179,14 @@ class Quotation {
     #CalculateQuotation() {
         this.#dataModel.truckerValue = this.#dataModel.routeDistance * this.#dataModel.pricePerDistance;
         this.#dataModel.cartageValue = this.#dataModel.routeDistance * 0.8;
-        this.#dataModel.insuranceValue = this.#dataModel.cargoPrice * 0.1;
+        this.#dataModel.insuranceValue = this.#dataModel.cargoPrice * 0.0007;
         this.#dataModel.hasOverweight = this.#dataModel.cargoWeight > 18000 ? true : false;
         this.#dataModel.overweightQuantity = this.#dataModel.hasOverweight ? this.#dataModel.cargoWeight - 18000 : 0;
         this.#dataModel.overweightValue = this.#dataModel.overweightQuantity * 200;
         this.#dataModel.hasFerry = this.#dataModel.originCity == "Manaus" || this.#dataModel.destinationCity == "Manaus" ? true : false;
         this.#dataModel.ferryValue = this.#dataModel.hasFerry ? 6156 : 0;
         this.#dataModel.pullValue = this.#dataModel.hasFerry ? 270 : 0;
-        this.#dataModel.marineInsurance = this.#dataModel.hasFerry ? this.#dataModel.cargoPrice * 0.06 : 0;
+        this.#dataModel.marineInsurance = this.#dataModel.hasFerry ? this.#dataModel.cargoPrice * 0.0005 : 0;
     }
 
     #GetQuotationData() {
