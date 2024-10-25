@@ -1,5 +1,5 @@
 <%- include('../partials/header.ejs') %>
-    <body class="hold-transition sidebar-mini layout-fixed sidebar-collapse">
+    <body class="hold-transition sidebar-mini layout-fixed sidebar-collapse rules-hide-scroll">
         <%- include('../partials/navbar2.ejs') %>
         <div class="wrapper user">
             <%- include('../partials/sidebar.ejs') %>
@@ -62,10 +62,10 @@
                             <table id="rules-table" class="table table-bordered table-striped" width="100%">
                                 <thead>
                                     <tr>
-                                        <th>Tipo de Regra</th>
-                                        <th>Origem</th>
-                                        <th>Destino</th>
-                                        <th>Região Destino</th>
+                                        <th class="filter">Tipo de Regra</th>
+                                        <th class="filter">Origem</th>
+                                        <th class="filter">Destino</th>
+                                        <th class="filter">Região Destino</th>
                                         <th>Distância</th>
                                         <th>Peso</th>
                                         <th>Preço por Km</th>
@@ -82,7 +82,7 @@
                                             <td>
                                                 <%=
                                                     freightRule.data().ruleType == "distance-range" ?
-                                                        "Faxia de Km"
+                                                        "Faixa de Km"
                                                     : freightRule.data().ruleType == "source-to-destination" ?
                                                         "Origem x Destino"
                                                     : freightRule.data().ruleType == "source-to-region" ?
@@ -123,11 +123,11 @@
                                                     : "Sem restrição"
                                                 %>
                                             </td>
-                                            <td><%= freightRule.data().pricePerDistance.toLocaleString("pt-BR", { style: "currency", currency:"BRL" }) %></td>
+                                            <td><%= freightRule.data().pricePerDistance %></td>
                                             <td><%= freightRule.data().numberOfAxles %></td>
                                             <td><%= freightRule.data().useInContrariwise? "Sim" : "Não" %></td>
-                                            <td><%= freightRule.data().createdAt ? moment(freightRule.data().createdAt.toDate()).format("DD/MM/YYYY HH:mm") : freightRule.data().createdAt %></td>
-                                            <td><%= freightRule.data().updatedAt ? moment(freightRule.data().updatedAt.toDate()).format("DD/MM/YYYY HH:mm") : freightRule.data().updatedAt %></td>
+                                            <td><%= freightRule.data().createdAt.toDate() %></td>
+                                            <td><%= freightRule.data().updatedAt ? freightRule.data().updatedAt.toDate() : freightRule.data().updatedAt %></td>
                                             <td>
                                                 <a href="/freight-rules/edit/<%= freightRule.id %>" class="btn btn-warning"><i class="fa-solid fa-pen-to-square"></i></a>
 
@@ -153,12 +153,84 @@
         };
 
         $(function () {
-            $("#rules-table").DataTable({
-                responsive: true,
+            $("#rules-table thead th.filter").each(function (i) {
+                var title = $("#rules-table thead th.filter")
+                    .eq($(this).index())
+                    .text();
+                $(this).html(
+                    title + '<br/><input type="text" placeholder="Filtro" data-index="' + i + '" />'
+                );
+            });
+
+            var table = $("#rules-table").DataTable({
+                responsive: false,
                 lengthChange: false,
                 autoWidth: false,
+                columns: [
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    { 
+                        title: "Preço por Km",
+                        type: "num-fmt",
+                        render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ')
+                    },
+                    null,
+                    null,
+                    { 
+                        title: "Criado em",
+                        type: "date",
+                        render: function(data, type, row) {
+                            if (type === 'display' || type === 'filter') {
+                                var date = new Date(data);
+                                var day = ('0' + date.getDate()).slice(-2);
+                                var month = ('0' + (date.getMonth() + 1)).slice(-2);
+                                var year = date.getFullYear();
+                                var hours = ('0' + date.getHours()).slice(-2);
+                                var minutes = ('0' + date.getMinutes()).slice(-2);
+
+                                return day + '/' + month + '/' + year + ' ' + hours + ':' + minutes;
+                            }
+
+                            return data;
+                        }
+                    },
+                    { 
+                        title: "Atualizado em",
+                        type: "date",
+                        render: function(data, type, row) {
+                            if ((type === 'display' || type === 'filter') && data) {
+                                var date = new Date(data);
+                                var day = ('0' + date.getDate()).slice(-2);
+                                var month = ('0' + (date.getMonth() + 1)).slice(-2);
+                                var year = date.getFullYear();
+                                var hours = ('0' + date.getHours()).slice(-2);
+                                var minutes = ('0' + date.getMinutes()).slice(-2);
+
+                                return day + '/' + month + '/' + year + ' ' + hours + ':' + minutes;
+                            }
+
+                            return data;
+                        }
+                    },
+                    null
+                ],
                 buttons: ["copy", "csv", "excel", "pdf", "print", "colvis"]
-            }).buttons().container().appendTo('#rules-table_wrapper .col-md-6:eq(0)');
+            });
+            
+            table.buttons().container().appendTo('#rules-table_wrapper .col-md-6:eq(0)');
+
+            $(table.table().container()).on('keyup', 'thead input', function () {
+                table
+                    .column($(this).data('index'))
+                    .search(this.value)
+                    .draw();
+            });
+
+            $("#rules-table").wrap("<div class='table-wrapper'></div>");
         });
 
         function confirmDelete(event, form) {

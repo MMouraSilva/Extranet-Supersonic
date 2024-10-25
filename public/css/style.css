@@ -397,3 +397,25 @@ input::-webkit-inner-spin-button {
 .quotation-doc {
     width: 80%;
 }
+
+.table-wrapper {
+    overflow-y: auto;
+    overflow-x: auto;
+    height: 62vh;
+}
+
+.table-wrapper table {
+    text-align: center;
+    white-space: nowrap;
+}
+
+.table-wrapper thead th {
+    position: sticky !important;
+    top: 0;
+    background-color: #eceff1;
+}
+
+.table-wrapper thead input {
+    margin-top: 2vh;
+    width: 7.5vw;
+}
