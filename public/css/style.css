@@ -419,3 +419,7 @@ input::-webkit-inner-spin-button {
     margin-top: 2vh;
     width: 7.5vw;
 }
+
+.table.quotation {
+    table-layout: fixed;
+}
